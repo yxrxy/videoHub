@@ -1,0 +1,27 @@
+# 服务配置
+server:
+  name: "videoHub"
+  
+# 用户服务
+user:
+  name: "user"
+  addr: ":8889"
+  
+# MySQL配置
+mysql:
+  host: "mysql"  
+  port: 3306
+  username: "root"
+  password: "123456"
+  database: "video_hub"
+  
+# JWT配置
+jwt:
+  secret: "videoHub_jwt_secret_2004_10_17_v1"
+  expires_time: 86400  
+
+# 文件上传配置
+upload:
+  avatar:
+    max_size: 2  # MB
+    allowed_types: ["image/jpeg", "image/png", "image/gif"]

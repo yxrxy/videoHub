@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  mysql:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}  
+      - MYSQL_DATABASE=${MYSQL_DATABASE}   
+    networks:
+      - app_net
+
+  user_service:
+    build:
+      context: ./baseBuild
+      dockerfile: Dockerfile
+      args:
+        SERVICE_NAME: user
+        SERVICE_PORT: 8889
+    depends_on:
+      - mysql
+    ports:
+      - "8889:8889"
+    networks:
+      - app_net
+
+networks:
+  app_net:
+    driver: bridge
+
+volumes:
+  mysql_data:

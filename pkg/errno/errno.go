@@ -21,4 +21,5 @@ var (
 	ErrPasswordWrong    = ErrNo{10003, "密码错误"}
 	ErrInvalidToken     = ErrNo{10004, "无效的令牌"}
 	ErrUnauthorized     = ErrNo{10005, "未授权访问"}
+	ErrInvalidParam     = ErrNo{10006, "参数错误"}
 )

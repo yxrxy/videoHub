@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"io"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -22,7 +23,7 @@ func NewUserController(client userservice.Client) *UserController {
 func (c *UserController) Register(ctx context.Context, req *app.RequestContext) {
 	var registerReq user.RegisterRequest
 	if err := req.Bind(&registerReq); err != nil {
-		req.JSON(consts.StatusBadRequest, errno.ErrBind)
+		req.JSON(consts.StatusBadRequest, errno.ErrInvalidParam)
 		return
 	}
 
@@ -39,7 +40,7 @@ func (c *UserController) Register(ctx context.Context, req *app.RequestContext) 
 func (c *UserController) Login(ctx context.Context, req *app.RequestContext) {
 	var loginReq user.LoginRequest
 	if err := req.Bind(&loginReq); err != nil {
-		req.JSON(consts.StatusBadRequest, errno.ErrBind)
+		req.JSON(consts.StatusBadRequest, errno.ErrInvalidParam)
 		return
 	}
 
@@ -56,11 +57,18 @@ func (c *UserController) Login(ctx context.Context, req *app.RequestContext) {
 func (c *UserController) UploadAvatar(ctx context.Context, req *app.RequestContext) {
 	file, err := req.FormFile("avatar")
 	if err != nil {
-		req.JSON(consts.StatusBadRequest, errno.ErrBind)
+		req.JSON(consts.StatusBadRequest, errno.ErrInvalidParam)
 		return
 	}
 
-	fileData, err := file.Data()
+	f, err := file.Open()
+	if err != nil {
+		req.JSON(consts.StatusInternalServerError, err)
+		return
+	}
+	defer f.Close()
+
+	fileData, err := io.ReadAll(f)
 	if err != nil {
 		req.JSON(consts.StatusInternalServerError, err)
 		return
@@ -71,11 +79,7 @@ func (c *UserController) UploadAvatar(ctx context.Context, req *app.RequestConte
 		ContentType: file.Header.Get("Content-Type"),
 	}
 
-	// 从请求头获取token并设置到context
-	token := req.GetHeader("Authorization")
-	newCtx := context.WithValue(ctx, "token", token)
-
-	resp, err := c.client.UploadAvatar(newCtx, uploadReq)
+	resp, err := c.client.UploadAvatar(ctx, uploadReq)
 	if err != nil {
 		req.JSON(consts.StatusInternalServerError, err)
 		return

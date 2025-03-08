@@ -4,9 +4,10 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/yxrrxy/videoHub/config"
 )
 
-var Secret = []byte("videoHub_jwt_secret_2004_10_17_v1")
+var Secret = []byte(config.JWT.SecretKey)
 
 type Claims struct {
 	UserID int64 `json:"user_id"`
