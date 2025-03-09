@@ -11,17 +11,16 @@ FROM golang:1.21-alpine AS builder
 WORKDIR /app
 COPY --from=deps /go/pkg/mod /go/pkg/mod
 COPY . .
-ARG SERVICE_NAME
-RUN go build -o ${SERVICE_NAME}_service ./cmd/${SERVICE_NAME}
+ARG SERVICE_PATH
+RUN go build -o service_binary ./cmd/${SERVICE_PATH}
 
 # 第三阶段：运行阶段
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates tzdata
 ENV TZ=Asia/Shanghai
 WORKDIR /app
-ARG SERVICE_NAME
 ARG SERVICE_PORT
 COPY --from=builder /app/config/config.yaml /app/config/
-COPY --from=builder /app/${SERVICE_NAME}_service /app/
+COPY --from=builder /app/service_binary /app/
 EXPOSE ${SERVICE_PORT}
-CMD ./${SERVICE_NAME}_service
+CMD ["./service_binary"]

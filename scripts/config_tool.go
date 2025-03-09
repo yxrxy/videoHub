@@ -32,7 +32,7 @@ func main() {
 	case "user":
 		switch strings.ToLower(field) {
 		case "port":
-			fmt.Print(strings.TrimPrefix(config.User.Addr, ":"))
+			fmt.Print(strings.TrimPrefix(config.User.HTTPAddr, ":"))
 		case "name":
 			fmt.Print(config.User.Name)
 		}
