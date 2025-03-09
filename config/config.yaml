@@ -5,7 +5,8 @@ server:
 # 用户服务
 user:
   name: "user"
-  addr: ":8889"
+  http_addr: ":8888"
+  rpc_addr: ":8889"
   
 # MySQL配置
 mysql:

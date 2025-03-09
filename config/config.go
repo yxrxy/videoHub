@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -32,8 +33,9 @@ type ServerConfig struct {
 }
 
 type UserConfig struct {
-	Name string
-	Addr string
+	Name     string
+	HTTPAddr string `mapstructure:"http_addr"`
+	RPCAddr  string `mapstructure:"rpc_addr"`
 }
 
 type UploadConfig struct {
@@ -103,6 +105,6 @@ func GetMySQLEnv() map[string]string {
 func GetUserServiceEnv() map[string]string {
 	return map[string]string{
 		"SERVICE_NAME": User.Name,
-		"SERVICE_PORT": User.Addr[1:],
+		"SERVICE_PORT": strings.TrimPrefix(User.HTTPAddr, ":"),
 	}
 }

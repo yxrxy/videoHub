@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"github.com/yxrrxy/videoHub/config"
 
 	"github.com/yxrrxy/videoHub/app/user/model"
 	"github.com/yxrrxy/videoHub/pkg/errno"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -59,4 +61,18 @@ func (u *User) ExistByUsername(ctx context.Context, username string) (bool, erro
 		return false, err
 	}
 	return count > 0, nil
+}
+
+func InitDB() *gorm.DB {
+	dsn := config.GetDSN()
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+
+	if err := db.AutoMigrate(&model.User{}); err != nil {
+		panic(err)
+	}
+
+	return db
 }
