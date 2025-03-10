@@ -7,14 +7,15 @@ user:
   name: "user"
   http_addr: ":8888"
   rpc_addr: ":8889"
+  default_avatar: "https://storage.example.com/avatars/default.jpg"
   
 # MySQL配置
 mysql:
-  host: "mysql"  
+  host: "localhost"
   port: 3306
-  username: "root"
-  password: "123456"
-  database: "video_hub"
+  username: "videoHub"
+  password: "videoHub"
+  database: "videoHub"
   
 # JWT配置
 jwt:
@@ -24,5 +25,12 @@ jwt:
 # 文件上传配置
 upload:
   avatar:
-    max_size: 2  # MB
-    allowed_types: ["image/jpeg", "image/png", "image/gif"]
+    max_size: 5242880  # 5MB
+    allowed_types: ["image/jpeg", "image/png"]
+    upload_dir: "src/storage/avatars"
+    base_url: "http://localhost:8888/static/avatars"
+  video:
+    max_size: 104857600  # 100MB
+    allowed_types: ["video/mp4", "video/quicktime"]
+    upload_dir: "src/storage/videos"
+    base_url: "http://localhost:8888/static/videos"

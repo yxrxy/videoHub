@@ -21,6 +21,8 @@ func main() {
 		panic(err)
 	}
 
+	h.Static("/static/uploads", config.Upload.Avatar.UploadDir)
+
 	router.Register(h, c)
 
 	h.Spin()

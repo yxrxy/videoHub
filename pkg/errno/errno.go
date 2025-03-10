@@ -3,8 +3,8 @@ package errno
 import "fmt"
 
 type ErrNo struct {
-	ErrCode int32
-	ErrMsg  string
+	ErrCode int32  `json:"code"`
+	ErrMsg  string `json:"msg"`
 }
 
 func (e ErrNo) Error() string {
@@ -22,4 +22,7 @@ var (
 	ErrInvalidToken     = ErrNo{10004, "无效的令牌"}
 	ErrUnauthorized     = ErrNo{10005, "未授权访问"}
 	ErrInvalidParam     = ErrNo{10006, "参数错误"}
+
+	// 服务器错误: 500xx
+	InternalServerError = ErrNo{50000, "服务器内部错误"}
 )

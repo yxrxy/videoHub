@@ -13,6 +13,7 @@ struct User {
     3: string avatar_url         // 头像URL
     4: i64 created_at            // 创建时间
     5: i64 updated_at            // 更新时间
+    6: i64 deleted_at            // 删除时间
 }
 
 // 注册请求
