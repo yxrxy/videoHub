@@ -4,13 +4,16 @@ import (
 	"context"
 	"crypto/md5"
 	"fmt"
+	"time"
 
 	"github.com/yxrrxy/videoHub/app/user/model"
 	"github.com/yxrrxy/videoHub/app/user/repository"
+	"github.com/yxrrxy/videoHub/config"
 	"github.com/yxrrxy/videoHub/kitex_gen/user"
 	pkgcontext "github.com/yxrrxy/videoHub/pkg/context"
 	"github.com/yxrrxy/videoHub/pkg/errno"
 	"github.com/yxrrxy/videoHub/pkg/jwt"
+	"github.com/yxrrxy/videoHub/pkg/storage"
 )
 
 type UserService struct {
@@ -33,8 +36,9 @@ func (s *UserService) Register(ctx context.Context, req *user.RegisterRequest) (
 	passwordHash := fmt.Sprintf("%x", md5.Sum([]byte(req.Password)))
 
 	newUser := &model.User{
-		Username: req.Username,
-		Password: passwordHash,
+		Username:  req.Username,
+		Password:  passwordHash,
+		AvatarURL: config.User.DefaultAvatar,
 	}
 
 	if err := s.repo.Create(ctx, newUser); err != nil {
@@ -100,6 +104,11 @@ func (s *UserService) GetUserInfo(ctx context.Context, req *user.UserInfoRequest
 		return nil, err
 	}
 
+	var deletedAt int64
+	if userModel.DeletedAt != nil {
+		deletedAt = userModel.DeletedAt.Unix()
+	}
+
 	return &user.UserInfoResponse{
 		Base: &user.BaseResp{
 			Code:    errno.Success.ErrCode,
@@ -111,24 +120,29 @@ func (s *UserService) GetUserInfo(ctx context.Context, req *user.UserInfoRequest
 			AvatarUrl: userModel.AvatarURL,
 			CreatedAt: userModel.CreatedAt.Unix(),
 			UpdatedAt: userModel.UpdatedAt.Unix(),
+			DeletedAt: deletedAt,
 		},
 	}, nil
 }
 
 func (s *UserService) UploadAvatar(ctx context.Context, req *user.UploadAvatarRequest) (*user.UploadAvatarResponse, error) {
-	// 从上下文获取用户ID
 	userID, ok := pkgcontext.GetUserID(ctx)
 	if !ok {
 		return nil, errno.ErrUnauthorized
 	}
 
-	// TODO: 实现文件存储服务
-	// avatarData := req.AvatarData
-	// contentType := req.ContentType
+	contentType := req.ContentType
+	if !isValidImageType(contentType) {
+		return nil, errno.ErrInvalidParam
+	}
 
-	avatarURL := "https://storage.example.com/avatars/default.jpg"
-	// TODO: 实际的文件存储逻辑
-	// saveFile(avatarData, contentType)
+	fileName := fmt.Sprintf("avatar_%d_%d.%s", userID, time.Now().Unix(), getFileExt(contentType))
+
+	storage := storage.NewLocalStorage(config.Upload.Avatar.UploadDir, config.Upload.Avatar.BaseURL)
+	avatarURL, err := storage.Save(req.AvatarData, fileName)
+	if err != nil {
+		return nil, err
+	}
 
 	if err := s.repo.UpdateAvatar(ctx, &model.User{
 		ID:        userID,
@@ -144,6 +158,29 @@ func (s *UserService) UploadAvatar(ctx context.Context, req *user.UploadAvatarRe
 		},
 		AvatarUrl: avatarURL,
 	}, nil
+}
+
+// 辅助函数：检查文件类型
+func isValidImageType(contentType string) bool {
+	validTypes := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+	}
+	return validTypes[contentType]
+}
+
+// 辅助函数：获取文件扩展名
+func getFileExt(contentType string) string {
+	switch contentType {
+	case "image/jpeg":
+		return "jpg"
+	case "image/png":
+		return "png"
+	case "image/gif":
+		return "gif"
+	default:
+		return "jpg"
+	}
 }
 
 func (s *UserService) GetMFAQRCode(ctx context.Context, req *user.MFAQRCodeRequest) (*user.MFAQRCodeResponse, error) {

@@ -1,5 +1,12 @@
-CREATE DATABASE IF NOT EXISTS videoHub;
-USE videoHub;
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS viduoHub;
+
+-- 创建用户并授权
+CREATE USER IF NOT EXISTS 'viduoHub'@'%' IDENTIFIED BY 'viduoHub';
+GRANT ALL PRIVILEGES ON viduoHub.* TO 'viduoHub'@'%';
+FLUSH PRIVILEGES;
+
+USE viduoHub;
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (
@@ -7,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(32) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     avatar_url VARCHAR(255),
+    mfa_secret VARCHAR(32) DEFAULT '',    -- 添加 MFA 密钥字段
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

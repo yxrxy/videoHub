@@ -33,16 +33,19 @@ type ServerConfig struct {
 }
 
 type UserConfig struct {
-	Name     string
-	HTTPAddr string `mapstructure:"http_addr"`
-	RPCAddr  string `mapstructure:"rpc_addr"`
+	Name          string
+	HTTPAddr      string `mapstructure:"http_addr"`
+	RPCAddr       string `mapstructure:"rpc_addr"`
+	DefaultAvatar string `mapstructure:"default_avatar"`
 }
 
 type UploadConfig struct {
 	Avatar struct {
 		MaxSize      int      `mapstructure:"max_size"`
 		AllowedTypes []string `mapstructure:"allowed_types"`
-	}
+		UploadDir    string   `mapstructure:"upload_dir"`
+		BaseURL      string   `mapstructure:"base_url"`
+	} `mapstructure:"avatar"`
 }
 
 var (

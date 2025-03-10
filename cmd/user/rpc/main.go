@@ -14,16 +14,14 @@ func main() {
 	config.Init()
 
 	db := repository.InitDB()
-
 	userRepo := repository.NewUser(db)
-
 	userService := service.NewUserService(userRepo)
 
 	addr, err := net.ResolveTCPAddr("tcp", config.User.RPCAddr)
 	if err != nil {
 		panic(err)
 	}
-	
+
 	svr := userservice.NewServer(
 		userService,
 		server.WithServiceAddr(addr),
