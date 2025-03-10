@@ -7,7 +7,7 @@ user:
   name: "user"
   http_addr: ":8888"
   rpc_addr: ":8889"
-  default_avatar: "https://storage.example.com/avatars/default.jpg"
+  default_avatar: "http://localhost:8888/static/uploads/default.jpg"
   
 # MySQL配置
 mysql:
@@ -19,7 +19,7 @@ mysql:
   
 # JWT配置
 jwt:
-  secret: "videoHub_jwt_secret_2004_10_17_v1"
+  secret: "videoHub_jwt_secret_v1"
   expires_time: 86400  
 
 # 文件上传配置

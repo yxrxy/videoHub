@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/kitex/client"
 	"github.com/yxrrxy/videoHub/app/user/router"
@@ -21,6 +22,11 @@ func main() {
 		panic(err)
 	}
 
+	// 静态文件服务配置
+	h.StaticFS("/", &app.FS{
+		Root:       "src/pages",
+		IndexNames: []string{"index.html"}, // 设置默认索引文件
+	})
 	h.Static("/static/uploads", config.Upload.Avatar.UploadDir)
 
 	router.Register(h, c)
