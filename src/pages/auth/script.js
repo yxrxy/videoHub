@@ -1,20 +1,29 @@
+// 表情变化函数
+function changeMascotFace(face) {
+    document.getElementById('mascot-face').textContent = face;
+}
+
 // 表单切换函数
 function toggleForm(type) {
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
+    const mascotFace = document.getElementById('mascot-face');
     
     if (type === 'login') {
         registerForm.classList.add('hidden');
         loginForm.classList.remove('hidden');
+        mascotFace.textContent = 'ʕ•ᴥ•ʔ';
     } else {
         loginForm.classList.add('hidden');
         registerForm.classList.remove('hidden');
+        mascotFace.textContent = 'ʕ◕ᴥ◕ʔ';
     }
 }
 
 // 登录处理
 async function handleLogin(event) {
     event.preventDefault();
+    changeMascotFace('ʕ •`ᴥ´• ʔ');
     
     const username = document.getElementById('login-username').value;
     const password = document.getElementById('login-password').value;
@@ -31,32 +40,35 @@ async function handleLogin(event) {
         const data = await response.json();
         
         if (data.base.code === 0) {
-            // 登录成功
             localStorage.setItem('token', data.data.token);
             localStorage.setItem('refresh_token', data.data.refresh_token);
-            showToast('登录成功', 'success');
-            // 跳转到主页
+            showToast('登录成功 ʕ•ᴥ•ʔ ✨', 'success');
+            changeMascotFace('ʕ ᵔᴥᵔ ʔ');
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = '/home/index.html';
             }, 1500);
         } else {
-            showToast(data.base.msg, 'error');
+            showToast(data.base.msg + ' (´･_･`)', 'error');
+            changeMascotFace('ʕ ´•̥̥̥ ᴥ•̥̥̥` ʔ');
         }
     } catch (error) {
-        showToast('网络错误，请稍后重试', 'error');
+        showToast('网络错误，请稍后重试 (｡•́︿•̀｡)', 'error');
+        changeMascotFace('ʕ ≧ᴥ≦ ʔ');
     }
 }
 
 // 注册处理
 async function handleRegister(event) {
     event.preventDefault();
+    changeMascotFace('ʕ •`ᴥ´• ʔ');
     
     const username = document.getElementById('register-username').value;
     const password = document.getElementById('register-password').value;
     const confirm = document.getElementById('register-confirm').value;
 
     if (password !== confirm) {
-        showToast('两次输入的密码不一致', 'error');
+        showToast('两次输入的密码不一致 (｡•́︿•̀｡)', 'error');
+        changeMascotFace('ʕ ´•̥̥̥ ᴥ•̥̥̥` ʔ');
         return;
     }
 
@@ -72,43 +84,49 @@ async function handleRegister(event) {
         const data = await response.json();
         
         if (data.base.code === 0) {
-            // 注册成功
             localStorage.setItem('token', data.data.token);
             localStorage.setItem('refresh_token', data.data.refresh_token);
-            showToast('注册成功', 'success');
-            // 跳转到主页
+            showToast('注册成功 ʕ•ᴥ•ʔ ✨', 'success');
+            changeMascotFace('ʕ ᵔᴥᵔ ʔ');
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = '/auth/index.html';
             }, 1500);
         } else {
-            showToast(data.base.msg, 'error');
+            showToast(data.base.msg + ' (´･_･`)', 'error');
+            changeMascotFace('ʕ ´•̥̥̥ ᴥ•̥̥̥` ʔ');
         }
     } catch (error) {
-        showToast('网络错误，请稍后重试', 'error');
+        showToast('网络错误，请稍后重试 (｡•́︿•̀｡)', 'error');
+        changeMascotFace('ʕ ≧ᴥ≦ ʔ');
     }
 }
 
 // 显示提示信息
 function showToast(message, type = 'info') {
-    // 检查是否已存在 toast
     let toast = document.querySelector('.toast');
     if (toast) {
         toast.remove();
     }
 
-    // 创建新的 toast
     toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.textContent = message;
+    
+    // 添加图标
+    const icon = document.createElement('span');
+    icon.textContent = type === 'success' ? '🌟' : '💫';
+    toast.appendChild(icon);
+    
+    // 添加消息
+    const text = document.createElement('span');
+    text.textContent = message;
+    toast.appendChild(text);
 
     document.body.appendChild(toast);
 
-    // 添加动画
     setTimeout(() => {
         toast.classList.add('show');
     }, 100);
 
-    // 3秒后移除
     setTimeout(() => {
         toast.classList.remove('show');
         setTimeout(() => {
