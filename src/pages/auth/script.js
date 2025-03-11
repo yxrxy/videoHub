@@ -38,6 +38,7 @@ async function handleLogin(event) {
         });
 
         const data = await response.json();
+        console.log('登录响应:', data);  // 添加日志
         
         if (data.base.code === 0) {
             localStorage.setItem('token', data.data.token);
@@ -168,4 +169,7 @@ style.textContent = `
         background-color: var(--primary-color);
     }
 `;
-document.head.appendChild(style); 
+document.head.appendChild(style);
+
+// 确保表单提交时调用 handleLogin
+document.getElementById('loginForm').addEventListener('submit', handleLogin); 

@@ -8,6 +8,7 @@ import (
 	"github.com/yxrrxy/videoHub/app/user/service"
 	"github.com/yxrrxy/videoHub/config"
 	"github.com/yxrrxy/videoHub/kitex_gen/user/userservice"
+	"github.com/yxrrxy/videoHub/pkg/middleware"
 )
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 	svr := userservice.NewServer(
 		userService,
 		server.WithServiceAddr(addr),
+		server.WithMiddleware(middleware.Auth()),
 	)
 
 	if err := svr.Run(); err != nil {

@@ -7,8 +7,14 @@ user:
   name: "user"
   http_addr: ":8888"
   rpc_addr: ":8889"
-  default_avatar: "http://localhost:8888/static/uploads/default.jpg"
-  
+  default_avatar: "/avatars/default.jpg"
+
+# Video服务配置
+video:
+  name: "video"
+  http_addr: ":8890"
+  rpc_addr: ":8891"
+
 # MySQL配置
 mysql:
   host: "localhost"
@@ -28,9 +34,11 @@ upload:
     max_size: 5242880  # 5MB
     allowed_types: ["image/jpeg", "image/png"]
     upload_dir: "src/storage/avatars"
+#TODO：不对
     base_url: "http://localhost:8888/static/avatars"
   video:
     max_size: 104857600  # 100MB
     allowed_types: ["video/mp4", "video/quicktime"]
     upload_dir: "src/storage/videos"
-    base_url: "http://localhost:8888/static/videos"
+    base_url: "http://localhost:8890/static/videos"
+

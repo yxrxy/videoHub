@@ -10,7 +10,6 @@ import (
 	"github.com/yxrrxy/videoHub/app/user/repository"
 	"github.com/yxrrxy/videoHub/config"
 	"github.com/yxrrxy/videoHub/kitex_gen/user"
-	pkgcontext "github.com/yxrrxy/videoHub/pkg/context"
 	"github.com/yxrrxy/videoHub/pkg/errno"
 	"github.com/yxrrxy/videoHub/pkg/jwt"
 	"github.com/yxrrxy/videoHub/pkg/storage"
@@ -126,8 +125,8 @@ func (s *UserService) GetUserInfo(ctx context.Context, req *user.UserInfoRequest
 }
 
 func (s *UserService) UploadAvatar(ctx context.Context, req *user.UploadAvatarRequest) (*user.UploadAvatarResponse, error) {
-	userID, ok := pkgcontext.GetUserID(ctx)
-	if !ok {
+	userID := req.UserId
+	if userID == 0 {
 		return nil, errno.ErrUnauthorized
 	}
 
@@ -181,33 +180,6 @@ func getFileExt(contentType string) string {
 	default:
 		return "jpg"
 	}
-}
-
-func (s *UserService) GetMFAQRCode(ctx context.Context, req *user.MFAQRCodeRequest) (*user.MFAQRCodeResponse, error) {
-	// TODO: 使用第三方库生成MFA密钥和二维码
-	qrCode := "data:image/png;base64,..."
-
-	return &user.MFAQRCodeResponse{
-		Base: &user.BaseResp{
-			Code:    errno.Success.ErrCode,
-			Message: errno.Success.ErrMsg,
-		},
-		QrCode: qrCode,
-	}, nil
-}
-
-func (s *UserService) BindMFA(ctx context.Context, req *user.BindMFARequest) (*user.BindMFAResponse, error) {
-	// TODO: 验证MFA码并保存密钥
-	if err := s.repo.UpdateMFASecret(ctx, req.UserId, "mfa_secret"); err != nil {
-		return nil, err
-	}
-
-	return &user.BindMFAResponse{
-		Base: &user.BaseResp{
-			Code:    errno.Success.ErrCode,
-			Message: errno.Success.ErrMsg,
-		},
-	}, nil
 }
 
 func (s *UserService) RefreshToken(ctx context.Context, req *user.RefreshTokenRequest) (*user.RefreshTokenResponse, error) {

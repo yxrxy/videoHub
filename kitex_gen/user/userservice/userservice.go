@@ -41,20 +41,6 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
-	"GetMFAQRCode": kitex.NewMethodInfo(
-		getMFAQRCodeHandler,
-		newUserServiceGetMFAQRCodeArgs,
-		newUserServiceGetMFAQRCodeResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
-	"BindMFA": kitex.NewMethodInfo(
-		bindMFAHandler,
-		newUserServiceBindMFAArgs,
-		newUserServiceBindMFAResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
 	"RefreshToken": kitex.NewMethodInfo(
 		refreshTokenHandler,
 		newUserServiceRefreshTokenArgs,
@@ -200,42 +186,6 @@ func newUserServiceUploadAvatarResult() interface{} {
 	return user.NewUserServiceUploadAvatarResult()
 }
 
-func getMFAQRCodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*user.UserServiceGetMFAQRCodeArgs)
-	realResult := result.(*user.UserServiceGetMFAQRCodeResult)
-	success, err := handler.(user.UserService).GetMFAQRCode(ctx, realArg.Req)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newUserServiceGetMFAQRCodeArgs() interface{} {
-	return user.NewUserServiceGetMFAQRCodeArgs()
-}
-
-func newUserServiceGetMFAQRCodeResult() interface{} {
-	return user.NewUserServiceGetMFAQRCodeResult()
-}
-
-func bindMFAHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*user.UserServiceBindMFAArgs)
-	realResult := result.(*user.UserServiceBindMFAResult)
-	success, err := handler.(user.UserService).BindMFA(ctx, realArg.Req)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newUserServiceBindMFAArgs() interface{} {
-	return user.NewUserServiceBindMFAArgs()
-}
-
-func newUserServiceBindMFAResult() interface{} {
-	return user.NewUserServiceBindMFAResult()
-}
-
 func refreshTokenHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*user.UserServiceRefreshTokenArgs)
 	realResult := result.(*user.UserServiceRefreshTokenResult)
@@ -299,26 +249,6 @@ func (p *kClient) UploadAvatar(ctx context.Context, req *user.UploadAvatarReques
 	_args.Req = req
 	var _result user.UserServiceUploadAvatarResult
 	if err = p.c.Call(ctx, "UploadAvatar", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) GetMFAQRCode(ctx context.Context, req *user.MFAQRCodeRequest) (r *user.MFAQRCodeResponse, err error) {
-	var _args user.UserServiceGetMFAQRCodeArgs
-	_args.Req = req
-	var _result user.UserServiceGetMFAQRCodeResult
-	if err = p.c.Call(ctx, "GetMFAQRCode", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) BindMFA(ctx context.Context, req *user.BindMFARequest) (r *user.BindMFAResponse, err error) {
-	var _args user.UserServiceBindMFAArgs
-	_args.Req = req
-	var _result user.UserServiceBindMFAResult
-	if err = p.c.Call(ctx, "BindMFA", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

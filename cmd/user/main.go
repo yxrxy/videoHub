@@ -25,9 +25,12 @@ func main() {
 	// 静态文件服务配置
 	h.StaticFS("/", &app.FS{
 		Root:       "src/pages",
-		IndexNames: []string{"index.html"}, // 设置默认索引文件
+		IndexNames: []string{"index.html"},
 	})
-	h.Static("/static/uploads", config.Upload.Avatar.UploadDir)
+
+	h.StaticFS("/avatars", &app.FS{
+		Root: "src/storage",
+	})
 
 	router.Register(h, c)
 

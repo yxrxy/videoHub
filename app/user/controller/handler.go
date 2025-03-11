@@ -93,47 +93,66 @@ func (c *UserController) Login(ctx context.Context, req *app.RequestContext) {
 
 // UploadAvatar 处理头像上传
 func (c *UserController) UploadAvatar(ctx context.Context, req *app.RequestContext) {
+	userID, exists := pkgcontext.GetUserID(ctx)
+	if !exists {
+		req.JSON(consts.StatusUnauthorized, response.Error(errno.ErrUnauthorized.ErrCode, errno.ErrUnauthorized.ErrMsg))
+		return
+	}
+
 	file, err := req.FormFile("avatar")
 	if err != nil {
-		req.JSON(consts.StatusBadRequest, errno.ErrInvalidParam)
+		req.JSON(consts.StatusBadRequest, response.Error(errno.ErrInvalidParam.ErrCode, errno.ErrInvalidParam.ErrMsg))
 		return
 	}
 
 	f, err := file.Open()
 	if err != nil {
-		req.JSON(consts.StatusInternalServerError, err)
+		req.JSON(consts.StatusInternalServerError, response.Error(errno.InternalServerError.ErrCode, err.Error()))
 		return
 	}
 	defer f.Close()
 
 	fileData, err := io.ReadAll(f)
 	if err != nil {
-		req.JSON(consts.StatusInternalServerError, err)
+		req.JSON(consts.StatusInternalServerError, response.Error(errno.InternalServerError.ErrCode, err.Error()))
 		return
 	}
 
+	rpcCtx := pkgcontext.WithUserID(ctx, userID)
+
 	uploadReq := &user.UploadAvatarRequest{
+		UserId:      userID,
 		AvatarData:  fileData,
 		ContentType: file.Header.Get("Content-Type"),
 	}
 
-	resp, err := c.client.UploadAvatar(ctx, uploadReq)
+	resp, err := c.client.UploadAvatar(rpcCtx, uploadReq)
 	if err != nil {
-		req.JSON(consts.StatusInternalServerError, err)
+		req.JSON(consts.StatusInternalServerError, response.Error(errno.InternalServerError.ErrCode, err.Error()))
 		return
 	}
 
-	req.JSON(consts.StatusOK, resp)
+	data := map[string]interface{}{
+		"avatar_url": resp.AvatarUrl,
+	}
+
+	req.JSON(consts.StatusOK, response.Success(data))
 }
 
 func (c *UserController) GetUserInfo(ctx context.Context, req *app.RequestContext) {
-	userID, ok := pkgcontext.GetUserID(ctx)
-	if !ok {
-		req.JSON(consts.StatusUnauthorized, response.Error(errno.ErrUnauthorized.ErrCode, errno.ErrUnauthorized.ErrMsg))
+	userID := req.Query("user_id")
+	if userID == "" {
+		req.JSON(consts.StatusBadRequest, response.Error(errno.ErrInvalidParam.ErrCode, errno.ErrInvalidParam.ErrMsg))
 		return
 	}
 
-	userInfo, err := c.client.GetUserInfo(ctx, &user.UserInfoRequest{UserId: userID})
+	userIDInt, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		req.JSON(consts.StatusBadRequest, response.Error(errno.ErrInvalidParam.ErrCode, errno.ErrInvalidParam.ErrMsg))
+		return
+	}
+
+	userInfo, err := c.client.GetUserInfo(ctx, &user.UserInfoRequest{UserId: userIDInt})
 	if err != nil {
 		req.JSON(consts.StatusInternalServerError, response.Error(errno.InternalServerError.ErrCode, err.Error()))
 		return
