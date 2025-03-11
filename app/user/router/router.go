@@ -15,12 +15,11 @@ func Register(h *server.Hertz, client userservice.Client) {
 		userGroup.POST("/register", userController.Register) // 注册
 		userGroup.POST("/login", userController.Login)       // 登录
 
-		authedGroup := userGroup.Group("", middleware.JWT()) // 添加 JWT 中间件
+		// 需要认证的路由组
+		authedGroup := userGroup.Group("", middleware.JWT()) // HTTP 中间件
 		{
-			authedGroup.GET("/info", userController.GetUserInfo)         // 获取用户信息
+			authedGroup.GET("/info", userController.GetUserInfo)     // 获取用户信息
 			authedGroup.POST("/avatar", userController.UploadAvatar) // 上传头像
-			//authedGroup.GET("/mfa/qrcode", userController.GetMFAQRCode) // 获取 MFA 二维码
-			//authedGroup.POST("/mfa/bind", userController.BindMFA)       // 绑定 MFA
 		}
 	}
 }

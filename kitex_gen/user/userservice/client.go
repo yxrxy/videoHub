@@ -15,8 +15,6 @@ type Client interface {
 	Login(ctx context.Context, req *user.LoginRequest, callOptions ...callopt.Option) (r *user.LoginResponse, err error)
 	GetUserInfo(ctx context.Context, req *user.UserInfoRequest, callOptions ...callopt.Option) (r *user.UserInfoResponse, err error)
 	UploadAvatar(ctx context.Context, req *user.UploadAvatarRequest, callOptions ...callopt.Option) (r *user.UploadAvatarResponse, err error)
-	GetMFAQRCode(ctx context.Context, req *user.MFAQRCodeRequest, callOptions ...callopt.Option) (r *user.MFAQRCodeResponse, err error)
-	BindMFA(ctx context.Context, req *user.BindMFARequest, callOptions ...callopt.Option) (r *user.BindMFAResponse, err error)
 	RefreshToken(ctx context.Context, req *user.RefreshTokenRequest, callOptions ...callopt.Option) (r *user.RefreshTokenResponse, err error)
 }
 
@@ -67,16 +65,6 @@ func (p *kUserServiceClient) GetUserInfo(ctx context.Context, req *user.UserInfo
 func (p *kUserServiceClient) UploadAvatar(ctx context.Context, req *user.UploadAvatarRequest, callOptions ...callopt.Option) (r *user.UploadAvatarResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.UploadAvatar(ctx, req)
-}
-
-func (p *kUserServiceClient) GetMFAQRCode(ctx context.Context, req *user.MFAQRCodeRequest, callOptions ...callopt.Option) (r *user.MFAQRCodeResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetMFAQRCode(ctx, req)
-}
-
-func (p *kUserServiceClient) BindMFA(ctx context.Context, req *user.BindMFARequest, callOptions ...callopt.Option) (r *user.BindMFAResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.BindMFA(ctx, req)
 }
 
 func (p *kUserServiceClient) RefreshToken(ctx context.Context, req *user.RefreshTokenRequest, callOptions ...callopt.Option) (r *user.RefreshTokenResponse, err error) {
