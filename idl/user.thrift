@@ -57,36 +57,15 @@ struct UserInfoResponse {
 
 // 上传头像请求
 struct UploadAvatarRequest {
-    1: binary avatar_data      // 头像二进制数据
-    2: string content_type     // 文件类型，如 image/jpeg
+    1: i64 user_id,                // 用户ID
+    2: binary avatar_data,         // 头像二进制数据
+    3: string content_type,        // 文件类型
 }
 
 // 上传头像响应
 struct UploadAvatarResponse {
-    1: BaseResp base           // 基础响应
-    2: string avatar_url       // 头像URL
-}
-
-// MFA二维码请求
-struct MFAQRCodeRequest {
-    1: i64 user_id            // 用户ID
-}
-
-// MFA二维码响应
-struct MFAQRCodeResponse {
-    1: BaseResp base          // 基础响应
-    2: string qr_code         // 二维码数据
-}
-
-// MFA绑定请求
-struct BindMFARequest {
-    1: i64 user_id           // 用户ID
-    2: string code           // MFA验证码
-}
-
-// MFA绑定响应
-struct BindMFAResponse {
-    1: BaseResp base         // 基础响应
+    1: BaseResp base,
+    2: string avatar_url,          // 头像URL
 }
 
 // 刷新令牌请求
@@ -110,10 +89,6 @@ service UserService {
     UserInfoResponse GetUserInfo(1: UserInfoRequest req)
     // 上传头像
     UploadAvatarResponse UploadAvatar(1: UploadAvatarRequest req)
-    // 获取MFA二维码
-    MFAQRCodeResponse GetMFAQRCode(1: MFAQRCodeRequest req)
-    // 绑定MFA
-    BindMFAResponse BindMFA(1: BindMFARequest req)
     // 刷新令牌
     RefreshTokenResponse RefreshToken(1: RefreshTokenRequest req)
 }

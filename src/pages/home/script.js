@@ -1,14 +1,28 @@
 // 获取用户信息
 async function fetchUserInfo() {
     try {
+        // 从 localStorage 获取 token
+        const token = localStorage.getItem('token');
+        console.log('获取到的 token:', token);  // 添加日志
+
+        if (!token) {
+            console.error('未找到登录令牌');
+            window.location.href = '/login.html';
+            return;
+        }
+
         const response = await fetch('/user/info', {
             headers: {
-                'Authorization': localStorage.getItem('token')
+                'Authorization': `Bearer ${token}`  // 确保使用 Bearer 前缀
             }
         });
-        const data = await response.json();
+
+        console.log('用户信息响应状态:', response.status);  // 添加日志
         
-        if (data.base.code === 0) {
+        const data = await response.json();
+        console.log('用户信息响应数据:', data);  // 添加日志
+
+        if (data.code === 0 && data.data) {
             updateUserInfo(data.data);
         }
     } catch (error) {
@@ -18,10 +32,39 @@ async function fetchUserInfo() {
 
 // 更新用户信息显示
 function updateUserInfo(user) {
-    document.getElementById('user-avatar').src = user.avatar_url;
-    document.getElementById('menu-avatar').src = user.avatar_url;
-    document.getElementById('username').textContent = user.username;
-    document.getElementById('user-id').textContent = `ID: ${user.id}`;
+    console.log('开始更新用户信息:', user);
+    const defaultAvatar = '/avatars/default.jpg';  // 确保这个路径正确
+    
+    const setAvatar = (element, avatarUrl) => {
+        if (!element) {
+            console.error('头像元素不存在');
+            return;
+        }
+        
+        console.log('设置头像:', { 
+            elementId: element.id, 
+            avatarUrl: avatarUrl, 
+            defaultAvatar: defaultAvatar 
+        });
+        
+        // 设置头像
+        element.src = avatarUrl || defaultAvatar;
+        element.onerror = () => {
+            console.error('头像加载失败，使用默认头像');
+            element.src = defaultAvatar;
+        };
+    };
+
+    setAvatar(document.getElementById('user-avatar'), user.avatar_url);
+    setAvatar(document.getElementById('menu-avatar'), user.avatar_url);
+    
+    const username = document.getElementById('username');
+    const userId = document.getElementById('user-id');
+    
+    if (username) {
+        username.textContent = user.username || '亲爱的...';
+    }
+    if (userId) userId.textContent = `ID: ${user.id}`;
 }
 
 // 加载视频列表
@@ -162,7 +205,7 @@ function showToast(message, type = 'info') {
 }
 
 // 初始化
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => { 
     fetchUserInfo();
     loadVideos();
     loadFriends();

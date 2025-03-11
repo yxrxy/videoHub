@@ -48,6 +48,12 @@ type UploadConfig struct {
 	} `mapstructure:"avatar"`
 }
 
+type VideoConfig struct {
+	Name     string
+	HTTPAddr string `mapstructure:"http_addr"`
+	RPCAddr  string `mapstructure:"rpc_addr"`
+}
+
 var (
 	Server ServerConfig
 	MySQL  MySQLConfig
@@ -55,6 +61,7 @@ var (
 	JWT    JWTConfig
 	Upload UploadConfig
 	User   UserConfig
+	Video  VideoConfig
 )
 
 func Init() {
@@ -82,6 +89,9 @@ func Init() {
 		panic(err)
 	}
 	if err := viper.UnmarshalKey("user", &User); err != nil {
+		panic(err)
+	}
+	if err := viper.UnmarshalKey("video", &Video); err != nil {
 		panic(err)
 	}
 }
