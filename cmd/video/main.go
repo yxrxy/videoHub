@@ -3,7 +3,8 @@ package main
 import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/cloudwego/kitex/client"
+	"github.com/yxrrxy/videoHub/app/video/cache"
+	"github.com/yxrrxy/videoHub/app/video/repository"
 	"github.com/yxrrxy/videoHub/app/video/router"
 	"github.com/yxrrxy/videoHub/config"
 	"github.com/yxrrxy/videoHub/kitex_gen/video/videoservice"
@@ -12,22 +13,26 @@ import (
 func main() {
 	config.Init()
 
-	h := server.Default(server.WithHostPorts(config.Video.HTTPAddr))
+	// 初始化数据库
+	repository.InitDB()
 
-	c, err := videoservice.NewClient(
-		"video",
-		client.WithHostPorts("127.0.0.1"+config.Video.RPCAddr),
-	)
-	if err != nil {
-		panic(err)
-	}
+	// 初始化 Redis
+	cache.Init("localhost:6379")
+
+	// 初始化 RPC 客户端
+	client := videoservice.MustNewClient("video")
+
+	// 初始化 HTTP 服务器
+	h := server.Default(server.WithHostPorts(config.Video.HTTPAddr))
 
 	// 静态文件服务配置
 	h.StaticFS("/videos", &app.FS{
 		Root: "src/storage/videos",
 	})
 
-	router.Register(h, c)
+	// 注册路由
+	router.Register(h, client)
 
+	// 启动服务器
 	h.Spin()
 }

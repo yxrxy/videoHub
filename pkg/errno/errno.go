@@ -13,7 +13,7 @@ func (e ErrNo) Error() string {
 
 var (
 	// 成功
-	Success = ErrNo{0, "success"}
+	Success = ErrNo{10000, "success"}
 
 	// 用户模块错误: 100xx
 	ErrUserNotExist     = ErrNo{10001, "用户不存在"}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/yxrrxy/videoHub/app/video/model"
 	"github.com/yxrrxy/videoHub/app/video/repository"
+	"github.com/yxrrxy/videoHub/kitex_gen/video"
 	videoproto "github.com/yxrrxy/videoHub/kitex_gen/video"
 	"github.com/yxrrxy/videoHub/pkg/errno"
 )
@@ -61,7 +62,7 @@ func (s *VideoService) Publish(ctx context.Context, req *videoproto.PublishReque
 		UserID:      userID,
 		Title:       req.Title,
 		VideoURL:    "/videos/" + filename,
-		Description: req.Description,
+		Description: *req.Description,
 		CreatedAt:   time.Now(),
 	}
 
@@ -71,10 +72,6 @@ func (s *VideoService) Publish(ctx context.Context, req *videoproto.PublishReque
 	}
 
 	return &videoproto.PublishResponse{
-		Base: &videoproto.BaseResp{
-			Code:    errno.Success.ErrCode,
-			Message: errno.Success.ErrMsg,
-		},
 		VideoUrl: video.VideoURL,
 	}, nil
 }
@@ -86,4 +83,15 @@ func isValidVideoType(contentType string) bool {
 		"video/webm": true,
 	}
 	return validTypes[contentType]
+}
+
+func (s *VideoService) GetVideoList(ctx context.Context, req *video.VideoListRequest) (r *video.VideoListResponse, err error) {
+	videos, total, err := s.repo.GetVideoList(ctx, req.UserId)
+	if err != nil {
+		return nil, err
+	}
+	return &video.VideoListResponse{
+		Videos: videos,
+		Total:  total,
+	}, nil
 }

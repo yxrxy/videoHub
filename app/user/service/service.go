@@ -55,10 +55,6 @@ func (s *UserService) Register(ctx context.Context, req *user.RegisterRequest) (
 	}
 
 	return &user.RegisterResponse{
-		Base: &user.BaseResp{
-			Code:    errno.Success.ErrCode,
-			Message: errno.Success.ErrMsg,
-		},
 		UserId:       newUser.ID,
 		Token:        token,
 		RefreshToken: refreshToken,
@@ -87,10 +83,6 @@ func (s *UserService) Login(ctx context.Context, req *user.LoginRequest) (*user.
 	}
 
 	return &user.LoginResponse{
-		Base: &user.BaseResp{
-			Code:    errno.Success.ErrCode,
-			Message: errno.Success.ErrMsg,
-		},
 		UserId:       userModel.ID,
 		Token:        token,
 		RefreshToken: refreshToken,
@@ -109,17 +101,13 @@ func (s *UserService) GetUserInfo(ctx context.Context, req *user.UserInfoRequest
 	}
 
 	return &user.UserInfoResponse{
-		Base: &user.BaseResp{
-			Code:    errno.Success.ErrCode,
-			Message: errno.Success.ErrMsg,
-		},
 		User: &user.User{
 			Id:        userModel.ID,
 			Username:  userModel.Username,
 			AvatarUrl: userModel.AvatarURL,
 			CreatedAt: userModel.CreatedAt.Unix(),
 			UpdatedAt: userModel.UpdatedAt.Unix(),
-			DeletedAt: deletedAt,
+			DeletedAt: &deletedAt,
 		},
 	}, nil
 }
@@ -151,10 +139,6 @@ func (s *UserService) UploadAvatar(ctx context.Context, req *user.UploadAvatarRe
 	}
 
 	return &user.UploadAvatarResponse{
-		Base: &user.BaseResp{
-			Code:    errno.Success.ErrCode,
-			Message: errno.Success.ErrMsg,
-		},
 		AvatarUrl: avatarURL,
 	}, nil
 }
@@ -194,10 +178,6 @@ func (s *UserService) RefreshToken(ctx context.Context, req *user.RefreshTokenRe
 	}
 
 	return &user.RefreshTokenResponse{
-		Base: &user.BaseResp{
-			Code:    errno.Success.ErrCode,
-			Message: errno.Success.ErrMsg,
-		},
 		Token: newToken,
 	}, nil
 }
