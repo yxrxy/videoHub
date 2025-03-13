@@ -20,6 +20,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetVideoList": kitex.NewMethodInfo(
+		getVideoListHandler,
+		newVideoServiceGetVideoListArgs,
+		newVideoServiceGetVideoListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -104,6 +111,24 @@ func newVideoServicePublishResult() interface{} {
 	return video.NewVideoServicePublishResult()
 }
 
+func getVideoListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceGetVideoListArgs)
+	realResult := result.(*video.VideoServiceGetVideoListResult)
+	success, err := handler.(video.VideoService).GetVideoList(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceGetVideoListArgs() interface{} {
+	return video.NewVideoServiceGetVideoListArgs()
+}
+
+func newVideoServiceGetVideoListResult() interface{} {
+	return video.NewVideoServiceGetVideoListResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -119,6 +144,16 @@ func (p *kClient) Publish(ctx context.Context, req *video.PublishRequest) (r *vi
 	_args.Req = req
 	var _result video.VideoServicePublishResult
 	if err = p.c.Call(ctx, "Publish", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetVideoList(ctx context.Context, req *video.VideoListRequest) (r *video.VideoListResponse, err error) {
+	var _args video.VideoServiceGetVideoListArgs
+	_args.Req = req
+	var _result video.VideoServiceGetVideoListResult
+	if err = p.c.Call(ctx, "GetVideoList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

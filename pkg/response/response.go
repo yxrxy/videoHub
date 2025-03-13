@@ -1,5 +1,7 @@
 package response
 
+import "github.com/yxrrxy/videoHub/pkg/errno"
+
 type Response struct {
 	Base struct {
 		Code    int32  `json:"code"`
@@ -14,8 +16,8 @@ func Success(data interface{}) *Response {
 			Code    int32  `json:"code"`
 			Message string `json:"msg"`
 		}{
-			Code:    0,
-			Message: "success",
+			Code:    errno.Success.ErrCode,
+			Message: errno.Success.ErrMsg,
 		},
 		Data: data,
 	}

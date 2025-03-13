@@ -15,6 +15,7 @@ func Register(h *server.Hertz, client videoservice.Client) {
 		authedGroup := videoGroup.Group("", middleware.JWT())
 		{
 			authedGroup.POST("/publish", videoController.Publish)
+			authedGroup.GET("/list", videoController.GetUserVideoList)
 		}
 	}
 }
