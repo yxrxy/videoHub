@@ -12,8 +12,9 @@ user:
 # Video服务配置
 video:
   name: "video"
-  http_addr: ":8890"
-  rpc_addr: ":8891"
+  http_addr: ":8080"
+  rpc_addr: ":8888"
+  static_path: "static"
 
 # MySQL配置
 mysql:
@@ -22,6 +23,7 @@ mysql:
   username: "videoHub"
   password: "videoHub"
   database: "videoHub"
+  dsn: "root:123456@tcp(localhost:3306)/videohub?charset=utf8mb4&parseTime=True&loc=Local"
   
 # JWT配置
 jwt:
@@ -41,4 +43,9 @@ upload:
     allowed_types: ["video/mp4", "video/quicktime"]
     upload_dir: "src/storage/videos"
     base_url: "http://localhost:8890/static/videos"
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
 
