@@ -49,7 +49,7 @@ func (c *UserController) Register(ctx context.Context, req *app.RequestContext) 
 		"avatar_url":    userInfo.User.AvatarUrl,
 		"created_at":    utils.FormatTimestamp(userInfo.User.CreatedAt),
 		"updated_at":    utils.FormatTimestamp(userInfo.User.UpdatedAt),
-		"deleted_at":    utils.FormatTimestamp(userInfo.User.DeletedAt),
+		"deleted_at":    utils.FormatTimestamp(*userInfo.User.DeletedAt),
 		"token":         resp.Token,
 		"refresh_token": resp.RefreshToken,
 	}
@@ -83,7 +83,7 @@ func (c *UserController) Login(ctx context.Context, req *app.RequestContext) {
 		"avatar_url":    userInfo.User.AvatarUrl,
 		"created_at":    utils.FormatTimestamp(userInfo.User.CreatedAt),
 		"updated_at":    utils.FormatTimestamp(userInfo.User.UpdatedAt),
-		"deleted_at":    utils.FormatTimestamp(userInfo.User.DeletedAt),
+		"deleted_at":    utils.FormatTimestamp(*userInfo.User.DeletedAt),
 		"token":         resp.Token,
 		"refresh_token": resp.RefreshToken,
 	}
@@ -164,7 +164,7 @@ func (c *UserController) GetUserInfo(ctx context.Context, req *app.RequestContex
 		"avatar_url": userInfo.User.AvatarUrl,
 		"created_at": utils.FormatTimestamp(userInfo.User.CreatedAt),
 		"updated_at": utils.FormatTimestamp(userInfo.User.UpdatedAt),
-		"deleted_at": utils.FormatTimestamp(userInfo.User.DeletedAt),
+		"deleted_at": utils.FormatTimestamp(*userInfo.User.DeletedAt),
 	}
 
 	req.JSON(consts.StatusOK, response.Success(data))
