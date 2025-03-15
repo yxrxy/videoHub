@@ -10,244 +10,6 @@ import (
 	"strings"
 )
 
-type BaseResp struct {
-	Code    int32  `thrift:"code,1,required" frugal:"1,required,i32" json:"code"`
-	Message string `thrift:"message,2,required" frugal:"2,required,string" json:"message"`
-}
-
-func NewBaseResp() *BaseResp {
-	return &BaseResp{}
-}
-
-func (p *BaseResp) InitDefault() {
-}
-
-func (p *BaseResp) GetCode() (v int32) {
-	return p.Code
-}
-
-func (p *BaseResp) GetMessage() (v string) {
-	return p.Message
-}
-func (p *BaseResp) SetCode(val int32) {
-	p.Code = val
-}
-func (p *BaseResp) SetMessage(val string) {
-	p.Message = val
-}
-
-var fieldIDToName_BaseResp = map[int16]string{
-	1: "code",
-	2: "message",
-}
-
-func (p *BaseResp) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-	var issetCode bool = false
-	var issetMessage bool = false
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.I32 {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetCode = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 2:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-				issetMessage = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	if !issetCode {
-		fieldId = 1
-		goto RequiredFieldNotSetError
-	}
-
-	if !issetMessage {
-		fieldId = 2
-		goto RequiredFieldNotSetError
-	}
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_BaseResp[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-RequiredFieldNotSetError:
-	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_BaseResp[fieldId]))
-}
-
-func (p *BaseResp) ReadField1(iprot thrift.TProtocol) error {
-
-	var _field int32
-	if v, err := iprot.ReadI32(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Code = _field
-	return nil
-}
-func (p *BaseResp) ReadField2(iprot thrift.TProtocol) error {
-
-	var _field string
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		_field = v
-	}
-	p.Message = _field
-	return nil
-}
-
-func (p *BaseResp) Write(oprot thrift.TProtocol) (err error) {
-
-	var fieldId int16
-	if err = oprot.WriteStructBegin("BaseResp"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
-			goto WriteFieldError
-		}
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *BaseResp) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("code", thrift.I32, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI32(p.Code); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *BaseResp) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("message", thrift.STRING, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Message); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *BaseResp) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("BaseResp(%+v)", *p)
-
-}
-
-func (p *BaseResp) DeepEqual(ano *BaseResp) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.Code) {
-		return false
-	}
-	if !p.Field2DeepEqual(ano.Message) {
-		return false
-	}
-	return true
-}
-
-func (p *BaseResp) Field1DeepEqual(src int32) bool {
-
-	if p.Code != src {
-		return false
-	}
-	return true
-}
-func (p *BaseResp) Field2DeepEqual(src string) bool {
-
-	if strings.Compare(p.Message, src) != 0 {
-		return false
-	}
-	return true
-}
-
 type Video struct {
 	Id           int64    `thrift:"id,1,required" frugal:"1,required,i64" json:"id"`
 	UserId       int64    `thrift:"user_id,2,required" frugal:"2,required,i64" json:"user_id"`
@@ -1456,8 +1218,8 @@ func (p *Video) Field16DeepEqual(src *int64) bool {
 
 type VideoListRequest struct {
 	UserId   int64   `thrift:"user_id,1,required" frugal:"1,required,i64" json:"user_id"`
-	Cursor   *int64  `thrift:"cursor,2,optional" frugal:"2,optional,i64" json:"cursor,omitempty"`
-	PageSize *int32  `thrift:"page_size,3,optional" frugal:"3,optional,i32" json:"page_size,omitempty"`
+	Page     *int64  `thrift:"page,2,optional" frugal:"2,optional,i64" json:"page,omitempty"`
+	Size     *int32  `thrift:"size,3,optional" frugal:"3,optional,i32" json:"size,omitempty"`
 	Category *string `thrift:"category,4,optional" frugal:"4,optional,string" json:"category,omitempty"`
 }
 
@@ -1472,22 +1234,22 @@ func (p *VideoListRequest) GetUserId() (v int64) {
 	return p.UserId
 }
 
-var VideoListRequest_Cursor_DEFAULT int64
+var VideoListRequest_Page_DEFAULT int64
 
-func (p *VideoListRequest) GetCursor() (v int64) {
-	if !p.IsSetCursor() {
-		return VideoListRequest_Cursor_DEFAULT
+func (p *VideoListRequest) GetPage() (v int64) {
+	if !p.IsSetPage() {
+		return VideoListRequest_Page_DEFAULT
 	}
-	return *p.Cursor
+	return *p.Page
 }
 
-var VideoListRequest_PageSize_DEFAULT int32
+var VideoListRequest_Size_DEFAULT int32
 
-func (p *VideoListRequest) GetPageSize() (v int32) {
-	if !p.IsSetPageSize() {
-		return VideoListRequest_PageSize_DEFAULT
+func (p *VideoListRequest) GetSize() (v int32) {
+	if !p.IsSetSize() {
+		return VideoListRequest_Size_DEFAULT
 	}
-	return *p.PageSize
+	return *p.Size
 }
 
 var VideoListRequest_Category_DEFAULT string
@@ -1501,11 +1263,11 @@ func (p *VideoListRequest) GetCategory() (v string) {
 func (p *VideoListRequest) SetUserId(val int64) {
 	p.UserId = val
 }
-func (p *VideoListRequest) SetCursor(val *int64) {
-	p.Cursor = val
+func (p *VideoListRequest) SetPage(val *int64) {
+	p.Page = val
 }
-func (p *VideoListRequest) SetPageSize(val *int32) {
-	p.PageSize = val
+func (p *VideoListRequest) SetSize(val *int32) {
+	p.Size = val
 }
 func (p *VideoListRequest) SetCategory(val *string) {
 	p.Category = val
@@ -1513,17 +1275,17 @@ func (p *VideoListRequest) SetCategory(val *string) {
 
 var fieldIDToName_VideoListRequest = map[int16]string{
 	1: "user_id",
-	2: "cursor",
-	3: "page_size",
+	2: "page",
+	3: "size",
 	4: "category",
 }
 
-func (p *VideoListRequest) IsSetCursor() bool {
-	return p.Cursor != nil
+func (p *VideoListRequest) IsSetPage() bool {
+	return p.Page != nil
 }
 
-func (p *VideoListRequest) IsSetPageSize() bool {
-	return p.PageSize != nil
+func (p *VideoListRequest) IsSetSize() bool {
+	return p.Size != nil
 }
 
 func (p *VideoListRequest) IsSetCategory() bool {
@@ -1637,7 +1399,7 @@ func (p *VideoListRequest) ReadField2(iprot thrift.TProtocol) error {
 	} else {
 		_field = &v
 	}
-	p.Cursor = _field
+	p.Page = _field
 	return nil
 }
 func (p *VideoListRequest) ReadField3(iprot thrift.TProtocol) error {
@@ -1648,7 +1410,7 @@ func (p *VideoListRequest) ReadField3(iprot thrift.TProtocol) error {
 	} else {
 		_field = &v
 	}
-	p.PageSize = _field
+	p.Size = _field
 	return nil
 }
 func (p *VideoListRequest) ReadField4(iprot thrift.TProtocol) error {
@@ -1722,11 +1484,11 @@ WriteFieldEndError:
 }
 
 func (p *VideoListRequest) writeField2(oprot thrift.TProtocol) (err error) {
-	if p.IsSetCursor() {
-		if err = oprot.WriteFieldBegin("cursor", thrift.I64, 2); err != nil {
+	if p.IsSetPage() {
+		if err = oprot.WriteFieldBegin("page", thrift.I64, 2); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI64(*p.Cursor); err != nil {
+		if err := oprot.WriteI64(*p.Page); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -1741,11 +1503,11 @@ WriteFieldEndError:
 }
 
 func (p *VideoListRequest) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetPageSize() {
-		if err = oprot.WriteFieldBegin("page_size", thrift.I32, 3); err != nil {
+	if p.IsSetSize() {
+		if err = oprot.WriteFieldBegin("size", thrift.I32, 3); err != nil {
 			goto WriteFieldBeginError
 		}
-		if err := oprot.WriteI32(*p.PageSize); err != nil {
+		if err := oprot.WriteI32(*p.Size); err != nil {
 			return err
 		}
 		if err = oprot.WriteFieldEnd(); err != nil {
@@ -1795,10 +1557,10 @@ func (p *VideoListRequest) DeepEqual(ano *VideoListRequest) bool {
 	if !p.Field1DeepEqual(ano.UserId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Cursor) {
+	if !p.Field2DeepEqual(ano.Page) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.PageSize) {
+	if !p.Field3DeepEqual(ano.Size) {
 		return false
 	}
 	if !p.Field4DeepEqual(ano.Category) {
@@ -1816,24 +1578,24 @@ func (p *VideoListRequest) Field1DeepEqual(src int64) bool {
 }
 func (p *VideoListRequest) Field2DeepEqual(src *int64) bool {
 
-	if p.Cursor == src {
+	if p.Page == src {
 		return true
-	} else if p.Cursor == nil || src == nil {
+	} else if p.Page == nil || src == nil {
 		return false
 	}
-	if *p.Cursor != *src {
+	if *p.Page != *src {
 		return false
 	}
 	return true
 }
 func (p *VideoListRequest) Field3DeepEqual(src *int32) bool {
 
-	if p.PageSize == src {
+	if p.Size == src {
 		return true
-	} else if p.PageSize == nil || src == nil {
+	} else if p.Size == nil || src == nil {
 		return false
 	}
-	if *p.PageSize != *src {
+	if *p.Size != *src {
 		return false
 	}
 	return true
@@ -1852,9 +1614,8 @@ func (p *VideoListRequest) Field4DeepEqual(src *string) bool {
 }
 
 type VideoListResponse struct {
-	Videos     []*Video `thrift:"videos,1,required" frugal:"1,required,list<Video>" json:"videos"`
-	Total      int64    `thrift:"total,2,required" frugal:"2,required,i64" json:"total"`
-	NextCursor *int64   `thrift:"next_cursor,3,optional" frugal:"3,optional,i64" json:"next_cursor,omitempty"`
+	Videos []*Video `thrift:"videos,1,required" frugal:"1,required,list<Video>" json:"videos"`
+	Total  int64    `thrift:"total,2,required" frugal:"2,required,i64" json:"total"`
 }
 
 func NewVideoListResponse() *VideoListResponse {
@@ -1871,33 +1632,16 @@ func (p *VideoListResponse) GetVideos() (v []*Video) {
 func (p *VideoListResponse) GetTotal() (v int64) {
 	return p.Total
 }
-
-var VideoListResponse_NextCursor_DEFAULT int64
-
-func (p *VideoListResponse) GetNextCursor() (v int64) {
-	if !p.IsSetNextCursor() {
-		return VideoListResponse_NextCursor_DEFAULT
-	}
-	return *p.NextCursor
-}
 func (p *VideoListResponse) SetVideos(val []*Video) {
 	p.Videos = val
 }
 func (p *VideoListResponse) SetTotal(val int64) {
 	p.Total = val
 }
-func (p *VideoListResponse) SetNextCursor(val *int64) {
-	p.NextCursor = val
-}
 
 var fieldIDToName_VideoListResponse = map[int16]string{
 	1: "videos",
 	2: "total",
-	3: "next_cursor",
-}
-
-func (p *VideoListResponse) IsSetNextCursor() bool {
-	return p.NextCursor != nil
 }
 
 func (p *VideoListResponse) Read(iprot thrift.TProtocol) (err error) {
@@ -1936,14 +1680,6 @@ func (p *VideoListResponse) Read(iprot thrift.TProtocol) (err error) {
 					goto ReadFieldError
 				}
 				issetTotal = true
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 3:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
@@ -2021,17 +1757,6 @@ func (p *VideoListResponse) ReadField2(iprot thrift.TProtocol) error {
 	p.Total = _field
 	return nil
 }
-func (p *VideoListResponse) ReadField3(iprot thrift.TProtocol) error {
-
-	var _field *int64
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		_field = &v
-	}
-	p.NextCursor = _field
-	return nil
-}
 
 func (p *VideoListResponse) Write(oprot thrift.TProtocol) (err error) {
 
@@ -2046,10 +1771,6 @@ func (p *VideoListResponse) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -2112,25 +1833,6 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *VideoListResponse) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetNextCursor() {
-		if err = oprot.WriteFieldBegin("next_cursor", thrift.I64, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI64(*p.NextCursor); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
 func (p *VideoListResponse) String() string {
 	if p == nil {
 		return "<nil>"
@@ -2149,9 +1851,6 @@ func (p *VideoListResponse) DeepEqual(ano *VideoListResponse) bool {
 		return false
 	}
 	if !p.Field2DeepEqual(ano.Total) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.NextCursor) {
 		return false
 	}
 	return true
@@ -2173,18 +1872,6 @@ func (p *VideoListResponse) Field1DeepEqual(src []*Video) bool {
 func (p *VideoListResponse) Field2DeepEqual(src int64) bool {
 
 	if p.Total != src {
-		return false
-	}
-	return true
-}
-func (p *VideoListResponse) Field3DeepEqual(src *int64) bool {
-
-	if p.NextCursor == src {
-		return true
-	} else if p.NextCursor == nil || src == nil {
-		return false
-	}
-	if *p.NextCursor != *src {
 		return false
 	}
 	return true
@@ -3119,10 +2806,1673 @@ func (p *PublishResponse) Field2DeepEqual(src string) bool {
 	return true
 }
 
+type HotVideoRequest struct {
+	Limit     *int32  `thrift:"limit,1,optional" frugal:"1,optional,i32" json:"limit,omitempty"`
+	Category  *string `thrift:"category,2,optional" frugal:"2,optional,string" json:"category,omitempty"`
+	LastVisit *int64  `thrift:"last_visit,3,optional" frugal:"3,optional,i64" json:"last_visit,omitempty"`
+	LastLike  *int64  `thrift:"last_like,4,optional" frugal:"4,optional,i64" json:"last_like,omitempty"`
+	LastId    *int64  `thrift:"last_id,5,optional" frugal:"5,optional,i64" json:"last_id,omitempty"`
+}
+
+func NewHotVideoRequest() *HotVideoRequest {
+	return &HotVideoRequest{}
+}
+
+func (p *HotVideoRequest) InitDefault() {
+}
+
+var HotVideoRequest_Limit_DEFAULT int32
+
+func (p *HotVideoRequest) GetLimit() (v int32) {
+	if !p.IsSetLimit() {
+		return HotVideoRequest_Limit_DEFAULT
+	}
+	return *p.Limit
+}
+
+var HotVideoRequest_Category_DEFAULT string
+
+func (p *HotVideoRequest) GetCategory() (v string) {
+	if !p.IsSetCategory() {
+		return HotVideoRequest_Category_DEFAULT
+	}
+	return *p.Category
+}
+
+var HotVideoRequest_LastVisit_DEFAULT int64
+
+func (p *HotVideoRequest) GetLastVisit() (v int64) {
+	if !p.IsSetLastVisit() {
+		return HotVideoRequest_LastVisit_DEFAULT
+	}
+	return *p.LastVisit
+}
+
+var HotVideoRequest_LastLike_DEFAULT int64
+
+func (p *HotVideoRequest) GetLastLike() (v int64) {
+	if !p.IsSetLastLike() {
+		return HotVideoRequest_LastLike_DEFAULT
+	}
+	return *p.LastLike
+}
+
+var HotVideoRequest_LastId_DEFAULT int64
+
+func (p *HotVideoRequest) GetLastId() (v int64) {
+	if !p.IsSetLastId() {
+		return HotVideoRequest_LastId_DEFAULT
+	}
+	return *p.LastId
+}
+func (p *HotVideoRequest) SetLimit(val *int32) {
+	p.Limit = val
+}
+func (p *HotVideoRequest) SetCategory(val *string) {
+	p.Category = val
+}
+func (p *HotVideoRequest) SetLastVisit(val *int64) {
+	p.LastVisit = val
+}
+func (p *HotVideoRequest) SetLastLike(val *int64) {
+	p.LastLike = val
+}
+func (p *HotVideoRequest) SetLastId(val *int64) {
+	p.LastId = val
+}
+
+var fieldIDToName_HotVideoRequest = map[int16]string{
+	1: "limit",
+	2: "category",
+	3: "last_visit",
+	4: "last_like",
+	5: "last_id",
+}
+
+func (p *HotVideoRequest) IsSetLimit() bool {
+	return p.Limit != nil
+}
+
+func (p *HotVideoRequest) IsSetCategory() bool {
+	return p.Category != nil
+}
+
+func (p *HotVideoRequest) IsSetLastVisit() bool {
+	return p.LastVisit != nil
+}
+
+func (p *HotVideoRequest) IsSetLastLike() bool {
+	return p.LastLike != nil
+}
+
+func (p *HotVideoRequest) IsSetLastId() bool {
+	return p.LastId != nil
+}
+
+func (p *HotVideoRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I32 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_HotVideoRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *HotVideoRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field *int32
+	if v, err := iprot.ReadI32(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Limit = _field
+	return nil
+}
+func (p *HotVideoRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Category = _field
+	return nil
+}
+func (p *HotVideoRequest) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.LastVisit = _field
+	return nil
+}
+func (p *HotVideoRequest) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.LastLike = _field
+	return nil
+}
+func (p *HotVideoRequest) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.LastId = _field
+	return nil
+}
+
+func (p *HotVideoRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("HotVideoRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *HotVideoRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if p.IsSetLimit() {
+		if err = oprot.WriteFieldBegin("limit", thrift.I32, 1); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI32(*p.Limit); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *HotVideoRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetCategory() {
+		if err = oprot.WriteFieldBegin("category", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Category); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *HotVideoRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetLastVisit() {
+		if err = oprot.WriteFieldBegin("last_visit", thrift.I64, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.LastVisit); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *HotVideoRequest) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetLastLike() {
+		if err = oprot.WriteFieldBegin("last_like", thrift.I64, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.LastLike); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *HotVideoRequest) writeField5(oprot thrift.TProtocol) (err error) {
+	if p.IsSetLastId() {
+		if err = oprot.WriteFieldBegin("last_id", thrift.I64, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.LastId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *HotVideoRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("HotVideoRequest(%+v)", *p)
+
+}
+
+func (p *HotVideoRequest) DeepEqual(ano *HotVideoRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Limit) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Category) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.LastVisit) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.LastLike) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.LastId) {
+		return false
+	}
+	return true
+}
+
+func (p *HotVideoRequest) Field1DeepEqual(src *int32) bool {
+
+	if p.Limit == src {
+		return true
+	} else if p.Limit == nil || src == nil {
+		return false
+	}
+	if *p.Limit != *src {
+		return false
+	}
+	return true
+}
+func (p *HotVideoRequest) Field2DeepEqual(src *string) bool {
+
+	if p.Category == src {
+		return true
+	} else if p.Category == nil || src == nil {
+		return false
+	}
+	if strings.Compare(*p.Category, *src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *HotVideoRequest) Field3DeepEqual(src *int64) bool {
+
+	if p.LastVisit == src {
+		return true
+	} else if p.LastVisit == nil || src == nil {
+		return false
+	}
+	if *p.LastVisit != *src {
+		return false
+	}
+	return true
+}
+func (p *HotVideoRequest) Field4DeepEqual(src *int64) bool {
+
+	if p.LastLike == src {
+		return true
+	} else if p.LastLike == nil || src == nil {
+		return false
+	}
+	if *p.LastLike != *src {
+		return false
+	}
+	return true
+}
+func (p *HotVideoRequest) Field5DeepEqual(src *int64) bool {
+
+	if p.LastId == src {
+		return true
+	} else if p.LastId == nil || src == nil {
+		return false
+	}
+	if *p.LastId != *src {
+		return false
+	}
+	return true
+}
+
+type HotVideoResponse struct {
+	Videos    []*Video `thrift:"videos,1,required" frugal:"1,required,list<Video>" json:"videos"`
+	Total     int64    `thrift:"total,2,required" frugal:"2,required,i64" json:"total"`
+	NextVisit *int64   `thrift:"next_visit,3,optional" frugal:"3,optional,i64" json:"next_visit,omitempty"`
+	NextLike  *int64   `thrift:"next_like,4,optional" frugal:"4,optional,i64" json:"next_like,omitempty"`
+	NextId    *int64   `thrift:"next_id,5,optional" frugal:"5,optional,i64" json:"next_id,omitempty"`
+}
+
+func NewHotVideoResponse() *HotVideoResponse {
+	return &HotVideoResponse{}
+}
+
+func (p *HotVideoResponse) InitDefault() {
+}
+
+func (p *HotVideoResponse) GetVideos() (v []*Video) {
+	return p.Videos
+}
+
+func (p *HotVideoResponse) GetTotal() (v int64) {
+	return p.Total
+}
+
+var HotVideoResponse_NextVisit_DEFAULT int64
+
+func (p *HotVideoResponse) GetNextVisit() (v int64) {
+	if !p.IsSetNextVisit() {
+		return HotVideoResponse_NextVisit_DEFAULT
+	}
+	return *p.NextVisit
+}
+
+var HotVideoResponse_NextLike_DEFAULT int64
+
+func (p *HotVideoResponse) GetNextLike() (v int64) {
+	if !p.IsSetNextLike() {
+		return HotVideoResponse_NextLike_DEFAULT
+	}
+	return *p.NextLike
+}
+
+var HotVideoResponse_NextId_DEFAULT int64
+
+func (p *HotVideoResponse) GetNextId() (v int64) {
+	if !p.IsSetNextId() {
+		return HotVideoResponse_NextId_DEFAULT
+	}
+	return *p.NextId
+}
+func (p *HotVideoResponse) SetVideos(val []*Video) {
+	p.Videos = val
+}
+func (p *HotVideoResponse) SetTotal(val int64) {
+	p.Total = val
+}
+func (p *HotVideoResponse) SetNextVisit(val *int64) {
+	p.NextVisit = val
+}
+func (p *HotVideoResponse) SetNextLike(val *int64) {
+	p.NextLike = val
+}
+func (p *HotVideoResponse) SetNextId(val *int64) {
+	p.NextId = val
+}
+
+var fieldIDToName_HotVideoResponse = map[int16]string{
+	1: "videos",
+	2: "total",
+	3: "next_visit",
+	4: "next_like",
+	5: "next_id",
+}
+
+func (p *HotVideoResponse) IsSetNextVisit() bool {
+	return p.NextVisit != nil
+}
+
+func (p *HotVideoResponse) IsSetNextLike() bool {
+	return p.NextLike != nil
+}
+
+func (p *HotVideoResponse) IsSetNextId() bool {
+	return p.NextId != nil
+}
+
+func (p *HotVideoResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetVideos bool = false
+	var issetTotal bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetVideos = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetTotal = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetVideos {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetTotal {
+		fieldId = 2
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_HotVideoResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_HotVideoResponse[fieldId]))
+}
+
+func (p *HotVideoResponse) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	_field := make([]*Video, 0, size)
+	values := make([]Video, size)
+	for i := 0; i < size; i++ {
+		_elem := &values[i]
+		_elem.InitDefault()
+
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.Videos = _field
+	return nil
+}
+func (p *HotVideoResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Total = _field
+	return nil
+}
+func (p *HotVideoResponse) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.NextVisit = _field
+	return nil
+}
+func (p *HotVideoResponse) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.NextLike = _field
+	return nil
+}
+func (p *HotVideoResponse) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.NextId = _field
+	return nil
+}
+
+func (p *HotVideoResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("HotVideoResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *HotVideoResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("videos", thrift.LIST, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Videos)); err != nil {
+		return err
+	}
+	for _, v := range p.Videos {
+		if err := v.Write(oprot); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *HotVideoResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("total", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.Total); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *HotVideoResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNextVisit() {
+		if err = oprot.WriteFieldBegin("next_visit", thrift.I64, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.NextVisit); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *HotVideoResponse) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNextLike() {
+		if err = oprot.WriteFieldBegin("next_like", thrift.I64, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.NextLike); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *HotVideoResponse) writeField5(oprot thrift.TProtocol) (err error) {
+	if p.IsSetNextId() {
+		if err = oprot.WriteFieldBegin("next_id", thrift.I64, 5); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.NextId); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *HotVideoResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("HotVideoResponse(%+v)", *p)
+
+}
+
+func (p *HotVideoResponse) DeepEqual(ano *HotVideoResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Videos) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Total) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.NextVisit) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.NextLike) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.NextId) {
+		return false
+	}
+	return true
+}
+
+func (p *HotVideoResponse) Field1DeepEqual(src []*Video) bool {
+
+	if len(p.Videos) != len(src) {
+		return false
+	}
+	for i, v := range p.Videos {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
+	}
+	return true
+}
+func (p *HotVideoResponse) Field2DeepEqual(src int64) bool {
+
+	if p.Total != src {
+		return false
+	}
+	return true
+}
+func (p *HotVideoResponse) Field3DeepEqual(src *int64) bool {
+
+	if p.NextVisit == src {
+		return true
+	} else if p.NextVisit == nil || src == nil {
+		return false
+	}
+	if *p.NextVisit != *src {
+		return false
+	}
+	return true
+}
+func (p *HotVideoResponse) Field4DeepEqual(src *int64) bool {
+
+	if p.NextLike == src {
+		return true
+	} else if p.NextLike == nil || src == nil {
+		return false
+	}
+	if *p.NextLike != *src {
+		return false
+	}
+	return true
+}
+func (p *HotVideoResponse) Field5DeepEqual(src *int64) bool {
+
+	if p.NextId == src {
+		return true
+	} else if p.NextId == nil || src == nil {
+		return false
+	}
+	if *p.NextId != *src {
+		return false
+	}
+	return true
+}
+
+type IncrementVisitCountRequest struct {
+	VideoId int64 `thrift:"video_id,1,required" frugal:"1,required,i64" json:"video_id"`
+}
+
+func NewIncrementVisitCountRequest() *IncrementVisitCountRequest {
+	return &IncrementVisitCountRequest{}
+}
+
+func (p *IncrementVisitCountRequest) InitDefault() {
+}
+
+func (p *IncrementVisitCountRequest) GetVideoId() (v int64) {
+	return p.VideoId
+}
+func (p *IncrementVisitCountRequest) SetVideoId(val int64) {
+	p.VideoId = val
+}
+
+var fieldIDToName_IncrementVisitCountRequest = map[int16]string{
+	1: "video_id",
+}
+
+func (p *IncrementVisitCountRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetVideoId bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetVideoId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetVideoId {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_IncrementVisitCountRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_IncrementVisitCountRequest[fieldId]))
+}
+
+func (p *IncrementVisitCountRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.VideoId = _field
+	return nil
+}
+
+func (p *IncrementVisitCountRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrementVisitCountRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *IncrementVisitCountRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("video_id", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.VideoId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *IncrementVisitCountRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("IncrementVisitCountRequest(%+v)", *p)
+
+}
+
+func (p *IncrementVisitCountRequest) DeepEqual(ano *IncrementVisitCountRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.VideoId) {
+		return false
+	}
+	return true
+}
+
+func (p *IncrementVisitCountRequest) Field1DeepEqual(src int64) bool {
+
+	if p.VideoId != src {
+		return false
+	}
+	return true
+}
+
+type IncrementVisitCountResponse struct {
+	Success bool `thrift:"success,1,required" frugal:"1,required,bool" json:"success"`
+}
+
+func NewIncrementVisitCountResponse() *IncrementVisitCountResponse {
+	return &IncrementVisitCountResponse{}
+}
+
+func (p *IncrementVisitCountResponse) InitDefault() {
+}
+
+func (p *IncrementVisitCountResponse) GetSuccess() (v bool) {
+	return p.Success
+}
+func (p *IncrementVisitCountResponse) SetSuccess(val bool) {
+	p.Success = val
+}
+
+var fieldIDToName_IncrementVisitCountResponse = map[int16]string{
+	1: "success",
+}
+
+func (p *IncrementVisitCountResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetSuccess bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetSuccess = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetSuccess {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_IncrementVisitCountResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_IncrementVisitCountResponse[fieldId]))
+}
+
+func (p *IncrementVisitCountResponse) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *IncrementVisitCountResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrementVisitCountResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *IncrementVisitCountResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("success", thrift.BOOL, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.Success); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *IncrementVisitCountResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("IncrementVisitCountResponse(%+v)", *p)
+
+}
+
+func (p *IncrementVisitCountResponse) DeepEqual(ano *IncrementVisitCountResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *IncrementVisitCountResponse) Field1DeepEqual(src bool) bool {
+
+	if p.Success != src {
+		return false
+	}
+	return true
+}
+
+type IncrementLikeCountRequest struct {
+	VideoId int64 `thrift:"video_id,1,required" frugal:"1,required,i64" json:"video_id"`
+}
+
+func NewIncrementLikeCountRequest() *IncrementLikeCountRequest {
+	return &IncrementLikeCountRequest{}
+}
+
+func (p *IncrementLikeCountRequest) InitDefault() {
+}
+
+func (p *IncrementLikeCountRequest) GetVideoId() (v int64) {
+	return p.VideoId
+}
+func (p *IncrementLikeCountRequest) SetVideoId(val int64) {
+	p.VideoId = val
+}
+
+var fieldIDToName_IncrementLikeCountRequest = map[int16]string{
+	1: "video_id",
+}
+
+func (p *IncrementLikeCountRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetVideoId bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetVideoId = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetVideoId {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_IncrementLikeCountRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_IncrementLikeCountRequest[fieldId]))
+}
+
+func (p *IncrementLikeCountRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.VideoId = _field
+	return nil
+}
+
+func (p *IncrementLikeCountRequest) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrementLikeCountRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *IncrementLikeCountRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("video_id", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.VideoId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *IncrementLikeCountRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("IncrementLikeCountRequest(%+v)", *p)
+
+}
+
+func (p *IncrementLikeCountRequest) DeepEqual(ano *IncrementLikeCountRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.VideoId) {
+		return false
+	}
+	return true
+}
+
+func (p *IncrementLikeCountRequest) Field1DeepEqual(src int64) bool {
+
+	if p.VideoId != src {
+		return false
+	}
+	return true
+}
+
+type IncrementLikeCountResponse struct {
+	Success bool `thrift:"success,1,required" frugal:"1,required,bool" json:"success"`
+}
+
+func NewIncrementLikeCountResponse() *IncrementLikeCountResponse {
+	return &IncrementLikeCountResponse{}
+}
+
+func (p *IncrementLikeCountResponse) InitDefault() {
+}
+
+func (p *IncrementLikeCountResponse) GetSuccess() (v bool) {
+	return p.Success
+}
+func (p *IncrementLikeCountResponse) SetSuccess(val bool) {
+	p.Success = val
+}
+
+var fieldIDToName_IncrementLikeCountResponse = map[int16]string{
+	1: "success",
+}
+
+func (p *IncrementLikeCountResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetSuccess bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetSuccess = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetSuccess {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_IncrementLikeCountResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_IncrementLikeCountResponse[fieldId]))
+}
+
+func (p *IncrementLikeCountResponse) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *IncrementLikeCountResponse) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrementLikeCountResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *IncrementLikeCountResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("success", thrift.BOOL, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.Success); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *IncrementLikeCountResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("IncrementLikeCountResponse(%+v)", *p)
+
+}
+
+func (p *IncrementLikeCountResponse) DeepEqual(ano *IncrementLikeCountResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *IncrementLikeCountResponse) Field1DeepEqual(src bool) bool {
+
+	if p.Success != src {
+		return false
+	}
+	return true
+}
+
 type VideoService interface {
 	Publish(ctx context.Context, req *PublishRequest) (r *PublishResponse, err error)
 
 	GetVideoList(ctx context.Context, req *VideoListRequest) (r *VideoListResponse, err error)
+
+	GetHotVideos(ctx context.Context, req *HotVideoRequest) (r *HotVideoResponse, err error)
+
+	IncrementVisitCount(ctx context.Context, req *IncrementVisitCountRequest) (r *IncrementVisitCountResponse, err error)
+
+	IncrementLikeCount(ctx context.Context, req *IncrementLikeCountRequest) (r *IncrementLikeCountResponse, err error)
 }
 
 type VideoServicePublishArgs struct {
@@ -3802,6 +5152,1032 @@ func (p *VideoServiceGetVideoListResult) DeepEqual(ano *VideoServiceGetVideoList
 }
 
 func (p *VideoServiceGetVideoListResult) Field0DeepEqual(src *VideoListResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type VideoServiceGetHotVideosArgs struct {
+	Req *HotVideoRequest `thrift:"req,1" frugal:"1,default,HotVideoRequest" json:"req"`
+}
+
+func NewVideoServiceGetHotVideosArgs() *VideoServiceGetHotVideosArgs {
+	return &VideoServiceGetHotVideosArgs{}
+}
+
+func (p *VideoServiceGetHotVideosArgs) InitDefault() {
+}
+
+var VideoServiceGetHotVideosArgs_Req_DEFAULT *HotVideoRequest
+
+func (p *VideoServiceGetHotVideosArgs) GetReq() (v *HotVideoRequest) {
+	if !p.IsSetReq() {
+		return VideoServiceGetHotVideosArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VideoServiceGetHotVideosArgs) SetReq(val *HotVideoRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_VideoServiceGetHotVideosArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *VideoServiceGetHotVideosArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VideoServiceGetHotVideosArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VideoServiceGetHotVideosArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VideoServiceGetHotVideosArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewHotVideoRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *VideoServiceGetHotVideosArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetHotVideos_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VideoServiceGetHotVideosArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *VideoServiceGetHotVideosArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceGetHotVideosArgs(%+v)", *p)
+
+}
+
+func (p *VideoServiceGetHotVideosArgs) DeepEqual(ano *VideoServiceGetHotVideosArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *VideoServiceGetHotVideosArgs) Field1DeepEqual(src *HotVideoRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type VideoServiceGetHotVideosResult struct {
+	Success *HotVideoResponse `thrift:"success,0,optional" frugal:"0,optional,HotVideoResponse" json:"success,omitempty"`
+}
+
+func NewVideoServiceGetHotVideosResult() *VideoServiceGetHotVideosResult {
+	return &VideoServiceGetHotVideosResult{}
+}
+
+func (p *VideoServiceGetHotVideosResult) InitDefault() {
+}
+
+var VideoServiceGetHotVideosResult_Success_DEFAULT *HotVideoResponse
+
+func (p *VideoServiceGetHotVideosResult) GetSuccess() (v *HotVideoResponse) {
+	if !p.IsSetSuccess() {
+		return VideoServiceGetHotVideosResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VideoServiceGetHotVideosResult) SetSuccess(x interface{}) {
+	p.Success = x.(*HotVideoResponse)
+}
+
+var fieldIDToName_VideoServiceGetHotVideosResult = map[int16]string{
+	0: "success",
+}
+
+func (p *VideoServiceGetHotVideosResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoServiceGetHotVideosResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VideoServiceGetHotVideosResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VideoServiceGetHotVideosResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewHotVideoResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *VideoServiceGetHotVideosResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetHotVideos_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VideoServiceGetHotVideosResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *VideoServiceGetHotVideosResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceGetHotVideosResult(%+v)", *p)
+
+}
+
+func (p *VideoServiceGetHotVideosResult) DeepEqual(ano *VideoServiceGetHotVideosResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *VideoServiceGetHotVideosResult) Field0DeepEqual(src *HotVideoResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type VideoServiceIncrementVisitCountArgs struct {
+	Req *IncrementVisitCountRequest `thrift:"req,1" frugal:"1,default,IncrementVisitCountRequest" json:"req"`
+}
+
+func NewVideoServiceIncrementVisitCountArgs() *VideoServiceIncrementVisitCountArgs {
+	return &VideoServiceIncrementVisitCountArgs{}
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) InitDefault() {
+}
+
+var VideoServiceIncrementVisitCountArgs_Req_DEFAULT *IncrementVisitCountRequest
+
+func (p *VideoServiceIncrementVisitCountArgs) GetReq() (v *IncrementVisitCountRequest) {
+	if !p.IsSetReq() {
+		return VideoServiceIncrementVisitCountArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VideoServiceIncrementVisitCountArgs) SetReq(val *IncrementVisitCountRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_VideoServiceIncrementVisitCountArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VideoServiceIncrementVisitCountArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewIncrementVisitCountRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrementVisitCount_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceIncrementVisitCountArgs(%+v)", *p)
+
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) DeepEqual(ano *VideoServiceIncrementVisitCountArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *VideoServiceIncrementVisitCountArgs) Field1DeepEqual(src *IncrementVisitCountRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type VideoServiceIncrementVisitCountResult struct {
+	Success *IncrementVisitCountResponse `thrift:"success,0,optional" frugal:"0,optional,IncrementVisitCountResponse" json:"success,omitempty"`
+}
+
+func NewVideoServiceIncrementVisitCountResult() *VideoServiceIncrementVisitCountResult {
+	return &VideoServiceIncrementVisitCountResult{}
+}
+
+func (p *VideoServiceIncrementVisitCountResult) InitDefault() {
+}
+
+var VideoServiceIncrementVisitCountResult_Success_DEFAULT *IncrementVisitCountResponse
+
+func (p *VideoServiceIncrementVisitCountResult) GetSuccess() (v *IncrementVisitCountResponse) {
+	if !p.IsSetSuccess() {
+		return VideoServiceIncrementVisitCountResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VideoServiceIncrementVisitCountResult) SetSuccess(x interface{}) {
+	p.Success = x.(*IncrementVisitCountResponse)
+}
+
+var fieldIDToName_VideoServiceIncrementVisitCountResult = map[int16]string{
+	0: "success",
+}
+
+func (p *VideoServiceIncrementVisitCountResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoServiceIncrementVisitCountResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VideoServiceIncrementVisitCountResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementVisitCountResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewIncrementVisitCountResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *VideoServiceIncrementVisitCountResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrementVisitCount_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementVisitCountResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementVisitCountResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceIncrementVisitCountResult(%+v)", *p)
+
+}
+
+func (p *VideoServiceIncrementVisitCountResult) DeepEqual(ano *VideoServiceIncrementVisitCountResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *VideoServiceIncrementVisitCountResult) Field0DeepEqual(src *IncrementVisitCountResponse) bool {
+
+	if !p.Success.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type VideoServiceIncrementLikeCountArgs struct {
+	Req *IncrementLikeCountRequest `thrift:"req,1" frugal:"1,default,IncrementLikeCountRequest" json:"req"`
+}
+
+func NewVideoServiceIncrementLikeCountArgs() *VideoServiceIncrementLikeCountArgs {
+	return &VideoServiceIncrementLikeCountArgs{}
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) InitDefault() {
+}
+
+var VideoServiceIncrementLikeCountArgs_Req_DEFAULT *IncrementLikeCountRequest
+
+func (p *VideoServiceIncrementLikeCountArgs) GetReq() (v *IncrementLikeCountRequest) {
+	if !p.IsSetReq() {
+		return VideoServiceIncrementLikeCountArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+func (p *VideoServiceIncrementLikeCountArgs) SetReq(val *IncrementLikeCountRequest) {
+	p.Req = val
+}
+
+var fieldIDToName_VideoServiceIncrementLikeCountArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VideoServiceIncrementLikeCountArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewIncrementLikeCountRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrementLikeCount_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceIncrementLikeCountArgs(%+v)", *p)
+
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) DeepEqual(ano *VideoServiceIncrementLikeCountArgs) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Req) {
+		return false
+	}
+	return true
+}
+
+func (p *VideoServiceIncrementLikeCountArgs) Field1DeepEqual(src *IncrementLikeCountRequest) bool {
+
+	if !p.Req.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type VideoServiceIncrementLikeCountResult struct {
+	Success *IncrementLikeCountResponse `thrift:"success,0,optional" frugal:"0,optional,IncrementLikeCountResponse" json:"success,omitempty"`
+}
+
+func NewVideoServiceIncrementLikeCountResult() *VideoServiceIncrementLikeCountResult {
+	return &VideoServiceIncrementLikeCountResult{}
+}
+
+func (p *VideoServiceIncrementLikeCountResult) InitDefault() {
+}
+
+var VideoServiceIncrementLikeCountResult_Success_DEFAULT *IncrementLikeCountResponse
+
+func (p *VideoServiceIncrementLikeCountResult) GetSuccess() (v *IncrementLikeCountResponse) {
+	if !p.IsSetSuccess() {
+		return VideoServiceIncrementLikeCountResult_Success_DEFAULT
+	}
+	return p.Success
+}
+func (p *VideoServiceIncrementLikeCountResult) SetSuccess(x interface{}) {
+	p.Success = x.(*IncrementLikeCountResponse)
+}
+
+var fieldIDToName_VideoServiceIncrementLikeCountResult = map[int16]string{
+	0: "success",
+}
+
+func (p *VideoServiceIncrementLikeCountResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoServiceIncrementLikeCountResult) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VideoServiceIncrementLikeCountResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementLikeCountResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewIncrementLikeCountResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *VideoServiceIncrementLikeCountResult) Write(oprot thrift.TProtocol) (err error) {
+
+	var fieldId int16
+	if err = oprot.WriteStructBegin("IncrementLikeCount_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementLikeCountResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *VideoServiceIncrementLikeCountResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoServiceIncrementLikeCountResult(%+v)", *p)
+
+}
+
+func (p *VideoServiceIncrementLikeCountResult) DeepEqual(ano *VideoServiceIncrementLikeCountResult) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field0DeepEqual(ano.Success) {
+		return false
+	}
+	return true
+}
+
+func (p *VideoServiceIncrementLikeCountResult) Field0DeepEqual(src *IncrementLikeCountResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
