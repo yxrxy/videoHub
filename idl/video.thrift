@@ -1,8 +1,3 @@
-struct BaseResp {
-    1: required i32 code                  // 状态码
-    2: required string message            // 响应信息
-}
-
 struct Video {
     1: required i64 id                   // 视频ID
     2: required i64 user_id              // 作者ID
@@ -24,15 +19,14 @@ struct Video {
 
 struct VideoListRequest {
     1: required i64 user_id              // 查询的用户ID
-    2: optional i64 cursor               // 分页游标
-    3: optional i32 page_size            // 每页数量
+    2: optional i64 page                 // 第几页
+    3: optional i32 size                 // 每页数量
     4: optional string category          // 按分类筛选
 }
 
 struct VideoListResponse {
     1: required list<Video> videos
     2: required i64 total
-    3: optional i64 next_cursor          // 下一页游标
 }
 
 struct PublishRequest {
@@ -54,17 +48,39 @@ struct PublishResponse {
 struct HotVideoRequest {
     1: optional i32 limit                // 获取数量限制，默认10
     2: optional string category          // 可选的分类筛选
-    3: optional i64 cursor               // 分页游标
+    3: optional i64 last_visit               // 分页游标适合抖音不断滑动推荐视频
+    4: optional i64 last_like
+    5: optional i64 last_id
 }
 
 struct HotVideoResponse {
     1: required list<Video> videos       // 热门视频列表
     2: required i64 total               // 总数
-    3: optional i64 next_cursor         // 下一页游标
+    3: optional i64 next_visit               // 分页游标适合抖音不断滑动推荐视频
+    4: optional i64 next_like
+    5: optional i64 next_id
+}
+
+struct IncrementVisitCountRequest {
+    1: required i64 video_id              // 视频ID
+}
+
+struct IncrementVisitCountResponse {
+    1: required bool success
+}
+
+struct IncrementLikeCountRequest {
+    1: required i64 video_id              // 视频ID
+}
+
+struct IncrementLikeCountResponse {
+    1: required bool success
 }
 
 service VideoService {
     PublishResponse Publish(1: PublishRequest req)
     VideoListResponse GetVideoList(1: VideoListRequest req)
     HotVideoResponse GetHotVideos(1: HotVideoRequest req)
+    IncrementVisitCountResponse IncrementVisitCount(1: IncrementVisitCountRequest req)   // 增加播放量
+    IncrementLikeCountResponse IncrementLikeCount(1: IncrementLikeCountRequest req)     // 增加点赞数
 }

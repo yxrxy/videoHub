@@ -27,6 +27,27 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"GetHotVideos": kitex.NewMethodInfo(
+		getHotVideosHandler,
+		newVideoServiceGetHotVideosArgs,
+		newVideoServiceGetHotVideosResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"IncrementVisitCount": kitex.NewMethodInfo(
+		incrementVisitCountHandler,
+		newVideoServiceIncrementVisitCountArgs,
+		newVideoServiceIncrementVisitCountResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"IncrementLikeCount": kitex.NewMethodInfo(
+		incrementLikeCountHandler,
+		newVideoServiceIncrementLikeCountArgs,
+		newVideoServiceIncrementLikeCountResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -129,6 +150,60 @@ func newVideoServiceGetVideoListResult() interface{} {
 	return video.NewVideoServiceGetVideoListResult()
 }
 
+func getHotVideosHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceGetHotVideosArgs)
+	realResult := result.(*video.VideoServiceGetHotVideosResult)
+	success, err := handler.(video.VideoService).GetHotVideos(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceGetHotVideosArgs() interface{} {
+	return video.NewVideoServiceGetHotVideosArgs()
+}
+
+func newVideoServiceGetHotVideosResult() interface{} {
+	return video.NewVideoServiceGetHotVideosResult()
+}
+
+func incrementVisitCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceIncrementVisitCountArgs)
+	realResult := result.(*video.VideoServiceIncrementVisitCountResult)
+	success, err := handler.(video.VideoService).IncrementVisitCount(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceIncrementVisitCountArgs() interface{} {
+	return video.NewVideoServiceIncrementVisitCountArgs()
+}
+
+func newVideoServiceIncrementVisitCountResult() interface{} {
+	return video.NewVideoServiceIncrementVisitCountResult()
+}
+
+func incrementLikeCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceIncrementLikeCountArgs)
+	realResult := result.(*video.VideoServiceIncrementLikeCountResult)
+	success, err := handler.(video.VideoService).IncrementLikeCount(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceIncrementLikeCountArgs() interface{} {
+	return video.NewVideoServiceIncrementLikeCountArgs()
+}
+
+func newVideoServiceIncrementLikeCountResult() interface{} {
+	return video.NewVideoServiceIncrementLikeCountResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -154,6 +229,36 @@ func (p *kClient) GetVideoList(ctx context.Context, req *video.VideoListRequest)
 	_args.Req = req
 	var _result video.VideoServiceGetVideoListResult
 	if err = p.c.Call(ctx, "GetVideoList", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetHotVideos(ctx context.Context, req *video.HotVideoRequest) (r *video.HotVideoResponse, err error) {
+	var _args video.VideoServiceGetHotVideosArgs
+	_args.Req = req
+	var _result video.VideoServiceGetHotVideosResult
+	if err = p.c.Call(ctx, "GetHotVideos", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) IncrementVisitCount(ctx context.Context, req *video.IncrementVisitCountRequest) (r *video.IncrementVisitCountResponse, err error) {
+	var _args video.VideoServiceIncrementVisitCountArgs
+	_args.Req = req
+	var _result video.VideoServiceIncrementVisitCountResult
+	if err = p.c.Call(ctx, "IncrementVisitCount", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) IncrementLikeCount(ctx context.Context, req *video.IncrementLikeCountRequest) (r *video.IncrementLikeCountResponse, err error) {
+	var _args video.VideoServiceIncrementLikeCountArgs
+	_args.Req = req
+	var _result video.VideoServiceIncrementLikeCountResult
+	if err = p.c.Call(ctx, "IncrementLikeCount", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
