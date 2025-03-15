@@ -40,5 +40,19 @@ func main() {
 		case "name":
 			fmt.Print(config.User.Name)
 		}
+	case "video":
+		switch strings.ToLower(field) {
+		case "http_port":
+			fmt.Print(strings.TrimPrefix(config.Video.HTTPAddr, ":"))
+		case "rpc_port":
+			fmt.Print(strings.TrimPrefix(config.Video.RPCAddr, ":"))
+		case "name":
+			fmt.Print(config.Video.Name)
+		}
+	case "redis":
+		switch strings.ToLower(field) {
+		case "password":
+			fmt.Print(strings.TrimPrefix(config.Redis.Password, ":"))
+		}
 	}
 }

@@ -2,8 +2,7 @@ package config
 
 import (
 	"fmt"
-	"strings"
-
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 )
 
@@ -25,6 +24,10 @@ type RedisConfig struct {
 type JWTConfig struct {
 	SecretKey   string `mapstructure:"secret_key"`
 	ExpiresTime int    `mapstructure:"expires_time"`
+}
+
+type GatewayConfig struct {
+	Addr string `mapstructure:"addr"`
 }
 
 type ServerConfig struct {
@@ -106,18 +109,12 @@ func GetDSN() string {
 	)
 }
 
-func GetMySQLEnv() map[string]string {
-	return map[string]string{
-		"MYSQL_ROOT_PASSWORD": MySQL.Password,
-		"MYSQL_DATABASE":      MySQL.Database,
-		"MYSQL_HOST":          MySQL.Host,
-		"MYSQL_PORT":          fmt.Sprintf("%d", MySQL.Port),
-	}
-}
+func GetClient() *redis.Client {
+	client := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", Redis.Host, Redis.Port),
+		Password: Redis.Password,
+		DB:       Redis.DB,
+	})
 
-func GetUserServiceEnv() map[string]string {
-	return map[string]string{
-		"SERVICE_NAME": User.Name,
-		"SERVICE_PORT": strings.TrimPrefix(User.HTTPAddr, ":"),
-	}
+	return client
 }

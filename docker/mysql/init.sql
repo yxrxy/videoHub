@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS videos (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE INDEX idx_visit_like_id ON videos (visit_count DESC, like_count DESC, id DESC);
+
 -- 视频标签表
 CREATE TABLE IF NOT EXISTS video_tags (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,

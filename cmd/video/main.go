@@ -17,7 +17,7 @@ func main() {
 	repository.InitDB()
 
 	// 初始化 Redis
-	cache.Init("localhost:6379")
+	cache.RedisInit()
 
 	// 初始化 RPC 客户端
 	client := videoservice.MustNewClient("video")
