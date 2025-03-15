@@ -13,6 +13,9 @@ import (
 type Client interface {
 	Publish(ctx context.Context, req *video.PublishRequest, callOptions ...callopt.Option) (r *video.PublishResponse, err error)
 	GetVideoList(ctx context.Context, req *video.VideoListRequest, callOptions ...callopt.Option) (r *video.VideoListResponse, err error)
+	GetHotVideos(ctx context.Context, req *video.HotVideoRequest, callOptions ...callopt.Option) (r *video.HotVideoResponse, err error)
+	IncrementVisitCount(ctx context.Context, req *video.IncrementVisitCountRequest, callOptions ...callopt.Option) (r *video.IncrementVisitCountResponse, err error)
+	IncrementLikeCount(ctx context.Context, req *video.IncrementLikeCountRequest, callOptions ...callopt.Option) (r *video.IncrementLikeCountResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -52,4 +55,19 @@ func (p *kVideoServiceClient) Publish(ctx context.Context, req *video.PublishReq
 func (p *kVideoServiceClient) GetVideoList(ctx context.Context, req *video.VideoListRequest, callOptions ...callopt.Option) (r *video.VideoListResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetVideoList(ctx, req)
+}
+
+func (p *kVideoServiceClient) GetHotVideos(ctx context.Context, req *video.HotVideoRequest, callOptions ...callopt.Option) (r *video.HotVideoResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetHotVideos(ctx, req)
+}
+
+func (p *kVideoServiceClient) IncrementVisitCount(ctx context.Context, req *video.IncrementVisitCountRequest, callOptions ...callopt.Option) (r *video.IncrementVisitCountResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.IncrementVisitCount(ctx, req)
+}
+
+func (p *kVideoServiceClient) IncrementLikeCount(ctx context.Context, req *video.IncrementLikeCountRequest, callOptions ...callopt.Option) (r *video.IncrementLikeCountResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.IncrementLikeCount(ctx, req)
 }

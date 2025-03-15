@@ -49,11 +49,6 @@ func (u *User) UpdateAvatar(ctx context.Context, user *model.User) error {
 		Update("avatar_url", user.AvatarURL).Error
 }
 
-func (u *User) UpdateMFASecret(ctx context.Context, id int64, secret string) error {
-	return u.db.WithContext(ctx).Model(&model.User{}).Where("id = ?", id).
-		Update("mfa_secret", secret).Error
-}
-
 func (u *User) ExistByUsername(ctx context.Context, username string) (bool, error) {
 	var count int64
 	if err := u.db.WithContext(ctx).Model(&model.User{}).

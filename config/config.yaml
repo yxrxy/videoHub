@@ -1,42 +1,43 @@
-# 服务配置
 server:
   name: "videoHub"
-  
-# 用户服务
+
 user:
   name: "user"
   http_addr: ":8888"
   rpc_addr: ":8889"
   default_avatar: "/avatars/default.jpg"
 
-# Video服务配置
 video:
   name: "video"
-  http_addr: ":8080"
-  rpc_addr: ":8888"
-  static_path: "static"
+  http_addr: ":8890"
+  rpc_addr: ":8891"
 
-# MySQL配置
 mysql:
   host: "localhost"
   port: 3306
   username: "videoHub"
   password: "videoHub"
   database: "videoHub"
-  dsn: "root:123456@tcp(localhost:3306)/videohub?charset=utf8mb4&parseTime=True&loc=Local"
-  
-# JWT配置
+
+redis:
+  host: "localhost"
+  port: 6379
+  password: "videoHub"
+  db: 0
+
 jwt:
   secret: "videoHub_jwt_secret_v1"
   expires_time: 86400  
 
-# 文件上传配置
+gateway:
+  addr: ":8080"
+
 upload:
   avatar:
     max_size: 5242880  # 5MB
     allowed_types: ["image/jpeg", "image/png"]
     upload_dir: "src/storage/avatars"
-#TODO：不对
+    #TODO：不对
     base_url: "http://localhost:8888/static/avatars"
   video:
     max_size: 104857600  # 100MB
@@ -44,8 +45,4 @@ upload:
     upload_dir: "src/storage/videos"
     base_url: "http://localhost:8890/static/videos"
 
-redis:
-  addr: "localhost:6379"
-  password: ""
-  db: 0
 

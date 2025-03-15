@@ -7,12 +7,10 @@ CONFIG = $(shell go run scripts/config_tool.go $(1) $(2))
 export MYSQL_USER = $(call CONFIG,mysql,username)
 export MYSQL_PASSWORD = $(call CONFIG,mysql,password)
 export MYSQL_DATABASE = $(call CONFIG,mysql,database)
+export REDIS_PASSWORD = $(call CONFIG,redis,password)
 
 env-up:
-	@echo "MYSQL_USER: ${MYSQL_USER}"
-	@echo "MYSQL_PASSWORD: ${MYSQL_PASSWORD}"
-	@echo "MYSQL_DATABASE: ${MYSQL_DATABASE}"
-	@docker-compose -f docker/docker-compose.yml up -d mysql
+	@docker-compose -f docker/docker-compose.yml up -d mysql redis
 
 env-down:
 	@docker-compose -f docker/docker-compose.yml down
