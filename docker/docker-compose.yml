@@ -32,6 +32,7 @@ services:
       - redis_data:/data
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=6379
     healthcheck:
       test: ["CMD", "redis-cli", "ping", "-h", "localhost", "-p", "6379", "-a", "${REDIS_PASSWORD}"]
       interval: 5s
@@ -40,35 +41,15 @@ services:
     networks:
       - app_net
 
-  video_service:
+  etcd:
     build:
-      context: ./baseBuild
+      context: ./etcd
       dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: video
-        SERVICE_PORT: 8891
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
     ports:
-      - "8891:8891"
-    networks:
-      - app_net
-
-  user_service:
-    build:
-      context: ./baseBuild
-      dockerfile: Dockerfile
-      args:
-        SERVICE_NAME: user
-        SERVICE_PORT: 8889
-    depends_on:
-      mysql:
-        condition: service_healthy
-    ports:
-      - "8889:8889"
+      - "2379:2379"
+      - "2380:2380"
+    volumes:
+      - etcd_data:/bitnami/etcd
     networks:
       - app_net
 
@@ -78,4 +59,5 @@ networks:
 
 volumes:
   mysql_data:
-  redis_data:  
+  redis_data:
+  etcd_data:  

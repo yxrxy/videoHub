@@ -19,9 +19,9 @@ struct Video {
 
 struct VideoListRequest {
     1: required i64 user_id              // 查询的用户ID
-    2: optional i64 page                 // 第几页
-    3: optional i32 size                 // 每页数量
-    4: optional string category          // 按分类筛选
+    2: required i64 page                 // 第几页
+    3: required i32 size                 // 每页数量
+    4: required string category          // 按分类筛选
 }
 
 struct VideoListResponse {

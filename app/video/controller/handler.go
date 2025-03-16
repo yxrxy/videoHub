@@ -90,6 +90,13 @@ func (c *VideoController) Publish(ctx context.Context, req *app.RequestContext) 
 	req.JSON(consts.StatusOK, response.Success(data))
 }
 
+// 添加请求结构体
+type VideoListRequest struct {
+	Page     int64  `form:"page" query:"page"`         // 页码
+	Size     int32  `form:"size" query:"size"`         // 每页数量
+	Category string `form:"category" query:"category"` // 分类
+}
+
 func (c *VideoController) GetUserVideoList(ctx context.Context, req *app.RequestContext) {
 	userID, exists := pkgcontext.GetUserID(ctx)
 	if !exists {
@@ -97,17 +104,18 @@ func (c *VideoController) GetUserVideoList(ctx context.Context, req *app.Request
 		return
 	}
 
-	var formReq video.VideoListRequest
+	var formReq VideoListRequest
 	if err := req.BindAndValidate(&formReq); err != nil {
 		req.JSON(consts.StatusBadRequest, response.Error(errno.ErrInvalidParam.ErrCode, err.Error()))
 		return
 	}
 
+	// 构建RPC请求
 	rpcReq := &video.VideoListRequest{
 		UserId:   userID,
-		Page:     formReq.Page,
-		Size:     formReq.Size,
-		Category: formReq.Category,
+		Page:     &formReq.Page,
+		Size:     &formReq.Size,
+		Category: &formReq.Category,
 	}
 
 	resp, err := c.client.GetVideoList(ctx, rpcReq)
@@ -125,12 +133,15 @@ func (c *VideoController) GetUserVideoList(ctx context.Context, req *app.Request
 			"cover_url":     v.CoverUrl,
 			"title":         v.Title,
 			"description":   v.Description,
+			"duration":      v.Duration,
+			"category":      v.Category,
+			"tags":          v.Tags,
 			"visit_count":   v.VisitCount,
 			"like_count":    v.LikeCount,
 			"comment_count": v.CommentCount,
+			"is_private":    v.IsPrivate,
 			"created_at":    utils.FormatTimestamp(v.CreatedAt),
 			"updated_at":    utils.FormatTimestamp(v.UpdatedAt),
-			"deleted_at":    utils.FormatTimestamp(*v.DeletedAt),
 		}
 		if v.DeletedAt != nil {
 			video2["deleted_at"] = utils.FormatTimestamp(*v.DeletedAt)
