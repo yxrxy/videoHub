@@ -3,13 +3,11 @@ server:
 
 user:
   name: "user"
-  http_addr: ":8888"
   rpc_addr: ":8889"
-  default_avatar: "/avatars/default.jpg"
+  default_avatar: "http://localhost:8080/static/avatars/default.jpg"
 
 video:
   name: "video"
-  http_addr: ":8890"
   rpc_addr: ":8891"
 
 mysql:
@@ -25,6 +23,9 @@ redis:
   password: "videoHub"
   db: 0
 
+etcd:
+  addr: "localhost:2379"
+
 jwt:
   secret: "videoHub_jwt_secret_v1"
   expires_time: 86400  
@@ -37,12 +38,11 @@ upload:
     max_size: 5242880  # 5MB
     allowed_types: ["image/jpeg", "image/png"]
     upload_dir: "src/storage/avatars"
-    #TODO：不对
-    base_url: "http://localhost:8888/static/avatars"
+    base_url: "http://localhost:8080/static/avatars"
   video:
     max_size: 104857600  # 100MB
     allowed_types: ["video/mp4", "video/quicktime"]
     upload_dir: "src/storage/videos"
-    base_url: "http://localhost:8890/static/videos"
+    base_url: "http://localhost:8080/static/videos"
 
 

@@ -211,9 +211,15 @@ func (v *Video) IncrementLikeCount(ctx context.Context, videoID int64) error {
 }
 
 func InitDB() *gorm.DB {
-	db, err := gorm.Open(mysql.Open(config.GetDSN()), &gorm.Config{})
+	dsn := config.GetDSN()
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
+
+	if err := db.AutoMigrate(&model.Video{}); err != nil {
+		panic(err)
+	}
+
 	return db
 }

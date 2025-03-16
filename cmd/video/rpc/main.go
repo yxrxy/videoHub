@@ -3,7 +3,10 @@ package main
 import (
 	"net"
 
+	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
+	etcd "github.com/kitex-contrib/registry-etcd"
+	"github.com/yxrrxy/videoHub/app/video/cache"
 	"github.com/yxrrxy/videoHub/app/video/repository"
 	"github.com/yxrrxy/videoHub/app/video/service"
 	"github.com/yxrrxy/videoHub/config"
@@ -14,9 +17,17 @@ import (
 func main() {
 	config.Init()
 
+	// 初始化 Redis
+	cache.RedisInit()
+
 	db := repository.InitDB()
 	videoRepo := repository.NewVideo(db)
 	videoService := service.NewVideoService(videoRepo)
+
+	r, err := etcd.NewEtcdRegistry([]string{config.Etcd.Addr})
+	if err != nil {
+		panic(err)
+	}
 
 	addr, err := net.ResolveTCPAddr("tcp", config.Video.RPCAddr)
 	if err != nil {
@@ -27,6 +38,10 @@ func main() {
 		videoService,
 		server.WithServiceAddr(addr),
 		server.WithMiddleware(middleware.Auth()),
+		server.WithRegistry(r),
+		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
+			ServiceName: config.Video.Name,
+		}),
 	)
 
 	if err := svr.Run(); err != nil {

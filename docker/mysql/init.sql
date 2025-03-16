@@ -1,12 +1,12 @@
 -- 创建数据库
-CREATE DATABASE IF NOT EXISTS viduoHub;
+CREATE DATABASE IF NOT EXISTS videoHub;
 
 -- 创建用户并授权
-CREATE USER IF NOT EXISTS 'viduoHub'@'%' IDENTIFIED BY 'viduoHub';
-GRANT ALL PRIVILEGES ON viduoHub.* TO 'viduoHub'@'%';
+CREATE USER IF NOT EXISTS 'videoHub'@'%' IDENTIFIED BY 'videoHub';
+GRANT ALL PRIVILEGES ON videoHub.* TO 'videoHub'@'%';
 FLUSH PRIVILEGES;
 
-USE viduoHub;
+USE videoHub;
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (
