@@ -33,8 +33,6 @@ func main() {
 		}
 	case "user":
 		switch strings.ToLower(field) {
-		case "http_port":
-			fmt.Print(strings.TrimPrefix(config.User.HTTPAddr, ":"))
 		case "rpc_port":
 			fmt.Print(strings.TrimPrefix(config.User.RPCAddr, ":"))
 		case "name":
@@ -42,8 +40,6 @@ func main() {
 		}
 	case "video":
 		switch strings.ToLower(field) {
-		case "http_port":
-			fmt.Print(strings.TrimPrefix(config.Video.HTTPAddr, ":"))
 		case "rpc_port":
 			fmt.Print(strings.TrimPrefix(config.Video.RPCAddr, ":"))
 		case "name":

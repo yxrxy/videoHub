@@ -1,0 +1,4 @@
+FROM bitnami/etcd:latest
+
+ENV ALLOW_NONE_AUTHENTICATION=yes \
+    ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
