@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/spf13/viper"
 )
@@ -37,7 +38,6 @@ type ServerConfig struct {
 
 type UserConfig struct {
 	Name          string
-	HTTPAddr      string `mapstructure:"http_addr"`
 	RPCAddr       string `mapstructure:"rpc_addr"`
 	DefaultAvatar string `mapstructure:"default_avatar"`
 }
@@ -49,22 +49,33 @@ type UploadConfig struct {
 		UploadDir    string   `mapstructure:"upload_dir"`
 		BaseURL      string   `mapstructure:"base_url"`
 	} `mapstructure:"avatar"`
+	Video struct {
+		MaxSize      int      `mapstructure:"max_size"`
+		AllowedTypes []string `mapstructure:"allowed_types"`
+		UploadDir    string   `mapstructure:"upload_dir"`
+		BaseURL      string   `mapstructure:"base_url"`
+	} `mapstructure:"video"`
 }
 
 type VideoConfig struct {
-	Name     string
-	HTTPAddr string `mapstructure:"http_addr"`
-	RPCAddr  string `mapstructure:"rpc_addr"`
+	Name    string
+	RPCAddr string `mapstructure:"rpc_addr"`
+}
+
+type EtcdConfig struct {
+	Addr string `mapstructure:"addr"`
 }
 
 var (
-	Server ServerConfig
-	MySQL  MySQLConfig
-	Redis  RedisConfig
-	JWT    JWTConfig
-	Upload UploadConfig
-	User   UserConfig
-	Video  VideoConfig
+	Server  ServerConfig
+	MySQL   MySQLConfig
+	Redis   RedisConfig
+	JWT     JWTConfig
+	Upload  UploadConfig
+	User    UserConfig
+	Video   VideoConfig
+	Gateway GatewayConfig
+	Etcd    EtcdConfig
 )
 
 func Init() {
@@ -97,6 +108,12 @@ func Init() {
 	if err := viper.UnmarshalKey("video", &Video); err != nil {
 		panic(err)
 	}
+	if err := viper.UnmarshalKey("gateway", &Gateway); err != nil {
+		panic(err)
+	}
+	if err := viper.UnmarshalKey("etcd", &Etcd); err != nil {
+		panic(err)
+	}
 }
 
 func GetDSN() string {
@@ -111,7 +128,7 @@ func GetDSN() string {
 
 func GetClient() *redis.Client {
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", Redis.Host, Redis.Port),
+		Addr:     fmt.Sprintf("%s:%d", Redis.Host, Redis.Port),
 		Password: Redis.Password,
 		DB:       Redis.DB,
 	})
