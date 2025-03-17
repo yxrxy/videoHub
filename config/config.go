@@ -62,6 +62,25 @@ type VideoConfig struct {
 	RPCAddr string `mapstructure:"rpc_addr"`
 }
 
+type SocialConfig struct {
+	Name    string
+	RPCAddr string `mapstructure:"rpc_addr"`
+	Chat    struct {
+		MaxGroupMembers   int `mapstructure:"max_group_members"`
+		MaxMessageLength  int `mapstructure:"max_message_length"`
+		MaxGroupsPerUser  int `mapstructure:"max_groups_per_user"`
+		MaxFriendsPerUser int `mapstructure:"max_friends_per_user"`
+		MessagePageSize   int `mapstructure:"message_page_size"`
+		HistoryDays       int `mapstructure:"history_days"`
+	} `mapstructure:"chat"`
+	File struct {
+		MaxSize      int      `mapstructure:"max_size"`
+		AllowedTypes []string `mapstructure:"allowed_types"`
+		UploadDir    string   `mapstructure:"upload_dir"`
+		BaseURL      string   `mapstructure:"base_url"`
+	} `mapstructure:"file"`
+}
+
 type EtcdConfig struct {
 	Addr string `mapstructure:"addr"`
 }
@@ -74,6 +93,7 @@ var (
 	Upload  UploadConfig
 	User    UserConfig
 	Video   VideoConfig
+	Social  SocialConfig
 	Gateway GatewayConfig
 	Etcd    EtcdConfig
 )
@@ -106,6 +126,9 @@ func Init() {
 		panic(err)
 	}
 	if err := viper.UnmarshalKey("video", &Video); err != nil {
+		panic(err)
+	}
+	if err := viper.UnmarshalKey("social", &Social); err != nil {
 		panic(err)
 	}
 	if err := viper.UnmarshalKey("gateway", &Gateway); err != nil {
