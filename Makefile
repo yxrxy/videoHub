@@ -15,6 +15,7 @@ env-up:
 	@mkdir -p src/storage/videos
 	@mkdir -p src/storage/covers
 	@mkdir -p src/storage/avatars
+	@mkdir -p src/storage/chat
 	@chmod -R 755 src/storage
 #	@echo "Installing ffmpeg..."
 #	@which ffmpeg || sudo apt-get update && sudo apt-get install -y ffmpeg
@@ -24,7 +25,7 @@ env-up:
 env-down:
 	@docker-compose -f docker/docker-compose.yml down
 
-.PHONY: all user video gateway env-up env-down clean kitex-gen-% start
+.PHONY: all user video social gateway env-up env-down clean kitex-gen-% start
 
 # 构建服务的通用函数
 define build_service
@@ -54,6 +55,10 @@ user: $(OUTPUT_DIR)
 video: $(OUTPUT_DIR)
 	$(call build_service,video)
 
+# 社交服务
+social: $(OUTPUT_DIR)
+	$(call build_service,social)
+
 # 网关服务
 gateway: $(OUTPUT_DIR)
 	@echo "Building gateway service..."
@@ -75,6 +80,7 @@ start:
 	@echo "All services are running in tmux sessions:"
 	@echo "- user service: tmux attach-session -t user"
 	@echo "- video service: tmux attach-session -t video"
+	@echo "- social service: tmux attach-session -t social"
 	@echo "- gateway service: tmux attach-session -t gateway"
 	@echo "Use 'tmux attach-session -t <service_name>' to view logs"
 
@@ -90,4 +96,4 @@ kitex-gen-%:
 	@go mod tidy
 
 # 添加启动所有服务的命令
-all: env-up user video gateway start
+all: env-up user video social gateway start
