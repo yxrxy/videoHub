@@ -45,6 +45,18 @@ func main() {
 		case "name":
 			fmt.Print(config.Video.Name)
 		}
+	case "social":
+		switch strings.ToLower(field) {
+		case "rpc_port":
+			fmt.Print(strings.TrimPrefix(config.Social.RPCAddr, ":"))
+		case "name":
+			fmt.Print(config.Social.Name)
+		}
+	case "gateway":
+		switch strings.ToLower(field) {
+		case "port":
+			fmt.Print(strings.TrimPrefix(config.Gateway.Addr, ":"))
+		}
 	case "redis":
 		switch strings.ToLower(field) {
 		case "password":

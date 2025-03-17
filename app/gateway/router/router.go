@@ -6,20 +6,23 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	socialController "github.com/yxrrxy/videoHub/app/social/controller"
 	"github.com/yxrrxy/videoHub/app/user/controller"
 	videoController "github.com/yxrrxy/videoHub/app/video/controller"
 	"github.com/yxrrxy/videoHub/pkg/middleware"
 )
 
 type Router struct {
-	userCtrl  *controller.UserController
-	videoCtrl *videoController.VideoController
+	userCtrl   *controller.UserController
+	videoCtrl  *videoController.VideoController
+	socialCtrl *socialController.SocialHandler
 }
 
-func NewRouter(userCtrl *controller.UserController, videoCtrl *videoController.VideoController) *Router {
+func NewRouter(userCtrl *controller.UserController, videoCtrl *videoController.VideoController, socialCtrl *socialController.SocialHandler) *Router {
 	return &Router{
-		userCtrl:  userCtrl,
-		videoCtrl: videoCtrl,
+		userCtrl:   userCtrl,
+		videoCtrl:  videoCtrl,
+		socialCtrl: socialCtrl,
 	}
 }
 
@@ -30,6 +33,12 @@ func (r *Router) Register(h *server.Hertz) {
 	})
 	h.StaticFS("/static/videos", &app.FS{
 		Root: "src/storage/videos",
+	})
+	h.StaticFS("/static/covers", &app.FS{
+		Root: "src/storage/covers",
+	})
+	h.StaticFS("/static/chat", &app.FS{
+		Root: "src/storage/chat",
 	})
 
 	// 健康检查
@@ -73,6 +82,42 @@ func (r *Router) Register(h *server.Hertz) {
 				authed.POST("/visit", r.videoCtrl.IncrementVisitCount)
 				authed.POST("/like", r.videoCtrl.IncrementLikeCount)
 			}
+		}
+
+		// WebSocket路由
+		ws := api.Group("/ws")
+		{
+			// WebSocket连接需要认证
+			ws.GET("/connect", middleware.JWT(), r.socialCtrl.HandleWebSocket)
+		}
+
+		// 社交功能路由组
+		social := api.Group("/social", middleware.JWT())
+		{
+			// 私信相关
+			social.POST("/messages", r.socialCtrl.SendPrivateMessage)
+			social.GET("/messages", r.socialCtrl.GetPrivateMessages)
+
+			// 聊天室相关
+			social.POST("/chat/rooms", r.socialCtrl.CreateChatRoom)
+			social.GET("/chat/rooms/:id", r.socialCtrl.GetChatRoom)
+			social.GET("/chat/rooms", r.socialCtrl.GetUserChatRooms)
+			social.POST("/chat/rooms/:id/messages", r.socialCtrl.SendChatMessage)
+			social.GET("/chat/rooms/:id/messages", r.socialCtrl.GetChatMessages)
+
+			// 好友相关
+			social.POST("/friends", r.socialCtrl.AddFriend)
+			social.GET("/friends", r.socialCtrl.GetUserFriends)
+			social.GET("/friends/:id", r.socialCtrl.GetFriendship)
+
+			// 好友申请相关
+			social.POST("/friend-requests", r.socialCtrl.CreateFriendRequest)
+			social.GET("/friend-requests", r.socialCtrl.GetFriendRequests)
+			social.PUT("/friend-requests/:id", r.socialCtrl.HandleFriendRequest)
+
+			// 消息状态相关
+			social.PUT("/messages/:id/read", r.socialCtrl.MarkMessageRead)
+			social.GET("/messages/unread/count", r.socialCtrl.GetUnreadMessageCount)
 		}
 	}
 }
