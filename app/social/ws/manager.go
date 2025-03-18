@@ -69,6 +69,8 @@ func (m *Manager) RegisterClient(userID int64, conn *websocket.Conn) {
 		Rooms:  make(map[int64]bool),
 	}
 	m.register <- client
+
+	go NewExtendedClient(userID, conn).ReadPump(m)
 }
 
 // Start 启动WebSocket管理器
@@ -232,4 +234,12 @@ func (m *Manager) Broadcast(message *Message) {
 	}
 
 	m.broadcast <- data
+}
+
+// GetClient 根据用户ID获取客户端
+func (m *Manager) GetClient(userID int64) (*Client, bool) {
+	m.mutex.RLock()
+	defer m.mutex.RUnlock()
+	client, exists := m.clients[userID]
+	return client, exists
 }

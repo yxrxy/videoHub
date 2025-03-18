@@ -63,9 +63,10 @@ type VideoConfig struct {
 }
 
 type SocialConfig struct {
-	Name    string
-	RPCAddr string `mapstructure:"rpc_addr"`
-	Chat    struct {
+	Name     string
+	RPCAddr  string `mapstructure:"rpc_addr"`
+	HTTPAddr string `mapstructure:"http_addr"`
+	Chat     struct {
 		MaxGroupMembers   int `mapstructure:"max_group_members"`
 		MaxMessageLength  int `mapstructure:"max_message_length"`
 		MaxGroupsPerUser  int `mapstructure:"max_groups_per_user"`

@@ -6,8 +6,6 @@ import (
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	"github.com/hertz-contrib/websocket"
-	"github.com/yxrrxy/videoHub/app/social/ws"
 	"github.com/yxrrxy/videoHub/kitex_gen/social/socialservice"
 	pkgcontext "github.com/yxrrxy/videoHub/pkg/context"
 	"github.com/yxrrxy/videoHub/pkg/errno"
@@ -15,38 +13,12 @@ import (
 )
 
 type SocialHandler struct {
-	client  socialservice.Client
-	manager *ws.Manager
+	client socialservice.Client
 }
 
-func NewSocialHandler(client socialservice.Client, manager *ws.Manager) *SocialHandler {
+func NewSocialHandler(client socialservice.Client) *SocialHandler {
 	return &SocialHandler{
-		client:  client,
-		manager: manager,
-	}
-}
-
-// HandleWebSocket 处理WebSocket连接
-func (s *SocialHandler) HandleWebSocket(ctx context.Context, c *app.RequestContext) {
-	userID, exists := pkgcontext.GetUserID(ctx)
-	if !exists {
-		c.JSON(consts.StatusUnauthorized, response.Error(errno.ErrUnauthorized.ErrCode, errno.ErrUnauthorized.ErrMsg))
-		return
-	}
-
-	upgrader := websocket.HertzUpgrader{
-		CheckOrigin: func(ctx *app.RequestContext) bool {
-			return true // 在生产环境中应该检查来源
-		},
-	}
-
-	err := upgrader.Upgrade(c, func(conn *websocket.Conn) {
-		s.manager.RegisterClient(userID, conn)
-	})
-
-	if err != nil {
-		c.JSON(consts.StatusInternalServerError, response.Error(errno.InternalServerError.ErrCode, err.Error()))
-		return
+		client: client,
 	}
 }
 
@@ -434,9 +406,4 @@ func (s *SocialHandler) GetUnreadMessageCount(ctx context.Context, c *app.Reques
 	c.JSON(consts.StatusOK, response.Success(map[string]interface{}{
 		"count": count,
 	}))
-}
-
-// GetWSManager 获取WebSocket管理器
-func (s *SocialHandler) GetWSManager() *ws.Manager {
-	return s.manager
 }
