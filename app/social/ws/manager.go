@@ -63,14 +63,37 @@ func NewManager() *Manager {
 
 // RegisterClient 注册新的WebSocket客户端
 func (m *Manager) RegisterClient(userID int64, conn *websocket.Conn) {
+	// 检查是否已经存在连接
+	m.mutex.Lock()
+	if oldClient, exists := m.clients[userID]; exists {
+		oldClient.Conn.Close() // 关闭旧连接
+		delete(m.clients, userID)
+	}
+	m.mutex.Unlock()
+
 	client := &Client{
 		UserID: userID,
 		Conn:   conn,
 		Rooms:  make(map[int64]bool),
 	}
-	m.register <- client
 
-	go NewExtendedClient(userID, conn).ReadPump(m)
+	// 启动读写泵
+	go client.ReadPump(m)
+	go client.WritePump()
+
+	// 注册到管理器
+	m.mutex.Lock()
+	m.clients[userID] = client
+	m.mutex.Unlock()
+
+	// 发送欢迎消息
+	welcomeMsg := &Message{
+		Type:      MessageTypeSystem,
+		Content:   "欢迎加入聊天系统",
+		Timestamp: time.Now().Unix(),
+	}
+	data, _ := json.Marshal(welcomeMsg)
+	conn.WriteMessage(websocket.TextMessage, data)
 }
 
 // Start 启动WebSocket管理器
@@ -85,23 +108,36 @@ func (m *Manager) Start(ctx context.Context) {
 		case client := <-m.unregister:
 			m.mutex.Lock()
 			if _, ok := m.clients[client.UserID]; ok {
+				// 从所有房间中移除客户端
+				for roomID := range client.Rooms {
+					if room, exists := m.roomMap[roomID]; exists {
+						delete(room, client)
+						if len(room) == 0 {
+							delete(m.roomMap, roomID)
+						}
+					}
+				}
 				delete(m.clients, client.UserID)
-				client.Conn.Close()
 			}
 			m.mutex.Unlock()
 
 		case message := <-m.broadcast:
 			m.mutex.RLock()
 			for _, client := range m.clients {
-				go func(client *Client) {
-					if err := client.Conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-						m.unregister <- client
-					}
-				}(client)
+				// 直接发送消息
+				if err := client.Conn.WriteMessage(websocket.TextMessage, message); err != nil {
+					m.unregister <- client
+				}
 			}
 			m.mutex.RUnlock()
 
 		case <-ctx.Done():
+			// 关闭所有连接
+			m.mutex.Lock()
+			for _, client := range m.clients {
+				client.Conn.Close()
+			}
+			m.mutex.Unlock()
 			return
 		}
 	}
@@ -117,7 +153,7 @@ func (m *Manager) SendToUser(userID int64, message []byte) error {
 		return nil // 用户不在线，忽略消息
 	}
 
-	return client.Conn.WriteMessage(websocket.BinaryMessage, message)
+	return client.Conn.WriteMessage(websocket.TextMessage, message)
 }
 
 // BroadcastMessage 广播消息给所有连接的客户端
@@ -221,7 +257,7 @@ func (m *Manager) SendToRoom(roomID int64, message *Message) {
 	}
 
 	for client := range room {
-		client.Conn.WriteMessage(websocket.BinaryMessage, data)
+		client.Conn.WriteMessage(websocket.TextMessage, data)
 	}
 }
 

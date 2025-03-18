@@ -50,12 +50,8 @@ social:
   rpc_addr: ":8893"
   http_addr: ":8083"  # WebSocket服务HTTP地址
   chat:
-    max_group_members: 500          # 群聊最大成员数
     max_message_length: 2000        # 消息最大长度
-    max_groups_per_user: 100        # 每个用户最多加入的群聊数
-    max_friends_per_user: 2000      # 每个用户最多好友数
     message_page_size: 50           # 每次加载的消息数量
-    history_days: 30                # 历史消息保留天数
   file:
     max_size: 10485760             # 聊天文件最大大小（10MB）
     allowed_types:                  # 允许的文件类型

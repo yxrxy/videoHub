@@ -36,8 +36,6 @@ func (s *SocialService) GetWSManager() *ws.Manager {
 // RegisterWebSocketClient 注册WebSocket客户端
 func (s *SocialService) RegisterWebSocketClient(userID int64, conn *websocket.Conn) {
 	s.wsManager.RegisterClient(userID, conn)
-	// 启动客户端的消息读取循环
-	go ws.NewExtendedClient(userID, conn).ReadPump(s.wsManager)
 }
 
 // JoinChatRoom 让用户加入聊天室
