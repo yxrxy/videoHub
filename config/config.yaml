@@ -48,6 +48,7 @@ upload:
 social:
   name: "social"
   rpc_addr: ":8893"
+  http_addr: ":8083"  # WebSocket服务HTTP地址
   chat:
     max_group_members: 500          # 群聊最大成员数
     max_message_length: 2000        # 消息最大长度

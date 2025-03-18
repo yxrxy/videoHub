@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"time"
 
+	"github.com/hertz-contrib/websocket"
 	"github.com/yxrrxy/videoHub/app/social/model"
 	"github.com/yxrrxy/videoHub/app/social/repository"
 	"github.com/yxrrxy/videoHub/app/social/ws"
@@ -29,6 +31,55 @@ func NewSocialService(repo *repository.Social, wsManager *ws.Manager, userClient
 // GetWSManager 获取 WebSocket 管理器
 func (s *SocialService) GetWSManager() *ws.Manager {
 	return s.wsManager
+}
+
+// RegisterWebSocketClient 注册WebSocket客户端
+func (s *SocialService) RegisterWebSocketClient(userID int64, conn *websocket.Conn) {
+	s.wsManager.RegisterClient(userID, conn)
+	// 启动客户端的消息读取循环
+	go ws.NewExtendedClient(userID, conn).ReadPump(s.wsManager)
+}
+
+// JoinChatRoom 让用户加入聊天室
+func (s *SocialService) JoinChatRoom(userID int64, roomID int64) error {
+	// 检查用户是否在线
+	client, exists := s.wsManager.GetClient(userID)
+	if exists {
+		s.wsManager.JoinRoom(client, roomID)
+		return nil
+	}
+	return errors.New("user not online")
+}
+
+// LeaveChatRoom 让用户离开聊天室
+func (s *SocialService) LeaveChatRoom(userID int64, roomID int64) error {
+	// 检查用户是否在线
+	client, exists := s.wsManager.GetClient(userID)
+	if exists {
+		s.wsManager.LeaveRoom(client, roomID)
+		return nil
+	}
+	return errors.New("user not online")
+}
+
+// GetOnlineUsers 获取在线用户列表
+func (s *SocialService) GetOnlineUsers() []int64 {
+	return s.wsManager.GetOnlineUsers()
+}
+
+// IsUserOnline 检查用户是否在线
+func (s *SocialService) IsUserOnline(userID int64) bool {
+	return s.wsManager.IsUserOnline(userID)
+}
+
+// BroadcastSystemMessage 广播系统消息
+func (s *SocialService) BroadcastSystemMessage(content string) {
+	msg := &ws.Message{
+		Type:      ws.MessageTypeSystem,
+		Content:   content,
+		Timestamp: time.Now().Unix(),
+	}
+	s.wsManager.Broadcast(msg)
 }
 
 // 私信相关
