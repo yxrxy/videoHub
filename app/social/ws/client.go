@@ -22,27 +22,10 @@ const (
 	maxMessageSize = 512 * 1024 // 512KB
 )
 
-type ExtendedClient struct {
-	Client
-	Send chan []byte // 发送消息的通道
-}
-
-// NewExtendedClient 创建新的客户端连接
-func NewExtendedClient(userID int64, conn *websocket.Conn) *ExtendedClient {
-	return &ExtendedClient{
-		Client: Client{
-			UserID: userID,
-			Conn:   conn,
-			Rooms:  make(map[int64]bool),
-		},
-		Send: make(chan []byte, 256),
-	}
-}
-
 // ReadPump 处理WebSocket读取
-func (c *ExtendedClient) ReadPump(manager *Manager) {
+func (c *Client) ReadPump(manager *Manager) {
 	defer func() {
-		manager.unregister <- &c.Client
+		manager.unregister <- c
 		c.Conn.Close()
 	}()
 
@@ -54,7 +37,7 @@ func (c *ExtendedClient) ReadPump(manager *Manager) {
 	})
 
 	for {
-		messageType, data, err := c.Conn.ReadMessage()
+		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -62,14 +45,10 @@ func (c *ExtendedClient) ReadPump(manager *Manager) {
 			break
 		}
 
-		if messageType != websocket.TextMessage && messageType != websocket.BinaryMessage {
-			continue
-		}
-
 		// 解析消息
 		var msg Message
-		if err := json.Unmarshal(data, &msg); err != nil {
-			log.Printf("error unmarshaling message: %v", err)
+		if err := json.Unmarshal(message, &msg); err != nil {
+			log.Printf("error parsing message: %v", err)
 			continue
 		}
 
@@ -80,7 +59,6 @@ func (c *ExtendedClient) ReadPump(manager *Manager) {
 		// 根据消息类型处理
 		switch msg.Type {
 		case MessageTypePrivate:
-			// 发送私信
 			if msg.To > 0 {
 				data, err := json.Marshal(msg)
 				if err != nil {
@@ -90,7 +68,6 @@ func (c *ExtendedClient) ReadPump(manager *Manager) {
 				manager.SendToUser(msg.To, data)
 			}
 		case MessageTypeGroup:
-			// 发送群聊消息
 			if msg.RoomID > 0 {
 				manager.SendToRoom(msg.RoomID, &msg)
 			}
@@ -99,7 +76,7 @@ func (c *ExtendedClient) ReadPump(manager *Manager) {
 }
 
 // WritePump 处理WebSocket写入
-func (c *ExtendedClient) WritePump() {
+func (c *Client) WritePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -108,21 +85,8 @@ func (c *ExtendedClient) WritePump() {
 
 	for {
 		select {
-		case message, ok := <-c.Send:
-			if !ok {
-				// 通道已关闭
-				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
-				return
-			}
-
-			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			if err := c.Conn.WriteMessage(websocket.BinaryMessage, message); err != nil {
-				return
-			}
-
 		case <-ticker.C:
 			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
-			// 发送ping消息
 			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}
@@ -130,23 +94,29 @@ func (c *ExtendedClient) WritePump() {
 	}
 }
 
+// SendMessage 发送消息给客户端
+func (c *Client) SendMessage(messageType int, data []byte) error {
+	c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+	return c.Conn.WriteMessage(messageType, data)
+}
+
 // JoinRoom 加入聊天室
-func (c *ExtendedClient) JoinRoom(roomID int64) {
-	c.Client.mu.Lock()
-	c.Client.Rooms[roomID] = true
-	c.Client.mu.Unlock()
+func (c *Client) JoinRoom(roomID int64) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.Rooms[roomID] = true
 }
 
 // LeaveRoom 离开聊天室
-func (c *ExtendedClient) LeaveRoom(roomID int64) {
-	c.Client.mu.Lock()
-	delete(c.Client.Rooms, roomID)
-	c.Client.mu.Unlock()
+func (c *Client) LeaveRoom(roomID int64) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.Rooms, roomID)
 }
 
 // IsInRoom 检查是否在聊天室中
-func (c *ExtendedClient) IsInRoom(roomID int64) bool {
-	c.Client.mu.Lock()
-	defer c.Client.mu.Unlock()
-	return c.Client.Rooms[roomID]
+func (c *Client) IsInRoom(roomID int64) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.Rooms[roomID]
 }
