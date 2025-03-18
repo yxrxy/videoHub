@@ -84,13 +84,6 @@ func (r *Router) Register(h *server.Hertz) {
 			}
 		}
 
-		// WebSocket路由
-		ws := api.Group("/ws")
-		{
-			// WebSocket连接需要认证
-			ws.GET("/connect", middleware.JWT(), r.socialCtrl.HandleWebSocket)
-		}
-
 		// 社交功能路由组
 		social := api.Group("/social", middleware.JWT())
 		{

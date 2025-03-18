@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
@@ -10,7 +9,6 @@ import (
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/yxrrxy/videoHub/app/gateway/router"
 	socialController "github.com/yxrrxy/videoHub/app/social/controller"
-	"github.com/yxrrxy/videoHub/app/social/ws"
 	userController "github.com/yxrrxy/videoHub/app/user/controller"
 	videoController "github.com/yxrrxy/videoHub/app/video/controller"
 	"github.com/yxrrxy/videoHub/config"
@@ -58,15 +56,10 @@ func main() {
 		log.Fatalf("创建社交服务客户端失败: %v", err)
 	}
 
-	// 创建WebSocket管理器
-	wsManager := ws.NewManager()
-	// 启动WebSocket管理器
-	go wsManager.Start(context.Background())
-
 	// 创建控制器
 	userCtrl := userController.NewUserController(userClient)
 	videoCtrl := videoController.NewVideoController(videoClient)
-	socialCtrl := socialController.NewSocialHandler(socialClient, wsManager)
+	socialCtrl := socialController.NewSocialHandler(socialClient)
 
 	// 创建路由
 	router := router.NewRouter(userCtrl, videoCtrl, socialCtrl)
