@@ -25,4 +25,5 @@ var (
 
 	// 服务器错误: 500xx
 	InternalServerError = ErrNo{50000, "服务器内部错误"}
+	InteractionError    = ErrNo{50001, "交互服务错误"}
 )

@@ -86,17 +86,23 @@ type EtcdConfig struct {
 	Addr string `mapstructure:"addr"`
 }
 
+type VideoInteractionsConfig struct {
+	Name    string
+	RPCAddr string `mapstructure:"rpc_addr"`
+}
+
 var (
-	Server  ServerConfig
-	MySQL   MySQLConfig
-	Redis   RedisConfig
-	JWT     JWTConfig
-	Upload  UploadConfig
-	User    UserConfig
-	Video   VideoConfig
-	Social  SocialConfig
-	Gateway GatewayConfig
-	Etcd    EtcdConfig
+	Server            ServerConfig
+	MySQL             MySQLConfig
+	Redis             RedisConfig
+	JWT               JWTConfig
+	Upload            UploadConfig
+	User              UserConfig
+	Video             VideoConfig
+	Social            SocialConfig
+	Gateway           GatewayConfig
+	Etcd              EtcdConfig
+	VideoInteractions VideoInteractionsConfig
 )
 
 func Init() {
@@ -130,6 +136,9 @@ func Init() {
 		panic(err)
 	}
 	if err := viper.UnmarshalKey("social", &Social); err != nil {
+		panic(err)
+	}
+	if err := viper.UnmarshalKey("videoInteractions", &VideoInteractions); err != nil {
 		panic(err)
 	}
 	if err := viper.UnmarshalKey("gateway", &Gateway); err != nil {
