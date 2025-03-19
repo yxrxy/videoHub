@@ -9,20 +9,28 @@ import (
 	socialController "github.com/yxrrxy/videoHub/app/social/controller"
 	"github.com/yxrrxy/videoHub/app/user/controller"
 	videoController "github.com/yxrrxy/videoHub/app/video/controller"
+	interactionController "github.com/yxrrxy/videoHub/app/videoInteractions/controller"
 	"github.com/yxrrxy/videoHub/pkg/middleware"
 )
 
 type Router struct {
-	userCtrl   *controller.UserController
-	videoCtrl  *videoController.VideoController
-	socialCtrl *socialController.SocialHandler
+	userCtrl        *controller.UserController
+	videoCtrl       *videoController.VideoController
+	socialCtrl      *socialController.SocialHandler
+	interactionCtrl *interactionController.InteractionController
 }
 
-func NewRouter(userCtrl *controller.UserController, videoCtrl *videoController.VideoController, socialCtrl *socialController.SocialHandler) *Router {
+func NewRouter(
+	userCtrl *controller.UserController,
+	videoCtrl *videoController.VideoController,
+	socialCtrl *socialController.SocialHandler,
+	interactionCtrl *interactionController.InteractionController,
+) *Router {
 	return &Router{
-		userCtrl:   userCtrl,
-		videoCtrl:  videoCtrl,
-		socialCtrl: socialCtrl,
+		userCtrl:        userCtrl,
+		videoCtrl:       videoCtrl,
+		socialCtrl:      socialCtrl,
+		interactionCtrl: interactionCtrl,
 	}
 }
 
@@ -81,6 +89,23 @@ func (r *Router) Register(h *server.Hertz) {
 				authed.GET("/list", r.videoCtrl.GetUserVideoList)
 				authed.POST("/visit", r.videoCtrl.IncrementVisitCount)
 				authed.POST("/like", r.videoCtrl.IncrementLikeCount)
+			}
+		}
+
+		// 互动服务路由组
+		interaction := api.Group("/interaction")
+		{
+			// 公开接口
+			interaction.GET("/likes", r.interactionCtrl.GetLikes)
+			interaction.GET("/comments", r.interactionCtrl.GetComments)
+
+			// 需要认证的接口
+			authed := interaction.Group("", middleware.JWT())
+			{
+				authed.POST("/like", r.interactionCtrl.Like)
+				authed.POST("/comment", r.interactionCtrl.Comment)
+				authed.DELETE("/comment", r.interactionCtrl.DeleteComment)
+				authed.POST("/comment/like", r.interactionCtrl.LikeComment)
 			}
 		}
 
