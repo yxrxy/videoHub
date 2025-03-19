@@ -1,5 +1,6 @@
 server:
   name: "videoHub"
+  mode: "dev"
 
 user:
   name: "user"
@@ -64,4 +65,6 @@ social:
     upload_dir: "src/storage/chat"  # 聊天文件存储目录
     base_url: "http://localhost:8080/static/chat"  # 聊天文件访问基础URL
 
-
+videoInteractions:
+  name: "videoInteractions"
+  rpc_addr: ":8895"

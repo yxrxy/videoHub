@@ -1,61 +1,41 @@
 package model
 
-import "time"
-
-// VideoComment 视频评论表
-type VideoComment struct {
-	ID        int64  `gorm:"primarykey"`
-	VideoID   int64  `gorm:"index"`
-	UserID    int64  `gorm:"index"`
-	Content   string `gorm:"type:varchar(512)"`
-	LikeCount int64  `gorm:"default:0"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time `gorm:"index"`
+// Like 点赞模型
+type Like struct {
+	ID        int64  `gorm:"primarykey;column:id;comment:点赞ID"`
+	UserID    int64  `gorm:"index:idx_user_video;not null;column:user_id;comment:用户ID"`
+	VideoID   int64  `gorm:"index:idx_user_video;not null;column:video_id;comment:视频ID"`
+	DeletedAt *int64 `gorm:"column:deleted_at;comment:删除时间"`
 }
 
 // TableName 指定表名
-func (VideoComment) TableName() string {
-	return "video_comments"
+func (Like) TableName() string {
+	return "likes"
 }
 
-// VideoVisit 视频访问记录表
-type VideoVisit struct {
-	ID        int64  `gorm:"primarykey"`
-	VideoID   int64  `gorm:"index"`
-	UserID    int64  `gorm:"index"`
-	IP        string `gorm:"type:varchar(64)"`
-	CreatedAt time.Time
-}
-
-// TableName 指定表名
-func (VideoVisit) TableName() string {
-	return "video_visits"
-}
-
-// VideoLike 视频点赞表
-type VideoLike struct {
-	ID        int64 `gorm:"primarykey"`
-	VideoID   int64 `gorm:"uniqueIndex:idx_video_user"`
-	UserID    int64 `gorm:"uniqueIndex:idx_video_user"`
-	CreatedAt time.Time
-	DeletedAt *time.Time `gorm:"index"`
+// Comment 评论模型
+type Comment struct {
+	ID        int64  `gorm:"primarykey;column:id;comment:评论ID"`
+	UserID    int64  `gorm:"index:idx_video;not null;column:user_id;comment:用户ID"`
+	VideoID   int64  `gorm:"index:idx_video;not null;column:video_id;comment:视频ID"`
+	Content   string `gorm:"type:text;not null;column:content;comment:评论内容"`
+	ParentID  *int64 `gorm:"column:parent_id;comment:父评论ID"`
+	LikeCount int32  `gorm:"default:0;column:like_count;comment:点赞数"`
+	DeletedAt *int64 `gorm:"column:deleted_at;comment:删除时间"`
 }
 
 // TableName 指定表名
-func (VideoLike) TableName() string {
-	return "video_likes"
+func (Comment) TableName() string {
+	return "comments"
 }
 
-// VideoTag 视频标签关联表
-type VideoTag struct {
-	ID        int64  `gorm:"primarykey"`
-	VideoID   int64  `gorm:"index:idx_video_tag"`
-	Tag       string `gorm:"type:varchar(32);index:idx_video_tag"`
-	CreatedAt time.Time
+// CommentLike 评论点赞模型
+type CommentLike struct {
+	UserID    int64 `gorm:"index:idx_user_comment;not null;comment:用户ID"`
+	CommentID int64 `gorm:"index:idx_user_comment;not null;comment:评论ID"`
 }
 
 // TableName 指定表名
-func (VideoTag) TableName() string {
-	return "video_tags"
+func (CommentLike) TableName() string {
+	return "comment_likes"
 }
