@@ -35,6 +35,8 @@ func NewRouter(
 }
 
 func (r *Router) Register(h *server.Hertz) {
+	h.Use(middleware.CORS())
+
 	// 静态文件服务
 	h.StaticFS("/static/avatars", &app.FS{
 		Root: "src/storage/avatars",
@@ -60,6 +62,15 @@ func (r *Router) Register(h *server.Hertz) {
 	// API 路由组
 	api := h.Group("/api")
 	{
+		// 添加ping路由用于测试连接
+		api.GET("/ping", func(ctx context.Context, c *app.RequestContext) {
+			c.JSON(200, map[string]interface{}{
+				"status":  "ok",
+				"message": "pong",
+				"time":    time.Now().Format(time.RFC3339),
+			})
+		})
+
 		// 用户服务路由
 		user := api.Group("/user")
 		{
