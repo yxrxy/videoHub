@@ -3,7 +3,7 @@ package socialservice
 
 import (
 	server "github.com/cloudwego/kitex/server"
-	social "github.com/yxrrxy/videoHub/kitex_gen/social"
+	social "github.com/yxrxy/videoHub/kitex_gen/social"
 )
 
 // NewServer creates a server.Server with the given handler and options.
