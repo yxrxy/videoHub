@@ -38,17 +38,8 @@ func (r *Router) Register(h *server.Hertz) {
 	h.Use(middleware.CORS())
 
 	// 静态文件服务
-	h.StaticFS("/static/avatars", &app.FS{
-		Root: "src/storage/avatars",
-	})
-	h.StaticFS("/static/videos", &app.FS{
-		Root: "src/storage/videos",
-	})
-	h.StaticFS("/static/covers", &app.FS{
-		Root: "src/storage/covers",
-	})
-	h.StaticFS("/static/chat", &app.FS{
-		Root: "src/storage/chat",
+	h.StaticFS("/", &app.FS{
+		Root: "src/storage",
 	})
 
 	// 健康检查
