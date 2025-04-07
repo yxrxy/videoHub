@@ -11,7 +11,7 @@ import (
 func CORS() app.HandlerFunc {
 	return func(c context.Context, ctx *app.RequestContext) {
 		// 设置允许的源，可以是单个域名，也可以是*表示允许所有域名
-		ctx.Header("Access-Control-Allow-Origin", "http://127.0.0.1:5500")
+		ctx.Header("Access-Control-Allow-Origin", "*")
 		// 设置允许的HTTP方法
 		ctx.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		// 设置允许的头部
