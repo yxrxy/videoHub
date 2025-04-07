@@ -1,8 +1,2 @@
 # IDE
 .idea/
-
-# Frontend
-src/pages/
-src/*.html
-src/*.css
-src/*.js
