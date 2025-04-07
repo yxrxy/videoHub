@@ -5,7 +5,7 @@ server:
 user:
   name: "user"
   rpc_addr: ":8889"
-  default_avatar: "http://localhost:8080/static/avatars/default.jpg"
+  default_avatar: "http://localhost:8080/avatars/default.jpg"
 
 video:
   name: "video"
@@ -39,12 +39,12 @@ upload:
     max_size: 5242880  # 5MB
     allowed_types: ["image/jpeg", "image/png"]
     upload_dir: "src/storage/avatars"
-    base_url: "http://localhost:8080/static/avatars"
+    base_url: "http://localhost:8080/avatars"
   video:
     max_size: 104857600  # 100MB
     allowed_types: ["video/mp4", "video/quicktime"]
     upload_dir: "src/storage/videos"
-    base_url: "http://localhost:8080/static/videos"
+    base_url: "http://localhost:8080/videos"
 
 social:
   name: "social"
@@ -63,7 +63,7 @@ social:
       - "application/pdf"
       - "application/msword"
     upload_dir: "src/storage/chat"  # 聊天文件存储目录
-    base_url: "http://localhost:8080/static/chat"  # 聊天文件访问基础URL
+    base_url: "http://localhost:8080/chat"  # 聊天文件访问基础URL
 
 videoInteractions:
   name: "videoInteractions"
