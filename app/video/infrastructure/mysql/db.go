@@ -6,6 +6,7 @@ import (
 
 	"github.com/yxrxy/videoHub/app/video/domain/model"
 	"github.com/yxrxy/videoHub/app/video/domain/repository"
+	"github.com/yxrxy/videoHub/pkg/constants"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +28,7 @@ func (v *VideoDB) GetVideoByID(ctx context.Context, videoID int64) (*model.Video
 	if err := v.db.WithContext(ctx).Where("id = ?", videoID).First(&video).Error; err != nil {
 		return nil, err
 	}
-	var result *model.Video = &model.Video{
+	result := &model.Video{
 		ID:           video.ID,
 		UserID:       video.UserID,
 		VideoURL:     video.VideoURL,
@@ -85,7 +86,8 @@ func (v *VideoDB) DeleteVideo(ctx context.Context, videoID int64) error {
 }
 
 func (v *VideoDB) GetHotVideos(ctx context.Context, limit int32, category string, lastVisitCount, lastLikeCount int64,
-	lastID int64) ([]*model.Video, int64, int64, int64, int64, error) {
+	lastID int64,
+) ([]*model.Video, int64, int64, int64, int64, error) {
 	// 从 Redis 获取热门视频 ID
 	videoIDs, err := v.cache.GetHotVideos(ctx, category, int(limit), lastVisitCount, lastLikeCount, lastID)
 	if err != nil {
@@ -102,7 +104,12 @@ func (v *VideoDB) GetHotVideos(ctx context.Context, limit int32, category string
 }
 
 // fetchVideosFromDB 从数据库获取热门视频并更新 Redis
-func (v *VideoDB) fetchVideosFromDB(ctx context.Context, limit int32, category string, lastVisitCount, lastLikeCount, lastID int64) ([]*model.Video, int64, int64, int64, int64, error) {
+func (v *VideoDB) fetchVideosFromDB(
+	ctx context.Context,
+	limit int32,
+	category string,
+	lastVisitCount, lastLikeCount, lastID int64,
+) ([]*model.Video, int64, int64, int64, int64, error) {
 	var videos []Video
 	query := v.db.WithContext(ctx).Order("visit_count DESC, like_count DESC, id DESC")
 
@@ -112,7 +119,7 @@ func (v *VideoDB) fetchVideosFromDB(ctx context.Context, limit int32, category s
 	}
 
 	// 计算 `score`
-	score := float64(lastVisitCount) + float64(lastLikeCount)*1.5
+	score := float64(lastVisitCount) + float64(lastLikeCount)*constants.VideoScoreWeight
 
 	// 添加游标条件
 	if lastID > 0 {

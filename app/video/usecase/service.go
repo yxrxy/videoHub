@@ -8,7 +8,8 @@ import (
 )
 
 func (s *useCase) Publish(ctx context.Context, userID int64, videoData []byte, contentType,
-	title string, description, category *string, tags []string, isPrivate bool) (string, error) {
+	title string, description, category *string, tags []string, isPrivate bool,
+) (string, error) {
 	if !s.svc.CheckVideo(ctx, videoData, contentType) {
 		return "", errno.NewErrNo(errno.ServiceUserExist, "video format error")
 	}
@@ -24,7 +25,13 @@ func (s *useCase) GetVideoList(ctx context.Context, userID, page int64, size int
 	return s.svc.GetVideoList(ctx, userID, page, size, category)
 }
 
-func (s *useCase) SearchVideo(ctx context.Context, keywords string, pageSize, pageNum int32, fromDate, toDate *int64, username *string) ([]*model.Video, int64, error) {
+func (s *useCase) SearchVideo(
+	ctx context.Context,
+	keywords string,
+	pageSize, pageNum int32,
+	fromDate, toDate *int64,
+	username *string,
+) ([]*model.Video, int64, error) {
 	return nil, 0, nil
 }
 
@@ -33,7 +40,12 @@ func (s *useCase) GetVideoDetail(ctx context.Context, videoID, userID int64) (*m
 }
 
 // 从重构前的三层架构那边复制的，就不改了
-func (s *useCase) GetHotVideos(ctx context.Context, limit int32, category string, lastVisit, lastLike, lastID int64) ([]*model.Video, int64, int64, int64, int64, error) {
+func (s *useCase) GetHotVideos(
+	ctx context.Context,
+	limit int32,
+	category string,
+	lastVisit, lastLike, lastID int64,
+) ([]*model.Video, int64, int64, int64, int64, error) {
 	return s.svc.GetHotVideos(ctx, limit, category, lastVisit, lastLike, lastID)
 }
 

@@ -8,6 +8,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/yxrxy/videoHub/app/video/domain/repository"
+	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
 type VideoCache struct {
@@ -26,7 +27,7 @@ const (
 
 // UpdateVideoScore 更新视频分数（同步更新总榜和分类榜）
 func (v *VideoCache) UpdateVideoScore(ctx context.Context, videoID int64, visitDelta, likeDelta int64, category string) error {
-	score := float64(visitDelta) + float64(likeDelta)*1.5
+	score := float64(visitDelta) + float64(likeDelta)*constants.VideoScoreWeight
 	videoIDStr := strconv.FormatInt(videoID, 10)
 
 	// 1. 更新总榜
@@ -55,7 +56,7 @@ func (v *VideoCache) GetHotVideos(ctx context.Context, category string, limit in
 		key = fmt.Sprintf(CategoryHotKey, category) // 查询分类榜
 	}
 
-	lastScore := float64(lastVisitCount) + float64(lastLikeCount)*1.5
+	lastScore := float64(lastVisitCount) + float64(lastLikeCount)*constants.VideoScoreWeight
 
 	var _min, _max string
 	if lastScore > 0 {
@@ -72,7 +73,6 @@ func (v *VideoCache) GetHotVideos(ctx context.Context, category string, limit in
 		Max:   _max,
 		Count: int64(limit + 1),
 	}).Result()
-
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +86,7 @@ func (v *VideoCache) GetHotVideos(ctx context.Context, category string, limit in
 	}
 
 	// 限制返回数量
-	if len(videoIDs) > int(limit) {
+	if len(videoIDs) > limit {
 		videoIDs = videoIDs[:limit]
 	}
 

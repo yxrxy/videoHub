@@ -45,7 +45,7 @@ func (s *InteractionService) GetLikes(ctx context.Context, videoID int64, page i
 }
 
 func (s *InteractionService) Comment(ctx context.Context, userID int64, videoID int64, content string, parentID int64) (bool, error) {
-	var pa = int64(-1)
+	pa := int64(-1)
 	pID := &pa
 	if parentID != -1 {
 		// 检查父评论是否存在

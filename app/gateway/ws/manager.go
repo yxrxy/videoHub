@@ -249,12 +249,16 @@ func (m *Manager) SendToRoom(selfUserID int64, roomID int64, message *Message) {
 	message.Timestamp = time.Now().Unix()
 	data, err := json.Marshal(message)
 	if err != nil {
+		log.Printf("error marshaling message: %v", err)
 		return
 	}
 
 	for client := range room {
 		if client.UserID != selfUserID {
-			client.Conn.WriteMessage(websocket.TextMessage, data)
+			if err := client.Conn.WriteMessage(websocket.TextMessage, data); err != nil {
+				log.Printf("error sending message to room member: %v", err)
+				continue
+			}
 		}
 	}
 }
