@@ -7,7 +7,7 @@ import (
 	"errors"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
-	video "github.com/yxrrxy/videoHub/kitex_gen/video"
+	video "github.com/yxrxy/videoHub/kitex_gen/video"
 )
 
 var errInvalidMessageType = errors.New("invalid message type for service method handler")
@@ -20,10 +20,17 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
-	"GetVideoList": kitex.NewMethodInfo(
-		getVideoListHandler,
-		newVideoServiceGetVideoListArgs,
-		newVideoServiceGetVideoListResult,
+	"List": kitex.NewMethodInfo(
+		listHandler,
+		newVideoServiceListArgs,
+		newVideoServiceListResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"Detail": kitex.NewMethodInfo(
+		detailHandler,
+		newVideoServiceDetailArgs,
+		newVideoServiceDetailResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -31,6 +38,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		getHotVideosHandler,
 		newVideoServiceGetHotVideosArgs,
 		newVideoServiceGetHotVideosResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"Delete": kitex.NewMethodInfo(
+		deleteHandler,
+		newVideoServiceDeleteArgs,
+		newVideoServiceDeleteResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -45,6 +59,13 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		incrementLikeCountHandler,
 		newVideoServiceIncrementLikeCountArgs,
 		newVideoServiceIncrementLikeCountResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"Search": kitex.NewMethodInfo(
+		searchHandler,
+		newVideoServiceSearchArgs,
+		newVideoServiceSearchResult,
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
@@ -132,22 +153,40 @@ func newVideoServicePublishResult() interface{} {
 	return video.NewVideoServicePublishResult()
 }
 
-func getVideoListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*video.VideoServiceGetVideoListArgs)
-	realResult := result.(*video.VideoServiceGetVideoListResult)
-	success, err := handler.(video.VideoService).GetVideoList(ctx, realArg.Req)
+func listHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceListArgs)
+	realResult := result.(*video.VideoServiceListResult)
+	success, err := handler.(video.VideoService).List(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newVideoServiceGetVideoListArgs() interface{} {
-	return video.NewVideoServiceGetVideoListArgs()
+func newVideoServiceListArgs() interface{} {
+	return video.NewVideoServiceListArgs()
 }
 
-func newVideoServiceGetVideoListResult() interface{} {
-	return video.NewVideoServiceGetVideoListResult()
+func newVideoServiceListResult() interface{} {
+	return video.NewVideoServiceListResult()
+}
+
+func detailHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceDetailArgs)
+	realResult := result.(*video.VideoServiceDetailResult)
+	success, err := handler.(video.VideoService).Detail(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceDetailArgs() interface{} {
+	return video.NewVideoServiceDetailArgs()
+}
+
+func newVideoServiceDetailResult() interface{} {
+	return video.NewVideoServiceDetailResult()
 }
 
 func getHotVideosHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -166,6 +205,24 @@ func newVideoServiceGetHotVideosArgs() interface{} {
 
 func newVideoServiceGetHotVideosResult() interface{} {
 	return video.NewVideoServiceGetHotVideosResult()
+}
+
+func deleteHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceDeleteArgs)
+	realResult := result.(*video.VideoServiceDeleteResult)
+	success, err := handler.(video.VideoService).Delete(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceDeleteArgs() interface{} {
+	return video.NewVideoServiceDeleteArgs()
+}
+
+func newVideoServiceDeleteResult() interface{} {
+	return video.NewVideoServiceDeleteResult()
 }
 
 func incrementVisitCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -204,6 +261,24 @@ func newVideoServiceIncrementLikeCountResult() interface{} {
 	return video.NewVideoServiceIncrementLikeCountResult()
 }
 
+func searchHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*video.VideoServiceSearchArgs)
+	realResult := result.(*video.VideoServiceSearchResult)
+	success, err := handler.(video.VideoService).Search(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newVideoServiceSearchArgs() interface{} {
+	return video.NewVideoServiceSearchArgs()
+}
+
+func newVideoServiceSearchResult() interface{} {
+	return video.NewVideoServiceSearchResult()
+}
+
 type kClient struct {
 	c client.Client
 }
@@ -224,11 +299,21 @@ func (p *kClient) Publish(ctx context.Context, req *video.PublishRequest) (r *vi
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetVideoList(ctx context.Context, req *video.VideoListRequest) (r *video.VideoListResponse, err error) {
-	var _args video.VideoServiceGetVideoListArgs
+func (p *kClient) List(ctx context.Context, req *video.VideoListRequest) (r *video.VideoListResponse, err error) {
+	var _args video.VideoServiceListArgs
 	_args.Req = req
-	var _result video.VideoServiceGetVideoListResult
-	if err = p.c.Call(ctx, "GetVideoList", &_args, &_result); err != nil {
+	var _result video.VideoServiceListResult
+	if err = p.c.Call(ctx, "List", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) Detail(ctx context.Context, req *video.DetailRequest) (r *video.DetailResponse, err error) {
+	var _args video.VideoServiceDetailArgs
+	_args.Req = req
+	var _result video.VideoServiceDetailResult
+	if err = p.c.Call(ctx, "Detail", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -239,6 +324,16 @@ func (p *kClient) GetHotVideos(ctx context.Context, req *video.HotVideoRequest) 
 	_args.Req = req
 	var _result video.VideoServiceGetHotVideosResult
 	if err = p.c.Call(ctx, "GetHotVideos", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) Delete(ctx context.Context, req *video.DeleteRequest) (r *video.DeleteResponse, err error) {
+	var _args video.VideoServiceDeleteArgs
+	_args.Req = req
+	var _result video.VideoServiceDeleteResult
+	if err = p.c.Call(ctx, "Delete", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -259,6 +354,16 @@ func (p *kClient) IncrementLikeCount(ctx context.Context, req *video.IncrementLi
 	_args.Req = req
 	var _result video.VideoServiceIncrementLikeCountResult
 	if err = p.c.Call(ctx, "IncrementLikeCount", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) Search(ctx context.Context, req *video.SearchRequest) (r *video.SearchResponse, err error) {
+	var _args video.VideoServiceSearchArgs
+	_args.Req = req
+	var _result video.VideoServiceSearchResult
+	if err = p.c.Call(ctx, "Search", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

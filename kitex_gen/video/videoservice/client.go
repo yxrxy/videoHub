@@ -6,16 +6,19 @@ import (
 	"context"
 	client "github.com/cloudwego/kitex/client"
 	callopt "github.com/cloudwego/kitex/client/callopt"
-	video "github.com/yxrrxy/videoHub/kitex_gen/video"
+	video "github.com/yxrxy/videoHub/kitex_gen/video"
 )
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
 	Publish(ctx context.Context, req *video.PublishRequest, callOptions ...callopt.Option) (r *video.PublishResponse, err error)
-	GetVideoList(ctx context.Context, req *video.VideoListRequest, callOptions ...callopt.Option) (r *video.VideoListResponse, err error)
+	List(ctx context.Context, req *video.VideoListRequest, callOptions ...callopt.Option) (r *video.VideoListResponse, err error)
+	Detail(ctx context.Context, req *video.DetailRequest, callOptions ...callopt.Option) (r *video.DetailResponse, err error)
 	GetHotVideos(ctx context.Context, req *video.HotVideoRequest, callOptions ...callopt.Option) (r *video.HotVideoResponse, err error)
+	Delete(ctx context.Context, req *video.DeleteRequest, callOptions ...callopt.Option) (r *video.DeleteResponse, err error)
 	IncrementVisitCount(ctx context.Context, req *video.IncrementVisitCountRequest, callOptions ...callopt.Option) (r *video.IncrementVisitCountResponse, err error)
 	IncrementLikeCount(ctx context.Context, req *video.IncrementLikeCountRequest, callOptions ...callopt.Option) (r *video.IncrementLikeCountResponse, err error)
+	Search(ctx context.Context, req *video.SearchRequest, callOptions ...callopt.Option) (r *video.SearchResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -52,14 +55,24 @@ func (p *kVideoServiceClient) Publish(ctx context.Context, req *video.PublishReq
 	return p.kClient.Publish(ctx, req)
 }
 
-func (p *kVideoServiceClient) GetVideoList(ctx context.Context, req *video.VideoListRequest, callOptions ...callopt.Option) (r *video.VideoListResponse, err error) {
+func (p *kVideoServiceClient) List(ctx context.Context, req *video.VideoListRequest, callOptions ...callopt.Option) (r *video.VideoListResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetVideoList(ctx, req)
+	return p.kClient.List(ctx, req)
+}
+
+func (p *kVideoServiceClient) Detail(ctx context.Context, req *video.DetailRequest, callOptions ...callopt.Option) (r *video.DetailResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.Detail(ctx, req)
 }
 
 func (p *kVideoServiceClient) GetHotVideos(ctx context.Context, req *video.HotVideoRequest, callOptions ...callopt.Option) (r *video.HotVideoResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetHotVideos(ctx, req)
+}
+
+func (p *kVideoServiceClient) Delete(ctx context.Context, req *video.DeleteRequest, callOptions ...callopt.Option) (r *video.DeleteResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.Delete(ctx, req)
 }
 
 func (p *kVideoServiceClient) IncrementVisitCount(ctx context.Context, req *video.IncrementVisitCountRequest, callOptions ...callopt.Option) (r *video.IncrementVisitCountResponse, err error) {
@@ -70,4 +83,9 @@ func (p *kVideoServiceClient) IncrementVisitCount(ctx context.Context, req *vide
 func (p *kVideoServiceClient) IncrementLikeCount(ctx context.Context, req *video.IncrementLikeCountRequest, callOptions ...callopt.Option) (r *video.IncrementLikeCountResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.IncrementLikeCount(ctx, req)
+}
+
+func (p *kVideoServiceClient) Search(ctx context.Context, req *video.SearchRequest, callOptions ...callopt.Option) (r *video.SearchResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.Search(ctx, req)
 }

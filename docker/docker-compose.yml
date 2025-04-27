@@ -1,63 +1,80 @@
-version: '3'
-
 services:
-  mysql:
-    build:
-      context: ./mysql
-      dockerfile: Dockerfile
-    ports:
-      - "3306:3306"
+  # Redis 服务，用于缓存、会话管理等，提供键值存储功能
+  videohub-redis:
+    container_name: videohub-redis
+    image: redis:bookworm
     volumes:
-      - mysql_data:/var/lib/mysql
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    networks:
-      - app_net
-
-  redis:
-    build:
-      context: ./redis
-      dockerfile: Dockerfile
+      - ./data/redis:/data
     ports:
       - "6379:6379"
-    volumes:
-      - redis_data:/data
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - REDIS_PORT=6379
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping", "-h", "localhost", "-p", "6379", "-a", "${REDIS_PASSWORD}"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+    env_file:
+      - "./env/redis.env"
     networks:
-      - app_net
+      - videohub
 
-  etcd:
-    build:
-      context: ./etcd
-      dockerfile: Dockerfile
+  # MySQL 服务，提供关系型数据库，用于存储结构化数据
+  videohub-mysql:
+    container_name: videohub-mysql
+    image: mysql:8.0
+    env_file:
+      - "./env/mysql.env"
     ports:
-      - "2379:2379"
-      - "2380:2380"
-    volumes:
-      - etcd_data:/bitnami/etcd
+      - "3306:3306"
     networks:
-      - app_net
+      - videohub
+    volumes:
+      - ../config/sql:/docker-entrypoint-initdb.d
+      - ./data/mysql:/var/lib/mysql
 
+  otel-collector:
+    container_name: videohub-otel-collector
+    image: otel/opentelemetry-collector:latest
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ../config/otel-collector/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP http receiver
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+    networks:
+      - videohub
+
+  # etcd 服务，分布式键值存储系统，用于服务发现、配置管理
+  videohub-etcd:
+    container_name: videohub-etcd
+    image: quay.io/coreos/etcd:v3.5.5
+    restart: always
+    ports:
+      - 2379:2379
+      - 2380:2380
+    env_file:
+      - "./env/etcd.env"
+    volumes:
+      - ./script:/script
+      - ../config:/config
+      - ./data/etcd:/etcd-data
+    networks:
+      - videohub
+    entrypoint: [ "sh", "-c", "chmod +x /script/etcd-monitor.sh && /script/etcd-monitor.sh & exec etcd" ]
+
+  # Kafka 服务，分布式流处理平台，用于构建实时数据管道和流应用
+  kafka:
+    container_name: videohub-kafka
+    image: bitnami/kafka:latest
+    restart: always
+    user: root
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    env_file:
+      - ./env/kafka.env
+    volumes:
+      - ./data/kafka:/bitnami/kafka
+    networks:
+      - videohub
+      
 networks:
-  app_net:
+  videohub:
     driver: bridge
-
-volumes:
-  mysql_data:
-  redis_data:
-  etcd_data:  
+    name: videohub
