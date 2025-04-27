@@ -1,34 +1,33 @@
-struct Video {
-    1: required i64 id                   // 视频ID
-    2: required i64 user_id              // 作者ID
-    3: required string video_url         // 视频URL
-    4: required string cover_url         // 封面URL
-    5: required string title             // 视频标题
-    6: optional string description       // 视频描述
-    7: required i64 duration             // 视频时长（秒）
-    8: required string category          // 视频分类
-    9: required list<string> tags        // 视频标签
-    10: required i64 visit_count         // 播放量
-    11: required i64 like_count          // 点赞数
-    12: required i64 comment_count       // 评论数
-    13: required bool is_private         // 是否私有
-    14: required i64 created_at          // 创建时间
-    15: required i64 updated_at          // 更新时间
-    16: optional i64 deleted_at          // 删除时间
-}
+namespace go video
+
+include "model.thrift"
 
 struct VideoListRequest {
     1: required i64 user_id              // 查询的用户ID
     2: required i64 page                 // 第几页
     3: required i32 size                 // 每页数量
-    4: required string category          // 按分类筛选
+    4: optional string category          // 按分类筛选
 }
 
+// 视频列表响应
 struct VideoListResponse {
-    1: required list<Video> videos
-    2: required i64 total
+    1: required model.BaseResp Base      // 基本响应信息
+    2: required list<model.Video> VideoList  // 视频列表
+    3: required i64 total                // 总数
 }
 
+// 视频详情请求
+struct DetailRequest {
+    1: required i64 video_id             // 视频ID
+}
+
+// 视频详情响应
+struct DetailResponse {
+    1: required model.BaseResp Base      // 基本响应信息
+    2: required model.Video Video        // 视频信息
+}
+
+// 发布视频请求
 struct PublishRequest {
     1: required i64 user_id              // 用户ID
     2: required binary video_data        // 视频二进制数据
@@ -40,47 +39,86 @@ struct PublishRequest {
     8: optional bool is_private          // 是否私有
 }
 
+// 发布视频响应
 struct PublishResponse {
-    1: required string video_url         // 视频URL
-    2: required string cover_url         // 封面URL
+    1: required model.BaseResp Base      // 基本响应信息
+    2: required string video_url         // 视频URL
+    3: required string cover_url         // 封面URL
 }
 
+// 热门视频请求
 struct HotVideoRequest {
     1: optional i32 limit                // 获取数量限制，默认10
     2: optional string category          // 可选的分类筛选
-    3: optional i64 last_visit               // 分页游标适合抖音不断滑动推荐视频
+    3: optional i64 last_visit         
     4: optional i64 last_like
     5: optional i64 last_id
 }
 
+// 热门视频响应
 struct HotVideoResponse {
-    1: required list<Video> videos       // 热门视频列表
-    2: required i64 total               // 总数
-    3: optional i64 next_visit               // 分页游标适合抖音不断滑动推荐视频
-    4: optional i64 next_like
-    5: optional i64 next_id
+    1: required model.BaseResp Base      // 基本响应信息
+    2: required list<model.Video> videos // 热门视频列表
+    3: required i64 total                // 总数
+    4: optional i64 next_visit
+    5: optional i64 next_like
+    6: optional i64 next_id
 }
 
+// 删除视频请求
+struct DeleteRequest {
+    1: required i64 video_id             // 视频ID
+}
+
+// 删除视频响应
+struct DeleteResponse {
+    1: required model.BaseResp Base      // 基本响应信息
+}
+
+// 增加访问量请求
 struct IncrementVisitCountRequest {
     1: required i64 video_id              // 视频ID
 }
 
+// 增加访问量响应
 struct IncrementVisitCountResponse {
-    1: required bool success
+    1: required model.BaseResp Base       // 基本响应信息
 }
 
+// 增加点赞数请求
 struct IncrementLikeCountRequest {
     1: required i64 video_id              // 视频ID
 }
 
+// 增加点赞数响应
 struct IncrementLikeCountResponse {
-    1: required bool success
+    1: required model.BaseResp Base       // 基本响应信息
+}
+
+// 搜索视频请求
+struct SearchRequest {
+    1: required string keywords          // 搜索关键词
+    2: required i32 page_size           // 每页数量
+    3: required i32 page_num            // 页码
+    4: optional i64 from_date           // 开始时间
+    5: optional i64 to_date             // 结束时间
+    6: optional string username         // 按用户名筛选
+}
+
+// 搜索视频响应
+struct SearchResponse {
+    1: required model.BaseResp Base     // 基本响应信息
+    2: required list<model.Video> videos // 视频列表
+    3: required i64 total               // 总数
 }
 
 service VideoService {
     PublishResponse Publish(1: PublishRequest req)
-    VideoListResponse GetVideoList(1: VideoListRequest req)
+    VideoListResponse List(1: VideoListRequest req)
+    DetailResponse Detail(1: DetailRequest req)
     HotVideoResponse GetHotVideos(1: HotVideoRequest req)
-    IncrementVisitCountResponse IncrementVisitCount(1: IncrementVisitCountRequest req)   // 增加播放量
-    IncrementLikeCountResponse IncrementLikeCount(1: IncrementLikeCountRequest req)     // 增加点赞数
+    DeleteResponse Delete(1: DeleteRequest req)
+    IncrementVisitCountResponse IncrementVisitCount(1: IncrementVisitCountRequest req)
+    IncrementLikeCountResponse IncrementLikeCount(1: IncrementLikeCountRequest req)
+    SearchResponse Search(1: SearchRequest req)
 }

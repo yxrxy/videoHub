@@ -1,29 +1,75 @@
+/*
+Copyright 2024 The west2-online Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+// DO NOT EDIT
+
 package errno
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 type ErrNo struct {
-	ErrCode int32  `json:"code"`
-	ErrMsg  string `json:"msg"`
+	ErrorCode int64
+	ErrorMsg  string
 }
 
 func (e ErrNo) Error() string {
-	return fmt.Sprintf("err_code=%d, err_msg=%s", e.ErrCode, e.ErrMsg)
+	return fmt.Sprintf("[%d] %s", e.ErrorCode, e.ErrorMsg)
 }
 
-var (
-	// 成功
-	Success = ErrNo{10000, "success"}
+func NewErrNo(code int64, msg string) ErrNo {
+	return ErrNo{
+		ErrorCode: code,
+		ErrorMsg:  msg,
+	}
+}
 
-	// 用户模块错误: 100xx
-	ErrUserNotExist     = ErrNo{10001, "用户不存在"}
-	ErrUserAlreadyExist = ErrNo{10002, "用户已存在"}
-	ErrPasswordWrong    = ErrNo{10003, "密码错误"}
-	ErrInvalidToken     = ErrNo{10004, "无效的令牌"}
-	ErrUnauthorized     = ErrNo{10005, "未授权访问"}
-	ErrInvalidParam     = ErrNo{10006, "参数错误"}
+func Errorf(code int64, template string, args ...interface{}) ErrNo {
+	return ErrNo{
+		ErrorCode: code,
+		ErrorMsg:  fmt.Sprintf(template, args...),
+	}
+}
 
-	// 服务器错误: 500xx
-	InternalServerError = ErrNo{50000, "服务器内部错误"}
-	InteractionError    = ErrNo{50001, "交互服务错误"}
-)
+// WithMessage will replace default msg to new
+func (e ErrNo) WithMessage(msg string) ErrNo {
+	e.ErrorMsg = msg
+	return e
+}
+
+// WithError will add error msg after Message
+func (e ErrNo) WithError(err error) ErrNo {
+	e.ErrorMsg = e.ErrorMsg + ", " + err.Error()
+	return e
+}
+
+// ConvertErr convert error to ErrNo
+// in Default user ServiceErrorCode
+func ConvertErr(err error) ErrNo {
+	if err == nil {
+		return Success
+	}
+	errno := ErrNo{}
+	if errors.As(err, &errno) {
+		return errno
+	}
+
+	s := InternalServiceError
+	s.ErrorMsg = err.Error()
+	return s
+}
