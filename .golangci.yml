@@ -1,5 +1,8 @@
-version: "2"
+# 配置文件版本
+version: 2
+
 run:
+  go: '1.21'  # 使用项目的 Go 版本
   concurrency: 16
   issues-exit-code: 1
   tests: true
