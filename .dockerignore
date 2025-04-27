@@ -1,0 +1,17 @@
+# 忽略MySQL数据目录
+docker/data/mysql/
+docker/data/mysql/*
+
+# 其他常规忽略项
+.git
+.gitignore
+.env
+*.md
+.editorconfig
+.golangci.yml
+docker-compose.yml
+docker-compose.ci.yml
+README.md
+/test
+/.github
+*.log
