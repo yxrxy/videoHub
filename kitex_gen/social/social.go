@@ -7,8 +7,9 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"github.com/yxrxy/videoHub/kitex_gen/model"
 	"strings"
+
+	"github.com/yxrxy/videoHub/kitex_gen/model"
 )
 
 type MessageType int64

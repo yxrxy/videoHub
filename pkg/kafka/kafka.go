@@ -24,7 +24,6 @@ import (
 	"github.com/bytedance/gopkg/util/logger"
 	"github.com/samber/lo"
 	kafkago "github.com/segmentio/kafka-go"
-
 	"github.com/yxrxy/videoHub/pkg/base/client"
 )
 

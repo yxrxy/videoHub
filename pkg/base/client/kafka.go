@@ -25,7 +25,6 @@ import (
 
 	kafukago "github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl/plain"
-
 	"github.com/yxrxy/videoHub/config"
 	"github.com/yxrxy/videoHub/pkg/errno"
 )
@@ -37,6 +36,7 @@ const (
 	KafkaRetries                  = 3
 	DefaultKafkaNumPartitions     = 1
 	DefaultKafkaReplicationFactor = 1
+	ConsumerOffsetsPartitions     = 50 // Kafka 默认值
 )
 
 // GetConn conn不能保证并发安全,仅可作为单线程的长连接使用。
@@ -87,8 +87,8 @@ func createConsumerOffsetsTopic() error {
 
 	err = conn.CreateTopics(kafukago.TopicConfig{
 		Topic:             "__consumer_offsets",
-		NumPartitions:     50, // Kafka 默认值
-		ReplicationFactor: 1,  // 单节点使用 1
+		NumPartitions:     ConsumerOffsetsPartitions,
+		ReplicationFactor: 1, // 单节点使用 1
 	})
 	if err != nil {
 		if !strings.Contains(err.Error(), "already exists") {

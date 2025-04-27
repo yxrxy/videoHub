@@ -9,6 +9,7 @@ import (
 	"github.com/yxrxy/videoHub/kitex_gen/video"
 	"github.com/yxrxy/videoHub/pkg/base"
 	pkgcontext "github.com/yxrxy/videoHub/pkg/base/context"
+	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
 type VideoHandler struct {
@@ -21,7 +22,7 @@ func NewVideoHandler(useCase usecase.VideoUseCase) *VideoHandler {
 
 func (h *VideoHandler) Publish(ctx context.Context, req *video.PublishRequest) (r *video.PublishResponse, err error) {
 	r = new(video.PublishResponse)
-	userId, err := pkgcontext.GetUserID(ctx)
+	userID, err := pkgcontext.GetUserID(ctx)
 	if err != nil {
 		return r, err
 	}
@@ -44,7 +45,7 @@ func (h *VideoHandler) Publish(ctx context.Context, req *video.PublishRequest) (
 	if req.IsPrivate != nil {
 		isPrivate = *req.IsPrivate
 	}
-	videoURL, err := h.useCase.Publish(ctx, userId, req.VideoData, req.ContentType, req.Title, &description, &category, tags, isPrivate)
+	videoURL, err := h.useCase.Publish(ctx, userID, req.VideoData, req.ContentType, req.Title, &description, &category, tags, isPrivate)
 	if err != nil {
 		return r, err
 	}
@@ -55,13 +56,13 @@ func (h *VideoHandler) Publish(ctx context.Context, req *video.PublishRequest) (
 
 func (h *VideoHandler) List(ctx context.Context, req *video.VideoListRequest) (r *video.VideoListResponse, err error) {
 	r = new(video.VideoListResponse)
-	userId, err := pkgcontext.GetUserID(ctx)
+	userID, err := pkgcontext.GetUserID(ctx)
 	if err != nil {
 		return
 	}
 	var videoList []*model.Video
 	var total int64
-	if videoList, total, err = h.useCase.GetVideoList(ctx, userId, req.Page, req.Size, req.Category); err != nil {
+	if videoList, total, err = h.useCase.GetVideoList(ctx, userID, req.Page, req.Size, req.Category); err != nil {
 		return
 	}
 	r.VideoList = pack.Videos(videoList)
@@ -72,13 +73,13 @@ func (h *VideoHandler) List(ctx context.Context, req *video.VideoListRequest) (r
 
 func (h *VideoHandler) Detail(ctx context.Context, req *video.DetailRequest) (r *video.DetailResponse, err error) {
 	r = new(video.DetailResponse)
-	userId, err := pkgcontext.GetUserID(ctx)
+	userID, err := pkgcontext.GetUserID(ctx)
 	if err != nil {
 		return
 	}
 
 	var video *model.Video
-	if video, err = h.useCase.GetVideoDetail(ctx, req.VideoId, userId); err != nil {
+	if video, err = h.useCase.GetVideoDetail(ctx, req.VideoId, userID); err != nil {
 		return
 	}
 	r.Video = pack.Video(video)
@@ -92,7 +93,7 @@ func (h *VideoHandler) GetHotVideos(ctx context.Context, req *video.HotVideoRequ
 	var videoList []*model.Video
 	var total int64
 	var lastVisit, lastLike, lastID int64
-	limit := int32(10)
+	limit := int32(constants.DefaultPageSize)
 	category := "all"
 	ulastVisit := int64(0)
 	ulastLike := int64(0)
@@ -113,7 +114,14 @@ func (h *VideoHandler) GetHotVideos(ctx context.Context, req *video.HotVideoRequ
 		req.LastId = &ulastID
 	}
 
-	if videoList, total, lastVisit, lastLike, lastID, err = h.useCase.GetHotVideos(ctx, int32(*req.Limit), *req.Category, *req.LastVisit, *req.LastLike, *req.LastId); err != nil {
+	if videoList, total, lastVisit, lastLike, lastID, err = h.useCase.GetHotVideos(
+		ctx,
+		*req.Limit,
+		*req.Category,
+		*req.LastVisit,
+		*req.LastLike,
+		*req.LastId,
+	); err != nil {
 		return r, err
 	}
 	r.Videos = pack.Videos(videoList)
@@ -128,11 +136,11 @@ func (h *VideoHandler) GetHotVideos(ctx context.Context, req *video.HotVideoRequ
 func (h *VideoHandler) Delete(ctx context.Context, req *video.DeleteRequest) (r *video.DeleteResponse, err error) {
 	r = new(video.DeleteResponse)
 
-	userId, err := pkgcontext.GetUserID(ctx)
+	userID, err := pkgcontext.GetUserID(ctx)
 	if err != nil {
 		return
 	}
-	if err = h.useCase.DeleteVideo(ctx, req.VideoId, userId); err != nil {
+	if err = h.useCase.DeleteVideo(ctx, req.VideoId, userID); err != nil {
 		return
 	}
 	r.Base = base.BuildBaseResp(err)

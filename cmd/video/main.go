@@ -56,6 +56,6 @@ func main() {
 		server.WithMiddleware(middleware.Respond()),
 	)
 	if err = svr.Run(); err != nil {
-		log.Fatalf("Video: run server failed, err: %v", err)
+		log.Printf("Video: run server failed, err: %v", err)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/hertz-contrib/websocket"
+	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
 const (
@@ -17,7 +18,7 @@ const (
 	pongWait = 60 * time.Second
 
 	// 发送ping的时间间隔，必须小于pongWait
-	pingPeriod = (pongWait * 9) / 10
+	pingPeriod = time.Duration(float64(pongWait) * constants.WebSocketPingRatio)
 
 	// 最大消息大小
 	maxMessageSize = 512 * 1024 // 512KB
@@ -110,16 +111,13 @@ func (c *Client) WritePump() {
 		c.Conn.Close()
 	}()
 
-	for {
-		select {
-		case <-ticker.C:
-			if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
-				log.Printf("error setting write deadline: %v", err)
-				return
-			}
-			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-				return
-			}
+	for range ticker.C {
+		if err := c.Conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+			log.Printf("error setting write deadline: %v", err)
+			return
+		}
+		if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			return
 		}
 	}
 }

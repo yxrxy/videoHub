@@ -8,7 +8,7 @@ import (
 
 const (
 	VideoProcessConsumerNum = 10
-	VideoProcessGroupId     = "video_process"
+	VideoProcessGroupID     = "video_process"
 	DefaultConsumerChanCap  = 100
 )
 
@@ -16,7 +16,7 @@ func (c *VideoMQ) ConsumeProcessVideo(ctx context.Context) <-chan *kafka.Message
 	msgCh := c.client.Consume(ctx,
 		VideoTopic,
 		VideoProcessConsumerNum,
-		VideoProcessGroupId,
+		VideoProcessGroupID,
 		DefaultConsumerChanCap)
 	return msgCh
 }
