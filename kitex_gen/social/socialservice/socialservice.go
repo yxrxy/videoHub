@@ -7,7 +7,7 @@ import (
 	"errors"
 	client "github.com/cloudwego/kitex/client"
 	kitex "github.com/cloudwego/kitex/pkg/serviceinfo"
-	social "github.com/yxrrxy/videoHub/kitex_gen/social"
+	social "github.com/yxrxy/videoHub/kitex_gen/social"
 )
 
 var errInvalidMessageType = errors.New("invalid message type for service method handler")
@@ -118,6 +118,27 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
+	"JoinChatRoom": kitex.NewMethodInfo(
+		joinChatRoomHandler,
+		newSocialServiceJoinChatRoomArgs,
+		newSocialServiceJoinChatRoomResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"LeaveChatRoom": kitex.NewMethodInfo(
+		leaveChatRoomHandler,
+		newSocialServiceLeaveChatRoomArgs,
+		newSocialServiceLeaveChatRoomResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
+	"RegisterWebSocketClient": kitex.NewMethodInfo(
+		registerWebSocketClientHandler,
+		newSocialServiceRegisterWebSocketClientArgs,
+		newSocialServiceRegisterWebSocketClientResult,
+		false,
+		kitex.WithStreamingMode(kitex.StreamingNone),
+	),
 }
 
 var (
@@ -187,16 +208,11 @@ func newServiceInfo(hasStreaming bool, keepStreamingMethods bool, keepNonStreami
 func sendPrivateMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceSendPrivateMessageArgs)
 	realResult := result.(*social.SocialServiceSendPrivateMessageResult)
-	err := handler.(social.SocialService).SendPrivateMessage(ctx, realArg.SenderId, realArg.ReceiverId, realArg.Content)
+	success, err := handler.(social.SocialService).SendPrivateMessage(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceSendPrivateMessageArgs() interface{} {
@@ -210,17 +226,11 @@ func newSocialServiceSendPrivateMessageResult() interface{} {
 func getPrivateMessagesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceGetPrivateMessagesArgs)
 	realResult := result.(*social.SocialServiceGetPrivateMessagesResult)
-	success, err := handler.(social.SocialService).GetPrivateMessages(ctx, realArg.SenderId, realArg.ReceiverId, realArg.Page, realArg.Size)
+	success, err := handler.(social.SocialService).GetPrivateMessages(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceGetPrivateMessagesArgs() interface{} {
@@ -234,17 +244,11 @@ func newSocialServiceGetPrivateMessagesResult() interface{} {
 func createChatRoomHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceCreateChatRoomArgs)
 	realResult := result.(*social.SocialServiceCreateChatRoomResult)
-	success, err := handler.(social.SocialService).CreateChatRoom(ctx, realArg.Name, realArg.CreatorId, realArg.RoomType, realArg.MemberIds)
+	success, err := handler.(social.SocialService).CreateChatRoom(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceCreateChatRoomArgs() interface{} {
@@ -258,17 +262,11 @@ func newSocialServiceCreateChatRoomResult() interface{} {
 func getChatRoomHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceGetChatRoomArgs)
 	realResult := result.(*social.SocialServiceGetChatRoomResult)
-	success, err := handler.(social.SocialService).GetChatRoom(ctx, realArg.RoomId)
+	success, err := handler.(social.SocialService).GetChatRoom(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceGetChatRoomArgs() interface{} {
@@ -282,17 +280,11 @@ func newSocialServiceGetChatRoomResult() interface{} {
 func getUserChatRoomsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceGetUserChatRoomsArgs)
 	realResult := result.(*social.SocialServiceGetUserChatRoomsResult)
-	success, err := handler.(social.SocialService).GetUserChatRooms(ctx, realArg.UserId)
+	success, err := handler.(social.SocialService).GetUserChatRooms(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceGetUserChatRoomsArgs() interface{} {
@@ -306,16 +298,11 @@ func newSocialServiceGetUserChatRoomsResult() interface{} {
 func sendChatMessageHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceSendChatMessageArgs)
 	realResult := result.(*social.SocialServiceSendChatMessageResult)
-	err := handler.(social.SocialService).SendChatMessage(ctx, realArg.RoomId, realArg.SenderId, realArg.Content, realArg.MsgType)
+	success, err := handler.(social.SocialService).SendChatMessage(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceSendChatMessageArgs() interface{} {
@@ -329,17 +316,11 @@ func newSocialServiceSendChatMessageResult() interface{} {
 func getChatMessagesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceGetChatMessagesArgs)
 	realResult := result.(*social.SocialServiceGetChatMessagesResult)
-	success, err := handler.(social.SocialService).GetChatMessages(ctx, realArg.RoomId, realArg.Page, realArg.Size)
+	success, err := handler.(social.SocialService).GetChatMessages(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceGetChatMessagesArgs() interface{} {
@@ -353,16 +334,11 @@ func newSocialServiceGetChatMessagesResult() interface{} {
 func addFriendHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceAddFriendArgs)
 	realResult := result.(*social.SocialServiceAddFriendResult)
-	err := handler.(social.SocialService).AddFriend(ctx, realArg.UserId, realArg.FriendId)
+	success, err := handler.(social.SocialService).AddFriend(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceAddFriendArgs() interface{} {
@@ -376,17 +352,11 @@ func newSocialServiceAddFriendResult() interface{} {
 func getFriendshipHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceGetFriendshipArgs)
 	realResult := result.(*social.SocialServiceGetFriendshipResult)
-	success, err := handler.(social.SocialService).GetFriendship(ctx, realArg.UserId, realArg.FriendId)
+	success, err := handler.(social.SocialService).GetFriendship(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceGetFriendshipArgs() interface{} {
@@ -400,17 +370,11 @@ func newSocialServiceGetFriendshipResult() interface{} {
 func getUserFriendsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceGetUserFriendsArgs)
 	realResult := result.(*social.SocialServiceGetUserFriendsResult)
-	success, err := handler.(social.SocialService).GetUserFriends(ctx, realArg.UserId)
+	success, err := handler.(social.SocialService).GetUserFriends(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceGetUserFriendsArgs() interface{} {
@@ -424,16 +388,11 @@ func newSocialServiceGetUserFriendsResult() interface{} {
 func createFriendRequestHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceCreateFriendRequestArgs)
 	realResult := result.(*social.SocialServiceCreateFriendRequestResult)
-	err := handler.(social.SocialService).CreateFriendRequest(ctx, realArg.SenderId, realArg.ReceiverId, realArg.Message)
+	success, err := handler.(social.SocialService).CreateFriendRequest(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceCreateFriendRequestArgs() interface{} {
@@ -447,17 +406,11 @@ func newSocialServiceCreateFriendRequestResult() interface{} {
 func getFriendRequestsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceGetFriendRequestsArgs)
 	realResult := result.(*social.SocialServiceGetFriendRequestsResult)
-	success, err := handler.(social.SocialService).GetFriendRequests(ctx, realArg.UserId, realArg.Status)
+	success, err := handler.(social.SocialService).GetFriendRequests(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceGetFriendRequestsArgs() interface{} {
@@ -471,16 +424,11 @@ func newSocialServiceGetFriendRequestsResult() interface{} {
 func handleFriendRequestHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceHandleFriendRequestArgs)
 	realResult := result.(*social.SocialServiceHandleFriendRequestResult)
-	err := handler.(social.SocialService).HandleFriendRequest(ctx, realArg.RequestId, realArg.Status)
+	success, err := handler.(social.SocialService).HandleFriendRequest(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceHandleFriendRequestArgs() interface{} {
@@ -494,16 +442,11 @@ func newSocialServiceHandleFriendRequestResult() interface{} {
 func markMessageReadHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceMarkMessageReadArgs)
 	realResult := result.(*social.SocialServiceMarkMessageReadResult)
-	err := handler.(social.SocialService).MarkMessageRead(ctx, realArg.MessageId, realArg.UserId)
+	success, err := handler.(social.SocialService).MarkMessageRead(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceMarkMessageReadArgs() interface{} {
@@ -517,17 +460,11 @@ func newSocialServiceMarkMessageReadResult() interface{} {
 func getUnreadMessageCountHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*social.SocialServiceGetUnreadMessageCountArgs)
 	realResult := result.(*social.SocialServiceGetUnreadMessageCountResult)
-	success, err := handler.(social.SocialService).GetUnreadMessageCount(ctx, realArg.UserId)
+	success, err := handler.(social.SocialService).GetUnreadMessageCount(ctx, realArg.Req)
 	if err != nil {
-		switch v := err.(type) {
-		case *social.SocialException:
-			realResult.E = v
-		default:
-			return err
-		}
-	} else {
-		realResult.Success = &success
+		return err
 	}
+	realResult.Success = success
 	return nil
 }
 func newSocialServiceGetUnreadMessageCountArgs() interface{} {
@@ -536,6 +473,60 @@ func newSocialServiceGetUnreadMessageCountArgs() interface{} {
 
 func newSocialServiceGetUnreadMessageCountResult() interface{} {
 	return social.NewSocialServiceGetUnreadMessageCountResult()
+}
+
+func joinChatRoomHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*social.SocialServiceJoinChatRoomArgs)
+	realResult := result.(*social.SocialServiceJoinChatRoomResult)
+	success, err := handler.(social.SocialService).JoinChatRoom(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newSocialServiceJoinChatRoomArgs() interface{} {
+	return social.NewSocialServiceJoinChatRoomArgs()
+}
+
+func newSocialServiceJoinChatRoomResult() interface{} {
+	return social.NewSocialServiceJoinChatRoomResult()
+}
+
+func leaveChatRoomHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*social.SocialServiceLeaveChatRoomArgs)
+	realResult := result.(*social.SocialServiceLeaveChatRoomResult)
+	success, err := handler.(social.SocialService).LeaveChatRoom(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newSocialServiceLeaveChatRoomArgs() interface{} {
+	return social.NewSocialServiceLeaveChatRoomArgs()
+}
+
+func newSocialServiceLeaveChatRoomResult() interface{} {
+	return social.NewSocialServiceLeaveChatRoomResult()
+}
+
+func registerWebSocketClientHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*social.SocialServiceRegisterWebSocketClientArgs)
+	realResult := result.(*social.SocialServiceRegisterWebSocketClientResult)
+	success, err := handler.(social.SocialService).RegisterWebSocketClient(ctx, realArg.Request)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newSocialServiceRegisterWebSocketClientArgs() interface{} {
+	return social.NewSocialServiceRegisterWebSocketClientArgs()
+}
+
+func newSocialServiceRegisterWebSocketClientResult() interface{} {
+	return social.NewSocialServiceRegisterWebSocketClientResult()
 }
 
 type kClient struct {
@@ -548,232 +539,182 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) SendPrivateMessage(ctx context.Context, senderId int64, receiverId int64, content string) (err error) {
+func (p *kClient) SendPrivateMessage(ctx context.Context, req *social.SendPrivateMessageRequest) (r *social.SendPrivateMessageResponse, err error) {
 	var _args social.SocialServiceSendPrivateMessageArgs
-	_args.SenderId = senderId
-	_args.ReceiverId = receiverId
-	_args.Content = content
+	_args.Req = req
 	var _result social.SocialServiceSendPrivateMessageResult
 	if err = p.c.Call(ctx, "SendPrivateMessage", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return _result.E
-	}
-	return nil
+	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetPrivateMessages(ctx context.Context, senderId int64, receiverId int64, page int32, size int32) (r *social.PrivateMessagesResponse, err error) {
+func (p *kClient) GetPrivateMessages(ctx context.Context, req *social.GetPrivateMessagesRequest) (r *social.GetPrivateMessagesResponse, err error) {
 	var _args social.SocialServiceGetPrivateMessagesArgs
-	_args.SenderId = senderId
-	_args.ReceiverId = receiverId
-	_args.Page = page
-	_args.Size = size
+	_args.Req = req
 	var _result social.SocialServiceGetPrivateMessagesResult
 	if err = p.c.Call(ctx, "GetPrivateMessages", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
-	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) CreateChatRoom(ctx context.Context, name string, creatorId int64, roomType int8, memberIds []int64) (r *social.ChatRoom, err error) {
+func (p *kClient) CreateChatRoom(ctx context.Context, req *social.CreateChatRoomRequest) (r *social.CreateChatRoomResponse, err error) {
 	var _args social.SocialServiceCreateChatRoomArgs
-	_args.Name = name
-	_args.CreatorId = creatorId
-	_args.RoomType = roomType
-	_args.MemberIds = memberIds
+	_args.Req = req
 	var _result social.SocialServiceCreateChatRoomResult
 	if err = p.c.Call(ctx, "CreateChatRoom", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
-	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetChatRoom(ctx context.Context, roomId int64) (r *social.ChatRoom, err error) {
+func (p *kClient) GetChatRoom(ctx context.Context, req *social.GetChatRoomRequest) (r *social.GetChatRoomResponse, err error) {
 	var _args social.SocialServiceGetChatRoomArgs
-	_args.RoomId = roomId
+	_args.Req = req
 	var _result social.SocialServiceGetChatRoomResult
 	if err = p.c.Call(ctx, "GetChatRoom", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
-	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetUserChatRooms(ctx context.Context, userId int64) (r []*social.ChatRoom, err error) {
+func (p *kClient) GetUserChatRooms(ctx context.Context, req *social.GetUserChatRoomsRequest) (r *social.GetUserChatRoomsResponse, err error) {
 	var _args social.SocialServiceGetUserChatRoomsArgs
-	_args.UserId = userId
+	_args.Req = req
 	var _result social.SocialServiceGetUserChatRoomsResult
 	if err = p.c.Call(ctx, "GetUserChatRooms", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
-	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) SendChatMessage(ctx context.Context, roomId int64, senderId int64, content string, msgType int8) (err error) {
+func (p *kClient) SendChatMessage(ctx context.Context, req *social.SendChatMessageRequest) (r *social.SendChatMessageResponse, err error) {
 	var _args social.SocialServiceSendChatMessageArgs
-	_args.RoomId = roomId
-	_args.SenderId = senderId
-	_args.Content = content
-	_args.MsgType = msgType
+	_args.Req = req
 	var _result social.SocialServiceSendChatMessageResult
 	if err = p.c.Call(ctx, "SendChatMessage", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return _result.E
-	}
-	return nil
+	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetChatMessages(ctx context.Context, roomId int64, page int32, size int32) (r *social.ChatMessagesResponse, err error) {
+func (p *kClient) GetChatMessages(ctx context.Context, req *social.GetChatMessagesRequest) (r *social.GetChatMessagesResponse, err error) {
 	var _args social.SocialServiceGetChatMessagesArgs
-	_args.RoomId = roomId
-	_args.Page = page
-	_args.Size = size
+	_args.Req = req
 	var _result social.SocialServiceGetChatMessagesResult
 	if err = p.c.Call(ctx, "GetChatMessages", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
-	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) AddFriend(ctx context.Context, userId int64, friendId int64) (err error) {
+func (p *kClient) AddFriend(ctx context.Context, req *social.AddFriendRequest) (r *social.AddFriendResponse, err error) {
 	var _args social.SocialServiceAddFriendArgs
-	_args.UserId = userId
-	_args.FriendId = friendId
+	_args.Req = req
 	var _result social.SocialServiceAddFriendResult
 	if err = p.c.Call(ctx, "AddFriend", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return _result.E
-	}
-	return nil
+	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetFriendship(ctx context.Context, userId int64, friendId int64) (r *social.Friendship, err error) {
+func (p *kClient) GetFriendship(ctx context.Context, req *social.GetFriendshipRequest) (r *social.GetFriendshipResponse, err error) {
 	var _args social.SocialServiceGetFriendshipArgs
-	_args.UserId = userId
-	_args.FriendId = friendId
+	_args.Req = req
 	var _result social.SocialServiceGetFriendshipResult
 	if err = p.c.Call(ctx, "GetFriendship", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
-	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetUserFriends(ctx context.Context, userId int64) (r []*social.Friendship, err error) {
+func (p *kClient) GetUserFriends(ctx context.Context, req *social.GetUserFriendsRequest) (r *social.GetUserFriendsResponse, err error) {
 	var _args social.SocialServiceGetUserFriendsArgs
-	_args.UserId = userId
+	_args.Req = req
 	var _result social.SocialServiceGetUserFriendsResult
 	if err = p.c.Call(ctx, "GetUserFriends", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
-	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) CreateFriendRequest(ctx context.Context, senderId int64, receiverId int64, message string) (err error) {
+func (p *kClient) CreateFriendRequest(ctx context.Context, req *social.CreateFriendRequestRequest) (r *social.CreateFriendRequestResponse, err error) {
 	var _args social.SocialServiceCreateFriendRequestArgs
-	_args.SenderId = senderId
-	_args.ReceiverId = receiverId
-	_args.Message = message
+	_args.Req = req
 	var _result social.SocialServiceCreateFriendRequestResult
 	if err = p.c.Call(ctx, "CreateFriendRequest", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return _result.E
-	}
-	return nil
+	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetFriendRequests(ctx context.Context, userId int64, status int8) (r []*social.FriendRequest, err error) {
+func (p *kClient) GetFriendRequests(ctx context.Context, req *social.GetFriendRequestsRequest) (r *social.GetFriendRequestsResponse, err error) {
 	var _args social.SocialServiceGetFriendRequestsArgs
-	_args.UserId = userId
-	_args.Status = status
+	_args.Req = req
 	var _result social.SocialServiceGetFriendRequestsResult
 	if err = p.c.Call(ctx, "GetFriendRequests", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
-	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) HandleFriendRequest(ctx context.Context, requestId int64, status int8) (err error) {
+func (p *kClient) HandleFriendRequest(ctx context.Context, req *social.HandleFriendRequestRequest) (r *social.HandleFriendRequestResponse, err error) {
 	var _args social.SocialServiceHandleFriendRequestArgs
-	_args.RequestId = requestId
-	_args.Status = status
+	_args.Req = req
 	var _result social.SocialServiceHandleFriendRequestResult
 	if err = p.c.Call(ctx, "HandleFriendRequest", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return _result.E
-	}
-	return nil
+	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) MarkMessageRead(ctx context.Context, messageId int64, userId int64) (err error) {
+func (p *kClient) MarkMessageRead(ctx context.Context, req *social.MarkMessageReadRequest) (r *social.MarkMessageReadResponse, err error) {
 	var _args social.SocialServiceMarkMessageReadArgs
-	_args.MessageId = messageId
-	_args.UserId = userId
+	_args.Req = req
 	var _result social.SocialServiceMarkMessageReadResult
 	if err = p.c.Call(ctx, "MarkMessageRead", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return _result.E
-	}
-	return nil
+	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetUnreadMessageCount(ctx context.Context, userId int64) (r int64, err error) {
+func (p *kClient) GetUnreadMessageCount(ctx context.Context, req *social.GetUnreadMessageCountRequest) (r *social.GetUnreadMessageCountResponse, err error) {
 	var _args social.SocialServiceGetUnreadMessageCountArgs
-	_args.UserId = userId
+	_args.Req = req
 	var _result social.SocialServiceGetUnreadMessageCountResult
 	if err = p.c.Call(ctx, "GetUnreadMessageCount", &_args, &_result); err != nil {
 		return
 	}
-	switch {
-	case _result.E != nil:
-		return r, _result.E
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) JoinChatRoom(ctx context.Context, request *social.JoinChatRoomRequest) (r *social.JoinChatRoomResponse, err error) {
+	var _args social.SocialServiceJoinChatRoomArgs
+	_args.Request = request
+	var _result social.SocialServiceJoinChatRoomResult
+	if err = p.c.Call(ctx, "JoinChatRoom", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) LeaveChatRoom(ctx context.Context, request *social.LeaveChatRoomRequest) (r *social.LeaveChatRoomResponse, err error) {
+	var _args social.SocialServiceLeaveChatRoomArgs
+	_args.Request = request
+	var _result social.SocialServiceLeaveChatRoomResult
+	if err = p.c.Call(ctx, "LeaveChatRoom", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) RegisterWebSocketClient(ctx context.Context, request *social.RegisterWebSocketClientRequest) (r *social.RegisterWebSocketClientResponse, err error) {
+	var _args social.SocialServiceRegisterWebSocketClientArgs
+	_args.Request = request
+	var _result social.SocialServiceRegisterWebSocketClientResult
+	if err = p.c.Call(ctx, "RegisterWebSocketClient", &_args, &_result); err != nil {
+		return
 	}
 	return _result.GetSuccess(), nil
 }

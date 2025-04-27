@@ -1,104 +1,116 @@
-MODULE := github.com/yxrrxy/videoHub
-IDL_PATH := idl
-OUTPUT_DIR := output
+# 辅助工具安装列表
+# 执行 go install github.com/cloudwego/hertz/cmd/hz@latest
+# 执行 go install github.com/cloudwego/kitex/tool/cmd/kitex@latest
+# 执行 go install golang.org/x/tools/cmd/goimports@latest
+# 执行 go install golang.org/x/vuln/cmd/govulncheck@latest
+# 执行 go install mvdan.cc/gofumpt@latest
+# 访问 https://golangci-lint.run/welcome/install/ 以查看安装 golangci-lint 的方法
 
-CONFIG = $(shell go run scripts/config_tool.go $(1) $(2))
+# 默认输出帮助信息
+.DEFAULT_GOAL := help
+# 检查 tmux 是否存在
+TMUX_EXISTS := $(shell command -v tmux)
+# 项目 MODULE 名
+MODULE = github.com/yxrxy/videoHub
+# 当前架构
+ARCH := $(shell uname -m)
+PREFIX = "[Makefile]"
+# 目录相关
+DIR = $(shell pwd)
+CMD = $(DIR)/cmd
+CONFIG_PATH = $(DIR)/config
+IDL_PATH = $(DIR)/idl
+OUTPUT_PATH = $(DIR)/output
 
-export MYSQL_USER = $(call CONFIG,mysql,username)
-export MYSQL_PASSWORD = $(call CONFIG,mysql,password)
-export MYSQL_ROOT_PASSWORD = $(call CONFIG,mysql,password) 
-export MYSQL_DATABASE = $(call CONFIG,mysql,database)
-export REDIS_PASSWORD = $(call CONFIG,redis,password)
+# 服务名
+SERVICES := gateway user social interaction video
+service = $(word 1, $@)
 
+.PHONY: help
+help:
+	@echo "Available targets:"
+	@echo "  {service name}    : Build a specific service (e.g., make social). use BUILD_ONLY=1 to avoid auto bootstrap."
+	@echo "                      Available service list: [${SERVICES}]"
+	@echo "  env-up            : Start the docker-compose environment."
+	@echo "  env-down          : Stop the docker-compose environment."
+	@echo "  kitex-gen-%       : Generate Kitex service code for a specific service."
+	@echo "  kitex-update-%    : Update Kitex generated code for a specific service."
+	@echo "  hertz-gen-api     : Generate Hertz scaffold based on the API IDL."
+	@echo "  test              : Run unit tests for the project."
+	@echo "  clean             : Remove the 'output' directories and related binaries."
+
+# 启动必要的环境，比如 etcd、mysql
+.PHONY: env-up
 env-up:
-	@echo "Creating storage directories..."
-	@mkdir -p src/storage/videos
-	@mkdir -p src/storage/covers
-	@mkdir -p src/storage/avatars
-	@mkdir -p src/storage/chat
-	@chmod -R 755 src/storage
-#	@echo "Installing ffmpeg..."
-#	@which ffmpeg || sudo apt-get update && sudo apt-get install -y ffmpeg
-	@echo "Starting docker services..."
-	@docker-compose -f docker/docker-compose.yml up -d mysql redis etcd
+	@ docker compose -f ./docker/docker-compose.yml up -d videohub-mysql videohub-redis videohub-etcd kafka otel-collector
 
+# 关闭必要的环境，但不清理 data（位于 docker/data 目录中）
+.PHONY: env-down
 env-down:
-	@docker-compose -f docker/docker-compose.yml down
+	@ cd ./docker && docker compose down
 
-.PHONY: all user video social interaction gateway env-up env-down clean kitex-gen-% start
-
-# 构建服务的通用函数
-define build_service
-	@echo "Building $(1) RPC service..."
-	@docker build \
-		-f docker/baseBuild/Dockerfile \
-		--build-arg SERVICE_PATH=$(1)/rpc \
-		--build-arg SERVICE_PORT=$(call CONFIG,$(1),rpc_port) \
-		-t $(1)-rpc-service .
-	@docker create --name temp-$(1)-rpc $(1)-rpc-service
-	@docker cp temp-$(1)-rpc:/app/service_binary $(OUTPUT_DIR)/$(1)_rpc
-	@docker rm temp-$(1)-rpc
-	@echo "Starting $(1) RPC service..."
-	@TMUX= tmux kill-session -t $(1) 2>/dev/null || true
-	@TMUX= tmux new-session -d -s $(1)
-	@TMUX= tmux send-keys -t $(1):0.0 '$(OUTPUT_DIR)/$(1)_rpc' C-m
-endef
-
-$(OUTPUT_DIR):
-	@mkdir -p $(OUTPUT_DIR)
-
-# 用户服务
-user: $(OUTPUT_DIR)
-	$(call build_service,user)
-
-# 视频服务
-video: $(OUTPUT_DIR)
-	$(call build_service,video)
-
-# 社交服务
-social: $(OUTPUT_DIR)
-	$(call build_service,social)
-
-# 互动服务
-interaction: $(OUTPUT_DIR)
-	$(call build_service,interaction)
-
-# 网关服务
-gateway: $(OUTPUT_DIR)
-	@echo "Building gateway service..."
-	@docker build \
-		-f docker/baseBuild/Dockerfile \
-		--build-arg SERVICE_PATH=gateway \
-		--build-arg SERVICE_PORT=$(call CONFIG,gateway,port) \
-		-t gateway-service .
-	@docker create --name temp-gateway gateway-service
-	@docker cp temp-gateway:/app/service_binary $(OUTPUT_DIR)/gateway
-	@docker rm temp-gateway
-	@echo "Starting gateway service..."
-	@TMUX= tmux kill-session -t gateway 2>/dev/null || true
-	@TMUX= tmux new-session -d -s gateway
-	@TMUX= tmux send-keys -t gateway:0.0 '$(OUTPUT_DIR)/gateway' C-m
-
-# 添加启动服务的命令
-start:
-	@echo "All services are running in tmux sessions:"
-	@echo "- user service: tmux attach-session -t user"
-	@echo "- video service: tmux attach-session -t video"
-	@echo "- social service: tmux attach-session -t social"
-	@echo "- interaction service: tmux attach-session -t interaction"
-	@echo "- gateway service: tmux attach-session -t gateway"
-	@echo "Use 'tmux attach-session -t <service_name>' to view logs"
-
-clean:
-	@echo "Cleaning build files and volumes..."
-	@rm -rf $(OUTPUT_DIR)
-	@docker-compose -f docker/docker-compose.yml down
-	@docker volume rm docker_mysql_data docker_redis_data docker_etcd_data 2>/dev/null || true
-	@echo "Cleaned build files and volumes"
-
+# 基于 idl 生成相关的 go 语言描述文件
+.PHONY: kitex-gen-%
 kitex-gen-%:
-	@kitex -module "${MODULE}" ${IDL_PATH}/$*.thrift
-	@go mod tidy
+	@ kitex -module "${MODULE}" \
+		-thrift no_default_serdes \
+		${IDL_PATH}/$*.thrift
+	@ go mod tidy
 
-# 添加启动所有服务的命令
-all: env-up user video social interaction gateway start
+# 生成基于 Hertz 的脚手架
+.PHONY: hz-%
+hz-%:
+	hz update -idl ${IDL_PATH}/api/$*.thrift
+
+# 构建指定对象，构建后在没有给 BUILD_ONLY 参的情况下会自动运行，需要熟悉 tmux 环境
+.PHONY: $(SERVICES)
+$(SERVICES):
+	@if [ -z "$(TMUX_EXISTS)" ]; then \
+		echo "$(PREFIX) tmux is not installed. Please install tmux first."; \
+		exit 1; \
+	fi
+	@if [ -z "$$TMUX" ]; then \
+		echo "$(PREFIX) you are not in tmux, press ENTER to start tmux environment."; \
+		read -r; \
+		if tmux has-session -t videohub 2>/dev/null; then \
+			echo "$(PREFIX) Tmux session 'videohub' already exists. Attaching to session and running command."; \
+			tmux attach-session -t videohub; \
+			tmux send-keys -t videohub "make $(service)" C-m; \
+		else \
+			echo "$(PREFIX) No tmux session found. Creating a new session."; \
+			tmux new-session -s videohub "make $(service); $$SHELL"; \
+		fi; \
+	else \
+		echo "$(PREFIX) Build $(service) target..."; \
+		mkdir -p output; \
+		bash $(DIR)/docker/script/build.sh $(service); \
+		echo "$(PREFIX) Build $(service) target completed"; \
+	fi
+ifndef BUILD_ONLY
+	@echo "$(PREFIX) Automatic run server"
+	@if tmux list-windows -F '#{window_name}' | grep -q "^videohub-$(service)$$"; then \
+		echo "$(PREFIX) Window 'videohub-$(service)' already exists. Reusing the window."; \
+		tmux select-window -t "videohub-$(service)"; \
+	else \
+		echo "$(PREFIX) Window 'videohub-$(service)' does not exist. Creating a new window."; \
+		tmux new-window -n "videohub-$(service)"; \
+		tmux split-window -h ; \
+		tmux select-layout -t "videohub-$(service)" even-horizontal; \
+	fi
+	@echo "$(PREFIX) Running $(service) service in tmux..."
+	@tmux send-keys -t videohub-$(service).0 'export SERVICE=$(service) && bash ./docker/script/entrypoint.sh' C-m
+	@tmux select-pane -t videohub-$(service).1
+endif
+
+# 清除所有的构建产物
+.PHONY: clean
+clean:
+	@find . -type d -name "output" -exec rm -rf {} + -print
+
+# 清除所有构建产物、compose 环境和它的数据
+.PHONY: clean-all
+clean-all: clean
+	@echo "$(PREFIX) Checking if docker-compose services are running..."
+	@docker-compose -f ./docker/docker-compose.yml ps -q | grep '.' && docker-compose -f ./docker/docker-compose.yml down || echo "$(PREFIX) No services are running."
+	@echo "$(PREFIX) Removing docker data..."
+	rm -rf ./docker/data
