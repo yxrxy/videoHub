@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
 type Storage interface {
@@ -24,7 +26,7 @@ func NewLocalStorage(basePath, baseURL string) *LocalStorage {
 
 func (s *LocalStorage) Save(data []byte, filename string) (string, error) {
 	fullPath := filepath.Join(s.basePath, filename)
-	if err := os.WriteFile(fullPath, data, 0644); err != nil {
+	if err := os.WriteFile(fullPath, data, constants.FilePermission); err != nil {
 		return "", fmt.Errorf("save file error: %w", err)
 	}
 	return fmt.Sprintf("%s/%s", s.baseURL, filename), nil

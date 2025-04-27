@@ -8,9 +8,7 @@ import (
 	"github.com/yxrxy/videoHub/pkg/kafka"
 )
 
-var (
-	VideoTopic = "video"
-)
+var VideoTopic = "video"
 
 func (c *VideoMQ) send(ctx context.Context, msg []*kafka.Message) (err error) {
 	if !c.done.Load() {

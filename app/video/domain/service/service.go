@@ -15,6 +15,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/yxrxy/videoHub/app/video/domain/model"
 	"github.com/yxrxy/videoHub/config"
+	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
 func (s *VideoService) CheckVideo(ctx context.Context, videoData []byte, contentType string) bool {
@@ -28,7 +29,7 @@ func (s *VideoService) CheckVideo(ctx context.Context, videoData []byte, content
 		return false
 	}
 
-	if err := os.MkdirAll(config.Upload.Video.UploadDir, 0755); err != nil {
+	if err := os.MkdirAll(config.Upload.Video.UploadDir, constants.DirPermission); err != nil {
 		return false
 	}
 
@@ -36,7 +37,8 @@ func (s *VideoService) CheckVideo(ctx context.Context, videoData []byte, content
 }
 
 func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []byte,
-	contentType string, title string, description, category *string, tags []string, isPrivate bool) (string, error) {
+	contentType string, title string, description, category *string, tags []string, isPrivate bool,
+) (string, error) {
 	// 1. 保存视频文件
 	ext := ".mp4"
 	switch contentType {
@@ -49,7 +51,7 @@ func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []
 	filename := fmt.Sprintf("%d_%d%s", userID, timestamp, ext)
 	videoPath := filepath.Join(config.Upload.Video.UploadDir, filename)
 
-	if err := os.WriteFile(videoPath, videoData, 0644); err != nil {
+	if err := os.WriteFile(videoPath, videoData, constants.FilePermission); err != nil {
 		return "", fmt.Errorf("保存视频失败: %w", err)
 	}
 
@@ -178,7 +180,8 @@ func (s *VideoService) isValidVideoType(contentType string) bool {
 }
 
 func (s *VideoService) GetVideoList(ctx context.Context, userID int64, page int64, size int32,
-	category *string) ([]*model.Video, int64, error) {
+	category *string,
+) ([]*model.Video, int64, error) {
 	if page <= 0 {
 		page = 1
 	}
@@ -218,7 +221,7 @@ func (s *VideoService) GetVideoDetail(ctx context.Context, videoID, userID int64
 	if err != nil {
 		return nil, err
 	}
-	var result *model.Video = &model.Video{
+	result := &model.Video{
 		ID:           v.ID,
 		UserID:       v.UserID,
 		VideoURL:     v.VideoURL,
@@ -236,7 +239,12 @@ func (s *VideoService) GetVideoDetail(ctx context.Context, videoID, userID int64
 	return result, nil
 }
 
-func (s *VideoService) GetHotVideos(ctx context.Context, limit int32, category string, lastVisit, lastLike, lastID int64) ([]*model.Video, int64, int64, int64, int64, error) {
+func (s *VideoService) GetHotVideos(
+	ctx context.Context,
+	limit int32,
+	category string,
+	lastVisit, lastLike, lastID int64,
+) ([]*model.Video, int64, int64, int64, int64, error) {
 	videos, total, nextVisit, nextLike, nextID, err := s.db.GetHotVideos(
 		ctx, limit, category, lastVisit, lastLike, lastID)
 	if err != nil {
