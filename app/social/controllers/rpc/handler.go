@@ -32,7 +32,7 @@ func (h *SocialHandler) SendPrivateMessage(ctx context.Context, req *social.Send
 func (h *SocialHandler) GetPrivateMessages(ctx context.Context, req *social.GetPrivateMessagesRequest) (r *social.GetPrivateMessagesResponse, err error) {
 	r = new(social.GetPrivateMessagesResponse)
 
-	messages, err := h.useCase.GetPrivateMessages(ctx, req.UserId, req.OtherUserId, int32(*req.Page), int32(*req.Size))
+	messages, err := h.useCase.GetPrivateMessages(ctx, req.UserId, req.OtherUserId, *req.Page, *req.Size)
 	if err != nil {
 		return
 	}
@@ -84,7 +84,7 @@ func (h *SocialHandler) GetUserChatRooms(ctx context.Context, req *social.GetUse
 func (h *SocialHandler) SendChatMessage(ctx context.Context, req *social.SendChatMessageRequest) (r *social.SendChatMessageResponse, err error) {
 	r = new(social.SendChatMessageResponse)
 
-	if err = h.useCase.SendChatMessage(ctx, req.RoomId, req.SenderId, req.Content, int8(*req.Type)); err != nil {
+	if err = h.useCase.SendChatMessage(ctx, req.RoomId, req.SenderId, req.Content, *req.Type); err != nil {
 		return
 	}
 	r.Base = base.BuildBaseResp(err)
@@ -95,7 +95,7 @@ func (h *SocialHandler) SendChatMessage(ctx context.Context, req *social.SendCha
 func (h *SocialHandler) GetChatMessages(ctx context.Context, req *social.GetChatMessagesRequest) (r *social.GetChatMessagesResponse, err error) {
 	r = new(social.GetChatMessagesResponse)
 
-	messages, err := h.useCase.GetChatMessages(ctx, req.RoomId, int32(*req.Page), int32(*req.Size))
+	messages, err := h.useCase.GetChatMessages(ctx, req.RoomId, int32(*req.Page), *req.Size)
 	if err != nil {
 		return
 	}
@@ -132,7 +132,7 @@ func (h *SocialHandler) GetUserFriends(ctx context.Context, req *social.GetUserF
 func (h *SocialHandler) GetFriendRequests(ctx context.Context, req *social.GetFriendRequestsRequest) (r *social.GetFriendRequestsResponse, err error) {
 	r = new(social.GetFriendRequestsResponse)
 
-	requests, err := h.useCase.GetFriendRequests(ctx, req.UserId, int8(*req.Type))
+	requests, err := h.useCase.GetFriendRequests(ctx, req.UserId, *req.Type)
 	if err != nil {
 		return
 	}
@@ -153,14 +153,17 @@ func (h *SocialHandler) HandleFriendRequest(ctx context.Context, req *social.Han
 }
 
 // 获取未读消息数量
-func (h *SocialHandler) GetUnreadMessageCount(ctx context.Context, req *social.GetUnreadMessageCountRequest) (r *social.GetUnreadMessageCountResponse, err error) {
+func (h *SocialHandler) GetUnreadMessageCount(
+	ctx context.Context,
+	req *social.GetUnreadMessageCountRequest,
+) (r *social.GetUnreadMessageCountResponse, err error) {
 	r = new(social.GetUnreadMessageCountResponse)
 
 	count, err := h.useCase.GetUnreadMessageCount(ctx, req.UserId)
 	if err != nil {
 		return
 	}
-	r.Count = int64(count)
+	r.Count = count
 	r.Base = base.BuildBaseResp(err)
 	return
 }
@@ -196,7 +199,7 @@ func (h *SocialHandler) CreateFriendRequest(ctx context.Context, req *social.Cre
 func (h *SocialHandler) GetFriendRequest(ctx context.Context, req *social.GetFriendRequestsRequest) (r *social.GetFriendRequestsResponse, err error) {
 	r = new(social.GetFriendRequestsResponse)
 
-	requests, err := h.useCase.GetFriendRequests(ctx, req.UserId, int8(*req.Type))
+	requests, err := h.useCase.GetFriendRequests(ctx, req.UserId, *req.Type)
 	if err != nil {
 		return
 	}
@@ -241,7 +244,10 @@ func (h *SocialHandler) LeaveChatRoom(ctx context.Context, req *social.LeaveChat
 	return r, nil
 }
 
-func (h *SocialHandler) RegisterWebSocketClient(ctx context.Context, req *social.RegisterWebSocketClientRequest) (r *social.RegisterWebSocketClientResponse, err error) {
+func (h *SocialHandler) RegisterWebSocketClient(
+	ctx context.Context,
+	req *social.RegisterWebSocketClientRequest,
+) (r *social.RegisterWebSocketClientResponse, err error) {
 	r = new(social.RegisterWebSocketClientResponse)
 	if err := h.useCase.RegisterWebSocketClient(req.UserId); err != nil {
 		r.Base = base.BuildBaseResp(err)

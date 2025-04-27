@@ -27,8 +27,8 @@ func (u *userDB) IsUserExist(ctx context.Context, username string) (bool, error)
 	return count > 0, nil
 }
 
-// IsUserExistById 检查用户是否存在
-func (u *userDB) IsUserExistById(ctx context.Context, id int64) (bool, error) {
+// IsUserExistByID 检查用户是否存在
+func (u *userDB) IsUserExistByID(ctx context.Context, id int64) (bool, error) {
 	var count int64
 	if err := u.db.WithContext(ctx).Model(&User{}).
 		Where("id = ?", id).Count(&count).Error; err != nil {
@@ -65,7 +65,7 @@ func (u *userDB) GetUserInfo(ctx context.Context, username string) (*model.User,
 	}, nil
 }
 
-func (u *userDB) GetUserById(ctx context.Context, id int64) (*model.User, error) {
+func (u *userDB) GetUserByID(ctx context.Context, id int64) (*model.User, error) {
 	var user User
 	if err := u.db.WithContext(ctx).First(&user, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

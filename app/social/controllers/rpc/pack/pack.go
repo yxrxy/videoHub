@@ -62,7 +62,7 @@ func PackFriend(friend *model.Friendship) *rpcmodel.Friendship {
 		Id:       friend.ID,
 		UserId:   friend.UserID,
 		FriendId: friend.FriendID,
-		Status:   int8(friend.Status),
+		Status:   friend.Status,
 	}
 }
 
@@ -80,7 +80,7 @@ func PackFriendRequest(request *model.FriendRequest) *rpcmodel.FriendRequest {
 		SenderId:   request.SenderID,
 		ReceiverId: request.ReceiverID,
 		Message:    &request.Message,
-		Status:     int8(request.Status),
+		Status:     request.Status,
 	}
 }
 
@@ -97,7 +97,7 @@ func PackFriendship(friendship *model.Friendship) *rpcmodel.Friendship {
 		Id:       friendship.ID,
 		UserId:   friendship.UserID,
 		FriendId: friendship.FriendID,
-		Status:   int8(friendship.Status),
+		Status:   friendship.Status,
 	}
 }
 
