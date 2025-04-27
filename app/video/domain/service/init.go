@@ -25,10 +25,10 @@ func NewVideoService(db repository.VideoDB, cache repository.VideoCache, mq repo
 	return svc
 }
 
-func (svc *VideoService) init() {
-	svc.initConsumer()
+func (s *VideoService) init() {
+	s.initConsumer()
 }
 
-func (svc *VideoService) initConsumer() {
-	go svc.ConsumeProcessVideo(context.Background())
+func (s *VideoService) initConsumer() {
+	go s.ConsumeProcessVideo(context.Background())
 }

@@ -24,7 +24,6 @@ import (
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/kitex-contrib/obs-opentelemetry/tracing"
 	etcd "github.com/kitex-contrib/registry-etcd"
-
 	"github.com/yxrxy/videoHub/config"
 	"github.com/yxrxy/videoHub/kitex_gen/interaction/interactionservice"
 	"github.com/yxrxy/videoHub/kitex_gen/social/socialservice"

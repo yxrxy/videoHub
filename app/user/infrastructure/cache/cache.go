@@ -2,10 +2,10 @@ package cache
 
 import (
 	"context"
-	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/yxrxy/videoHub/app/user/domain/repository"
+	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
 type userCache struct {
@@ -21,11 +21,11 @@ func (c *userCache) IsExist(ctx context.Context, key string) bool {
 }
 
 func (c *userCache) SetUserAccessToken(ctx context.Context, key string, token string) error {
-	return c.client.Set(ctx, key, token, time.Hour*24).Err()
+	return c.client.Set(ctx, key, token, constants.TokenExpiry).Err()
 }
 
 func (c *userCache) SetUserRefreshToken(ctx context.Context, key string, token string) error {
-	return c.client.Set(ctx, key, token, time.Hour*24*30).Err()
+	return c.client.Set(ctx, key, token, constants.TokenExpiry2).Err()
 }
 
 func (c *userCache) DeleteUserToken(ctx context.Context, key string) error {

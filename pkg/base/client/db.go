@@ -23,13 +23,17 @@ import (
 	"os"
 	"time"
 
+	"github.com/yxrxy/videoHub/config"
+	"github.com/yxrxy/videoHub/pkg/errno"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	glogger "gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+)
 
-	"github.com/yxrxy/videoHub/config"
-	"github.com/yxrxy/videoHub/pkg/errno"
+const (
+	defaultMaxIdleConns = 10
+	defaultMaxOpenConns = 100
 )
 
 // InitMySQL 通用初始化mysql函数，传入tableName指定表
@@ -61,10 +65,10 @@ func InitMySQL() (db *gorm.DB, err error) {
 		return nil, errno.NewErrNo(errno.InternalDatabaseErrorCode, fmt.Sprintf("get database object error: %v", err))
 	}
 
-	sqlDB.SetMaxIdleConns(10)           // 最大闲置连接数
-	sqlDB.SetMaxOpenConns(100)          // 最大连接数
-	sqlDB.SetConnMaxLifetime(time.Hour) // 最大可复用时间
-	sqlDB.SetConnMaxIdleTime(time.Hour) // 最长保持空闲状态时间
+	sqlDB.SetMaxIdleConns(defaultMaxIdleConns) // 最大闲置连接数
+	sqlDB.SetMaxOpenConns(defaultMaxOpenConns) // 最大连接数
+	sqlDB.SetConnMaxLifetime(time.Hour)        // 最大可复用时间
+	sqlDB.SetConnMaxIdleTime(time.Hour)        // 最长保持空闲状态时间
 	db = db.WithContext(context.Background())
 
 	// 进行连通性测试

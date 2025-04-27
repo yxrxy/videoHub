@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/yxrxy/videoHub/config"
+	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
 var (
@@ -31,7 +32,7 @@ func GenerateToken(userID int64) (string, error) {
 	InitSecret()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
-		"exp":     time.Now().Add(24 * time.Hour).Unix(),
+		"exp":     time.Now().Add(constants.TokenExpiry).Unix(),
 	})
 	return token.SignedString(Secret)
 }
@@ -50,7 +51,6 @@ func ParseRefreshToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return Secret, nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,6 @@ func ParseToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return Secret, nil
 	})
-
 	if err != nil {
 		return nil, err
 	}

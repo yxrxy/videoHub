@@ -32,11 +32,11 @@ func (s *useCase) Login(ctx context.Context, req *model.User) (*model.User, erro
 }
 
 func (s *useCase) GetUserInfo(ctx context.Context, uid int64) (*model.User, error) {
-	return s.db.GetUserById(ctx, uid)
+	return s.db.GetUserByID(ctx, uid)
 }
 
 func (s *useCase) UploadAvatar(ctx context.Context, uid int64, avatarData []byte, contentType string) (string, error) {
-	exist, err := s.db.IsUserExistById(ctx, uid)
+	exist, err := s.db.IsUserExistByID(ctx, uid)
 	if err != nil {
 		return "", errno.NewErrNo(errno.InternalDatabaseErrorCode, "database error")
 	}

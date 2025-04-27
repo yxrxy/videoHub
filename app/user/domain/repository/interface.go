@@ -8,10 +8,10 @@ import (
 
 type UserDB interface {
 	IsUserExist(ctx context.Context, username string) (bool, error)
-	IsUserExistById(ctx context.Context, id int64) (bool, error)
+	IsUserExistByID(ctx context.Context, id int64) (bool, error)
 	CreateUser(ctx context.Context, user *model.User) (int64, error)
 	GetUserInfo(ctx context.Context, username string) (*model.User, error)
-	GetUserById(ctx context.Context, id int64) (*model.User, error)
+	GetUserByID(ctx context.Context, id int64) (*model.User, error)
 	UpdateUser(ctx context.Context, user *model.User) error
 	UpdateAvatar(ctx context.Context, user *model.User) error
 }
