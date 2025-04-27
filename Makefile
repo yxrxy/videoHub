@@ -114,3 +114,32 @@ clean-all: clean
 	@docker-compose -f ./docker/docker-compose.yml ps -q | grep '.' && docker-compose -f ./docker/docker-compose.yml down || echo "$(PREFIX) No services are running."
 	@echo "$(PREFIX) Removing docker data..."
 	rm -rf ./docker/data
+
+# 格式化代码，我们使用 gofumpt，是 fmt 的严格超集
+.PHONY: fmt
+fmt:
+	gofumpt -l -w .
+
+# 优化 import 顺序结构
+.PHONY: import
+import:
+	goimports -w -local github.com/west2-online .
+
+# 检查可能的错误
+.PHONY: vet
+vet:
+	go vet ./...
+
+# 代码格式校验
+.PHONY: lint
+lint:
+	golangci-lint run --config=./.golangci.yml --tests --allow-parallel-runners --sort-results --show-stats --print-resources-usage
+
+# 检查依赖漏洞
+.PHONY: vulncheck
+vulncheck:
+	govulncheck ./...
+
+.PHONY: tidy
+tidy:
+	go mod tidy
