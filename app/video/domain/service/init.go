@@ -10,16 +10,18 @@ type VideoService struct {
 	db    repository.VideoDB
 	cache repository.VideoCache
 	mq    repository.VideoMQ
+	es    repository.VideoElastic
 }
 
-func NewVideoService(db repository.VideoDB, cache repository.VideoCache, mq repository.VideoMQ) *VideoService {
-	if db == nil || cache == nil || mq == nil {
+func NewVideoService(db repository.VideoDB, cache repository.VideoCache, mq repository.VideoMQ, es repository.VideoElastic) *VideoService {
+	if db == nil || cache == nil || mq == nil || es == nil {
 		panic("videoService`s db or cache or mq should not be nil")
 	}
 	svc := &VideoService{
 		db:    db,
 		cache: cache,
 		mq:    mq,
+		es:    es,
 	}
 	svc.init()
 	return svc

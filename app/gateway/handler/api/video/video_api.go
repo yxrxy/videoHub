@@ -215,7 +215,16 @@ func SearchVideo(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(api.SearchResponse)
+	resp, err := rpc.SearchVideoRPC(ctx, &video.SearchRequest{
+		Keywords: req.Keywords,
+		FromDate: req.FromDate,
+		ToDate:   req.ToDate,
+		Username: req.Username,
+	})
+	if err != nil {
+		pack.RespError(c, err)
+		return
+	}
 
 	pack.RespData(c, resp)
 }

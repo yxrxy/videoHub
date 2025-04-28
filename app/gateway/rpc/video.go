@@ -109,3 +109,15 @@ func IncrementLikeCountRPC(ctx context.Context, req *video.IncrementLikeCountReq
 	}
 	return nil
 }
+
+func SearchVideoRPC(ctx context.Context, req *video.SearchRequest) ([]*model.Video, error) {
+	resp, err := videoClient.Search(ctx, req)
+	if err != nil {
+		log.Printf("搜索视频RPC调用失败: %v", err)
+		return nil, errno.InternalServiceError.WithError(err)
+	}
+	if resp.Base.Code != errno.SuccessCode {
+		return nil, errno.InternalServiceError.WithMessage(resp.Base.Msg)
+	}
+	return resp.Videos, nil
+}

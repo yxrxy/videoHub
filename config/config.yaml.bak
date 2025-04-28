@@ -45,6 +45,9 @@ jwt:
 gateway:
   addr: ":8080"
 
+elasticsearch:
+  addr: "127.0.0.1:9200"
+
 upload:
   avatar:
     max_size: 5242880  # 5MB
