@@ -17,7 +17,7 @@ func InjectUserHandler() user.UserService {
 		panic(err)
 	}
 
-	re, err := client.NewRedisClient(config.Redis.DB)
+	re, err := client.NewRedisClient(config.Redis.DB.User)
 	if err != nil {
 		panic(err)
 	}

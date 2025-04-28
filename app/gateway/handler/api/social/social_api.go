@@ -42,20 +42,17 @@ func initGlobalManager() {
 func SendPrivateMessage(ctx context.Context, c *app.RequestContext) {
 	var err error
 	var req api.SendPrivateMessageRequest
+	err = c.BindAndValidate(&req)
 	if err != nil {
 		pack.RespError(c, errno.ParamVerifyError.WithError(err))
 		return
 	}
-	resp, err := rpc.SendPrivateMessageRPC(ctx, &social.SendPrivateMessageRequest{
-		SenderId:   req.SenderID,
-		ReceiverId: req.ReceiverID,
-		Content:    req.Content,
-	})
+	err = globalService.SendPrivateMessage(req.SenderID, req.ReceiverID, req.Content)
 	if err != nil {
 		pack.RespError(c, err)
 		return
 	}
-	pack.RespData(c, resp)
+	pack.RespSuccess(c)
 }
 
 // GetPrivateMessages .
@@ -383,11 +380,12 @@ func ConnectWebSocket(ctx context.Context, c *app.RequestContext) {
 	initGlobalManager()
 
 	token := c.Query("token")
-	roomID, err := strconv.ParseInt(c.Query("room_id"), 10, 64)
-	if err != nil {
-		pack.RespError(c, errno.ParamVerifyError.WithError(err))
-		return
+	roomID, _ := strconv.ParseInt(c.Query("room_id"), 10, 64)
+	var toUserID int64 = -1
+	if roomID == -1 {
+		toUserID, _ = strconv.ParseInt(c.Query("to_user"), 10, 64)
 	}
+	// roomID可以为0
 
 	claims, err := jwt.ParseToken(token)
 	if err != nil {
@@ -409,8 +407,10 @@ func ConnectWebSocket(ctx context.Context, c *app.RequestContext) {
 	if err := upgrader.Upgrade(c, func(conn *websocket.Conn) {
 		defer conn.Close()
 		defer func() {
-			if err := globalService.LeaveChatRoom(userID, roomID); err != nil {
-				klog.Errorf("离开聊天室失败: %v", err)
+			if roomID != -1 {
+				if err := globalService.LeaveChatRoom(userID, roomID); err != nil {
+					klog.Errorf("离开聊天室失败: %v", err)
+				}
 			}
 		}()
 
@@ -422,57 +422,88 @@ func ConnectWebSocket(ctx context.Context, c *app.RequestContext) {
 			return
 		}
 
-		// 验证聊天室是否存在
-		_, err := rpc.GetChatRoomRPC(ctx, &social.GetChatRoomRequest{
-			RoomId: roomID,
-			UserId: userID,
-		})
-		if err != nil {
-			klog.Errorf("聊天室不存在: %v", err)
-			conn.WriteJSON(map[string]interface{}{
-				"type":    "error",
-				"message": "聊天室不存在",
+		if roomID != -1 {
+			// 验证聊天室是否存在
+			_, err := rpc.GetChatRoomRPC(ctx, &social.GetChatRoomRequest{
+				RoomId: roomID,
+				UserId: userID,
 			})
-			return
-		}
-
-		// 加入聊天室
-		if err := globalService.JoinChatRoom(userID, roomID); err != nil {
-			klog.Errorf("加入聊天室失败: %v", err)
-			conn.WriteJSON(map[string]interface{}{
-				"type":    "error",
-				"message": "加入聊天室失败: " + err.Error(),
-			})
-			return
-		}
-
-		page := int64(1)
-		size := int32(10)
-		// 获取最近的消息历史
-		msgResp, _, err := rpc.GetChatMessagesRPC(ctx, &social.GetChatMessagesRequest{
-			RoomId: roomID,
-			UserId: userID,
-			Page:   &page,
-			Size:   &size,
-		})
-		if err != nil {
-			klog.Errorf("获取历史消息失败: %v", err)
-		} else {
-			if err := conn.WriteJSON(map[string]interface{}{
-				"type":     "history",
-				"messages": msgResp,
-			}); err != nil {
-				klog.Errorf("发送历史消息失败: %v", err)
+			if err != nil {
+				klog.Errorf("聊天室不存在: %v", err)
+				conn.WriteJSON(map[string]interface{}{
+					"type":    "error",
+					"message": "聊天室不存在",
+				})
+				return
 			}
-		}
 
-		// 发送欢迎消息
-		if err := conn.WriteJSON(map[string]interface{}{
-			"type":    "system",
-			"message": "欢迎加入聊天室",
-			"room_id": roomID,
-		}); err != nil {
-			klog.Errorf("发送欢迎消息失败: %v", err)
+			// 加入聊天室
+			if err := globalService.JoinChatRoom(userID, roomID); err != nil {
+				klog.Errorf("加入聊天室失败: %v", err)
+				conn.WriteJSON(map[string]interface{}{
+					"type":    "error",
+					"message": "加入聊天室失败: " + err.Error(),
+				})
+				return
+			}
+
+			page := int64(1)
+			size := int32(10)
+
+			// 获取最近的消息历史
+			msgResp, _, err := rpc.GetChatMessagesRPC(ctx, &social.GetChatMessagesRequest{
+				RoomId: roomID,
+				UserId: userID,
+				Page:   &page,
+				Size:   &size,
+			})
+			if err != nil {
+				klog.Errorf("获取历史消息失败: %v", err)
+			} else {
+				if err := conn.WriteJSON(map[string]interface{}{
+					"type":     "history",
+					"messages": msgResp,
+				}); err != nil {
+					klog.Errorf("发送历史消息失败: %v", err)
+				}
+			}
+
+			// 发送欢迎消息
+			if err := conn.WriteJSON(map[string]interface{}{
+				"type":    "system",
+				"message": "欢迎加入聊天室",
+				"room_id": roomID,
+			}); err != nil {
+				klog.Errorf("发送欢迎消息失败: %v", err)
+			}
+		} else {
+			page := int32(1)
+			size := int32(10)
+			// 获取未读私信数量
+			resp, _, err := rpc.GetPrivateMessagesRPC(ctx, &social.GetPrivateMessagesRequest{
+				UserId:      userID,
+				OtherUserId: toUserID,
+				Page:        &page,
+				Size:        &size,
+			})
+			if err != nil {
+				klog.Errorf("获取未读消息数失败: %v", err)
+			} else {
+				if err := conn.WriteJSON(map[string]interface{}{
+					"type":     "history",
+					"messages": resp,
+				}); err != nil {
+					klog.Errorf("发送未读消息数失败: %v", err)
+				}
+			}
+
+			// 发送欢迎消息
+			if err := conn.WriteJSON(map[string]interface{}{
+				"type":    "system",
+				"message": "和用户" + strconv.FormatInt(toUserID, 10) + "建立连接",
+			}); err != nil {
+				klog.Errorf("发送欢迎消息失败: %v", err)
+			}
 		}
 
 		// 持续读取消息
@@ -492,21 +523,73 @@ func ConnectWebSocket(ctx context.Context, c *app.RequestContext) {
 			if err := json.Unmarshal(message, &content); err != nil {
 				content = string(message)
 			}
-
-			// 构造消息对象
 			msg := ws.Message{
-				Type:      ws.MessageTypeGroup,
-				From:      userID,
-				RoomID:    roomID,
-				Content:   fmt.Sprint(content),
-				Timestamp: time.Now().Unix(),
+				RoomID:  roomID,
+				Content: fmt.Sprint(content),
 				Extra: map[string]any{
 					"type": "text",
 				},
 			}
+			if roomID != -1 {
+				msg.Type = ws.MessageTypeGroup
+			} else {
+				msg.Type = ws.MessageTypePrivate
+			}
+			switch msg.Type {
+			case "private":
+				// 私聊消息处理
+				msg := ws.Message{
+					Type:      ws.MessageTypePrivate,
+					From:      userID,
+					To:        toUserID,
+					Content:   msg.Content,
+					Timestamp: time.Now().Unix(),
+					Extra:     msg.Extra,
+				}
 
-			// 发送消息到聊天室
-			globalManager.SendToRoom(userID, roomID, &msg)
+				// 发送私聊消息
+				msgBytes, _ := json.Marshal(msg)
+				if err := globalManager.SendToUser(msg.To, msgBytes); err != nil {
+					klog.Errorf("发送私聊消息失败: %v", err)
+					conn.WriteJSON(map[string]interface{}{
+						"type":    "error",
+						"message": "发送私聊消息失败: " + err.Error(),
+					})
+				}
+
+				// 将消息保存到数据库
+				_, err := rpc.SendPrivateMessageRPC(ctx, &social.SendPrivateMessageRequest{
+					SenderId:   userID,
+					ReceiverId: msg.To,
+					Content:    msg.Content,
+				})
+				if err != nil {
+					klog.Errorf("保存私聊消息失败: %v", err)
+				}
+
+			case "group":
+				msg := ws.Message{
+					Type:      ws.MessageTypeGroup,
+					From:      userID,
+					RoomID:    msg.RoomID,
+					Content:   msg.Content,
+					Timestamp: time.Now().Unix(),
+					Extra:     msg.Extra,
+				}
+
+				// 发送群聊消息
+				globalManager.SendToRoom(userID, msg.RoomID, &msg)
+
+				// 将消息保存到数据库
+				_, err := rpc.SendChatMessageRPC(ctx, &social.SendChatMessageRequest{
+					RoomId:   msg.RoomID,
+					SenderId: userID,
+					Content:  msg.Content,
+				})
+				if err != nil {
+					klog.Errorf("保存群聊消息失败: %v", err)
+				}
+			}
 		}
 	}); err != nil {
 		klog.Errorf("升级WebSocket连接失败: %v, 请求头: %s", err, c.Request.Header.String())

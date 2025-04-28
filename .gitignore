@@ -2,11 +2,13 @@
 *.a
 *.so
 _obj
+config/config.yaml
 _test
 *.[568vq]
 [568vq].out
 *.cgo1.go
 *.cgo2.c
+src/
 _cgo_defun.c
 _cgo_gotypes.go
 _cgo_export.*
@@ -27,8 +29,7 @@ _testmain.go
 *settings.pyc
 *.sublime-project
 *.sublime-workspace
-!.gitkeep
-.DS_Store
+!.gitkeep.DS_Store
 /.idea
 /.vscode
 /output
@@ -37,4 +38,3 @@ dumped_hertz_remote_config.json
 docker/data/
 docker/data/mysql/
 docker/data/mysql/*
-		  

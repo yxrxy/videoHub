@@ -18,7 +18,7 @@ import (
 	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
-func (s *VideoService) CheckVideo(ctx context.Context, videoData []byte, contentType string) bool {
+func (s *VideoService) CheckVideo(_ context.Context, videoData []byte, contentType string) bool {
 	// 检查视频大小
 	if len(videoData) > config.Upload.Video.MaxSize {
 		return false
@@ -69,7 +69,10 @@ func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []
 
 	// 3. 存入数据库
 	if err := s.db.CreateVideo(ctx, video); err != nil {
-		os.Remove(videoPath)
+		err := os.Remove(videoPath)
+		if err != nil {
+			return "", err
+		}
 		return "", fmt.Errorf("保存视频记录失败: %w", err)
 	}
 
@@ -79,7 +82,19 @@ func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []
 			log.Printf("failed to send video processing message: %v", err)
 		}
 	}()
+	user, err := s.userDB.GetUserByID(ctx, userID)
+	if err != nil {
+		return "", err
+	}
+	err = s.es.AddItem(ctx, "video", video, user.Username)
+	if err != nil {
+		return "", err
+	}
 
+	err = s.IndexVideo(ctx, video, user.Username)
+	if err != nil {
+		return "", err
+	}
 	return videoPath, nil
 }
 
@@ -223,7 +238,7 @@ func (s *VideoService) GetVideoDetail(ctx context.Context, videoID, userID int64
 	}
 	result := &model.Video{
 		ID:           v.ID,
-		UserID:       v.UserID,
+		UserID:       userID,
 		VideoURL:     v.VideoURL,
 		CoverURL:     v.CoverURL,
 		Title:        v.Title,
@@ -270,4 +285,74 @@ func (s *VideoService) GetHotVideos(
 		})
 	}
 	return res, total, nextVisit, nextLike, nextID, nil
+}
+
+// GenerateVideoEmbedding 为视频生成向量表示
+func (s *VideoService) GenerateVideoEmbedding(ctx context.Context, videoID int64) error {
+	// 获取视频信息
+	video, err := s.db.GetVideoByID(ctx, videoID)
+	if err != nil {
+		return fmt.Errorf("获取视频失败: %w", err)
+	}
+
+	// 构建用于嵌入的文本
+	embedText := fmt.Sprintf("%s %s %s",
+		video.Title,
+		video.Description,
+		video.Tags)
+
+	// 生成嵌入
+	embedding, err := s.embedding.GenerateEmbedding(ctx, embedText)
+	if err != nil {
+		return fmt.Errorf("生成嵌入失败: %w", err)
+	}
+
+	// 准备元数据
+	var tags []string
+	if video.Tags != "" {
+		tags = strings.Split(video.Tags, ",")
+	}
+
+	metadata := &model.VideoMetadata{
+		Title:       video.Title,
+		Description: video.Description,
+		Tags:        tags,
+		Category:    video.Category,
+		UserID:      video.UserID,
+	}
+
+	// 存储向量
+	err = s.vectorDB.StoreVector(ctx, video.ID, embedding, metadata)
+	if err != nil {
+		return fmt.Errorf("存储向量失败: %w", err)
+	}
+
+	return nil
+}
+
+// GenerateEmbeddingsForAllVideos 为所有视频批量生成向量
+func (s *VideoService) GenerateEmbeddingsForAllVideos(ctx context.Context) {
+	page := int64(constants.DefaultPage)
+	size := int32(constants.MaxPageSize)
+	for {
+		videos, total, err := s.db.GetVideoList(ctx, 0, page, size, nil)
+		if err != nil {
+			logger.Errorf("获取视频列表失败: %v", err)
+			return
+		}
+
+		for _, video := range videos {
+			err := s.GenerateVideoEmbedding(ctx, video.ID)
+			if err != nil {
+				logger.Errorf("为视频 %d 生成向量失败: %v", video.ID, err)
+			} else {
+				logger.Infof("成功为视频 %d 生成向量", video.ID)
+			}
+		}
+
+		if int64(len(videos)) < int64(size) || page*int64(size) >= total {
+			break
+		}
+		page++
+	}
 }

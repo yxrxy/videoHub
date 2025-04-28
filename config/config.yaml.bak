@@ -27,7 +27,10 @@ redis:
   host: "127.0.0.1"
   port: 6379
   password: "videohub"
-  db: 0
+  db:
+    user: 0      # 用户服务
+    video: 1     # 视频服务
+    social: 2    # 社交服务
 
 etcd:
   addr: "127.0.0.1:2379"
@@ -45,6 +48,16 @@ jwt:
 gateway:
   addr: ":8080"
 
+elasticsearch:
+  addr: "127.0.0.1:9200"
+
+upyun:
+  operator: "yxrxy"
+  password: "bM681pG9QqghfylQQHLPmHc9HKulCym5"
+  ussDomain: "https://v0.api.upyun.com/yxrxy-video-upyun"
+  imageDomain: "http://yxrxy-image-upyun.test.upcdn.net"  
+  videoDomain: "http://yxrxy-video-upyun.test.upcdn.net" 
+
 upload:
   avatar:
     max_size: 5242880  # 5MB
@@ -57,6 +70,11 @@ upload:
     upload_dir: "src/storage/videos"
     cover_dir: "src/storage/covers"
     base_url: "http://localhost:8080/videos"
+
+api_key:
+  key: "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"
+  base_url: "https://api.openai.com/v1" # 官网
+  proxy: "http://127.0.0.1:7897" # clash的
 
 social:
   name: "social"

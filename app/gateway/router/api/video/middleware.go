@@ -78,3 +78,8 @@ func _searchvideoMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _semanticsearchMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

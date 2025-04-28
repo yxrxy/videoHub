@@ -36,18 +36,26 @@ type VideoUseCase interface {
 		fromDate, toDate *int64,
 		username *string,
 	) ([]*model.Video, int64, error)
+	SemanticSearch(
+		ctx context.Context,
+		query string,
+		pageSize, pageNum int32,
+		threshold float64,
+	) ([]*model.SemanticSearchResultItem, error)
 }
 
 type useCase struct {
 	db    repository.VideoDB
 	cache repository.VideoCache
+	es    repository.VideoElastic
 	svc   *service.VideoService
 }
 
-func NewVideoCase(db repository.VideoDB, cache repository.VideoCache, svc *service.VideoService) *useCase {
+func NewVideoCase(db repository.VideoDB, cache repository.VideoCache, es repository.VideoElastic, svc *service.VideoService) *useCase {
 	return &useCase{
 		db:    db,
 		cache: cache,
+		es:    es,
 		svc:   svc,
 	}
 }

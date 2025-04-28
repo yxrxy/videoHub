@@ -1,26 +1,35 @@
 module github.com/yxrxy/videoHub
 
-go 1.21.5
+go 1.22.2
+
+toolchain go1.23.8
 
 require (
 	github.com/apache/thrift v0.16.0
 	github.com/bytedance/gopkg v0.1.2
+	github.com/bytedance/mockey v1.2.12
 	github.com/bytedance/sonic v1.13.2
 	github.com/cloudflare/cfssl v1.6.5
 	github.com/cloudwego/gopkg v0.1.4
 	github.com/cloudwego/hertz v0.9.7
 	github.com/cloudwego/kitex v0.13.1
+	github.com/elastic/go-elasticsearch v0.0.0
 	github.com/fsnotify/fsnotify v1.8.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v5 v5.2.2
 	github.com/hertz-contrib/websocket v0.2.0
 	github.com/kitex-contrib/obs-opentelemetry v0.2.9
 	github.com/kitex-contrib/registry-etcd v0.2.6
+	github.com/olivere/elastic/v7 v7.0.32
+	github.com/philippgille/chromem-go v0.7.0
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/samber/lo v1.49.1
+	github.com/sashabaranov/go-openai v1.38.3
 	github.com/segmentio/kafka-go v0.4.47
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/viper v1.20.1
 	github.com/spf13/viper/remote v1.20.1
+	github.com/stretchr/testify v1.10.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/gorm v1.25.12
 )
@@ -65,6 +74,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
 	github.com/hashicorp/consul/api v1.29.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -79,9 +89,12 @@ require (
 	github.com/jhump/protoreflect v1.8.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.17.2 // indirect
+	github.com/jtolds/gls v4.20.0+incompatible // indirect
+	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
@@ -98,11 +111,13 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sagikazarmark/crypt v0.26.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tidwall/gjson v1.17.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
