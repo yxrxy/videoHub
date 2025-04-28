@@ -80,6 +80,10 @@ type VideoConfig struct {
 	RPCAddr string `mapstructure:"rpc_addr"`
 }
 
+type ElasticsearchConfig struct {
+	Addr string `mapstructure:"addr"`
+}
+
 type SocialConfig struct {
 	Name     string
 	RPCAddr  string `mapstructure:"rpc_addr"`
@@ -123,6 +127,7 @@ var (
 	Etcd              *EtcdConfig
 	VideoInteractions *VideoInteractionsConfig
 	Otel              *OtelConfig
+	Elasticsearch     *ElasticsearchConfig
 	runtimeViper      = viper.New()
 )
 
@@ -147,6 +152,7 @@ type Config struct {
 	Etcd              EtcdConfig
 	VideoInteractions VideoInteractionsConfig
 	Otel              OtelConfig
+	Elasticsearch     ElasticsearchConfig
 }
 
 // Init 初始化配置，支持从etcd远程获取配置
@@ -208,6 +214,7 @@ func configMapping() {
 	Etcd = &conf.Etcd
 	VideoInteractions = &conf.VideoInteractions
 	Otel = &conf.Otel
+	Elasticsearch = &conf.Elasticsearch
 }
 
 // GetDSN 获取MySQL连接字符串

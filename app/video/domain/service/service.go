@@ -80,6 +80,15 @@ func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []
 		}
 	}()
 
+	user, err := s.db.GetUsernameByID(ctx, userID)
+	if err != nil {
+		return "", err
+	}
+	err = s.es.AddItem(ctx, "video", video, user)
+	if err != nil {
+		return "", err
+	}
+
 	return videoPath, nil
 }
 

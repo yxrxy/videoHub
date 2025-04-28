@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	model2 "github.com/yxrxy/videoHub/app/user/domain/model"
 	"github.com/yxrxy/videoHub/app/video/domain/model"
 	"github.com/yxrxy/videoHub/app/video/domain/repository"
 	"github.com/yxrxy/videoHub/pkg/constants"
@@ -47,6 +48,14 @@ func (v *VideoDB) GetVideoByID(ctx context.Context, videoID int64) (*model.Video
 
 func (v *VideoDB) UpdateVideo(ctx context.Context, video *model.Video) error {
 	return v.db.WithContext(ctx).Model(&model.Video{}).Where("id = ?", video.ID).Updates(video).Error
+}
+
+func (v *VideoDB) GetUsernameByID(ctx context.Context, userID int64) (string, error) {
+	var user model2.User
+	if err := v.db.WithContext(ctx).Where("id = ?", userID).First(&user).Error; err != nil {
+		return "", err
+	}
+	return user.Username, nil
 }
 
 func (v *VideoDB) GetVideoList(ctx context.Context, userID, page int64, size int32, category *string) ([]*model.Video, int64, error) {

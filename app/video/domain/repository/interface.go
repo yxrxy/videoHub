@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/olivere/elastic/v7"
 	"github.com/yxrxy/videoHub/app/video/domain/model"
 	"github.com/yxrxy/videoHub/pkg/kafka"
 )
@@ -21,6 +22,7 @@ type VideoDB interface {
 	IncrementLikeCount(ctx context.Context, videoID int64) error
 	GetVideoByID(ctx context.Context, videoID int64) (*model.Video, error)
 	DeleteVideo(ctx context.Context, videoID int64) error
+	GetUsernameByID(ctx context.Context, userID int64) (string, error)
 }
 
 type VideoCache interface {
@@ -31,4 +33,14 @@ type VideoCache interface {
 type VideoMQ interface {
 	SendProcessVideo(ctx context.Context, videoID int64, videoPath string) error
 	ConsumeProcessVideo(ctx context.Context) <-chan *kafka.Message
+}
+
+type VideoElastic interface {
+	IsExist(ctx context.Context, indexName string) bool
+	CreateIndex(ctx context.Context, indexName string) error
+	AddItem(ctx context.Context, indexName string, video *model.Video, name string) error
+	RemoveItem(ctx context.Context, indexName string, id int64) error
+	UpdateItem(ctx context.Context, indexName string, video *model.VideoES, name string) error
+	SearchItems(ctx context.Context, indexName string, query *model.VideoES) ([]int64, int64, error)
+	BuildQuery(req *model.VideoES) *elastic.BoolQuery
 }

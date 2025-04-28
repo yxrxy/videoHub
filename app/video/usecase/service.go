@@ -32,14 +32,33 @@ func (s *useCase) SearchVideo(
 	fromDate, toDate *int64,
 	username *string,
 ) ([]*model.Video, int64, error) {
-	return nil, 0, nil
+
+	videoES := &model.VideoES{
+		Keywords: keywords,
+		Username: username,
+		FromDate: fromDate,
+		ToDate:   toDate,
+	}
+	videoList, total, err := s.es.SearchItems(ctx, "video", videoES)
+	if err != nil {
+		return nil, 0, err
+	}
+	//TODO：分页
+	var res []*model.Video
+	for _, videoID := range videoList {
+		detail, err := s.GetVideoDetail(ctx, videoID, 0)
+		if err != nil {
+			return nil, 0, err
+		}
+		res = append(res, detail)
+	}
+	return res, total, nil
 }
 
 func (s *useCase) GetVideoDetail(ctx context.Context, videoID, userID int64) (*model.Video, error) {
 	return s.svc.GetVideoDetail(ctx, videoID, userID)
 }
 
-// 从重构前的三层架构那边复制的，就不改了
 func (s *useCase) GetHotVideos(
 	ctx context.Context,
 	limit int32,
@@ -57,7 +76,10 @@ func (s *useCase) DeleteVideo(ctx context.Context, videoID, userID int64) error 
 	if video.UserID != userID {
 		return errno.NewErrNo(errno.InternalServiceErrorCode, "无权限删除该视频")
 	}
-
+	err = s.es.RemoveItem(ctx, "video", videoID)
+	if err != nil {
+		return err
+	}
 	return s.db.DeleteVideo(ctx, videoID)
 }
 
