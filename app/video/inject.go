@@ -4,6 +4,7 @@ import (
 	"github.com/yxrxy/videoHub/app/video/controllers/rpc"
 	"github.com/yxrxy/videoHub/app/video/domain/service"
 	"github.com/yxrxy/videoHub/app/video/infrastructure/cache"
+	"github.com/yxrxy/videoHub/app/video/infrastructure/es"
 	"github.com/yxrxy/videoHub/app/video/infrastructure/mq"
 	"github.com/yxrxy/videoHub/app/video/infrastructure/mysql"
 	"github.com/yxrxy/videoHub/app/video/usecase"
@@ -22,12 +23,17 @@ func InjectVideoHandler() video.VideoService {
 	if err != nil {
 		panic(err)
 	}
+	elastic, err := client.NewEsVideoClient()
+	if err != nil {
+		panic(err)
+	}
 	redisCache := cache.NewVideoCache(re)
 	kafMQ := kafka.NewKafkaInstance()
 	kaf := mq.NewVideoMQ(kafMQ)
 	db := mysql.NewVideoDB(gormDB, redisCache)
-	svc := service.NewVideoService(db, redisCache, kaf)
-	uc := usecase.NewVideoCase(db, redisCache, svc)
+	es := es.NewVideoElastic(elastic)
+	svc := service.NewVideoService(db, redisCache, kaf, es)
+	uc := usecase.NewVideoCase(db, redisCache, es, svc)
 
 	return rpc.NewVideoHandler(uc)
 }
