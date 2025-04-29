@@ -22,7 +22,6 @@ type VideoDB interface {
 	IncrementLikeCount(ctx context.Context, videoID int64) error
 	GetVideoByID(ctx context.Context, videoID int64) (*model.Video, error)
 	DeleteVideo(ctx context.Context, videoID int64) error
-	GetUsernameByID(ctx context.Context, userID int64) (string, error)
 }
 
 type VideoCache interface {
