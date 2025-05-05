@@ -79,6 +79,14 @@ func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []
 			log.Printf("failed to send video processing message: %v", err)
 		}
 	}()
+	user, err := s.userDB.GetUserByID(ctx, userID)
+	if err != nil {
+		return "", err
+	}
+	err = s.es.AddItem(ctx, "video", video, user.Username)
+	if err != nil {
+		return "", err
+	}
 
 	return videoPath, nil
 }

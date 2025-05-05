@@ -41,13 +41,15 @@ type VideoUseCase interface {
 type useCase struct {
 	db    repository.VideoDB
 	cache repository.VideoCache
+	es    repository.VideoElastic
 	svc   *service.VideoService
 }
 
-func NewVideoCase(db repository.VideoDB, cache repository.VideoCache, svc *service.VideoService) *useCase {
+func NewVideoCase(db repository.VideoDB, cache repository.VideoCache, es repository.VideoElastic, svc *service.VideoService) *useCase {
 	return &useCase{
 		db:    db,
 		cache: cache,
+		es:    es,
 		svc:   svc,
 	}
 }
