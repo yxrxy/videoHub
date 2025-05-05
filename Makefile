@@ -42,7 +42,7 @@ help:
 # 启动必要的环境，比如 etcd、mysql
 .PHONY: env-up
 env-up:
-	@ docker compose -f ./docker/docker-compose.yml up -d videohub-mysql videohub-redis videohub-etcd kafka otel-collector
+	@ docker compose -f ./docker/docker-compose.yml up -d videohub-mysql videohub-redis videohub-etcd kafka otel-collector elasticsearch kibana
 
 # 关闭必要的环境，但不清理 data（位于 docker/data 目录中）
 .PHONY: env-down
@@ -52,7 +52,7 @@ env-down:
 # 基于 idl 生成相关的 go 语言描述文件
 .PHONY: kitex-gen-%
 kitex-gen-%:
-	@ kitex -module "${MODULE}" \
+	@ kitex -module "${MODULE}" \image.png
 		-thrift no_default_serdes \
 		${IDL_PATH}/$*.thrift
 	@ go mod tidy

@@ -1,11 +1,13 @@
 package video
 
 import (
+	usermysql "github.com/yxrxy/videoHub/app/user/infrastructure/mysql"
 	"github.com/yxrxy/videoHub/app/video/controllers/rpc"
 	"github.com/yxrxy/videoHub/app/video/domain/service"
-	"github.com/yxrxy/videoHub/app/video/infrastructure/cache"
+	videocache "github.com/yxrxy/videoHub/app/video/infrastructure/cache"
+	"github.com/yxrxy/videoHub/app/video/infrastructure/es"
 	"github.com/yxrxy/videoHub/app/video/infrastructure/mq"
-	"github.com/yxrxy/videoHub/app/video/infrastructure/mysql"
+	videomysql "github.com/yxrxy/videoHub/app/video/infrastructure/mysql"
 	"github.com/yxrxy/videoHub/app/video/usecase"
 	"github.com/yxrxy/videoHub/config"
 	"github.com/yxrxy/videoHub/kitex_gen/video"
@@ -22,12 +24,19 @@ func InjectVideoHandler() video.VideoService {
 	if err != nil {
 		panic(err)
 	}
-	redisCache := cache.NewVideoCache(re)
+	elastic, err := client.NewEsVideoClient()
+	if err != nil {
+		panic(err)
+	}
+
+	redisCache := videocache.NewVideoCache(re)
 	kafMQ := kafka.NewKafkaInstance()
 	kaf := mq.NewVideoMQ(kafMQ)
-	db := mysql.NewVideoDB(gormDB, redisCache)
-	svc := service.NewVideoService(db, redisCache, kaf)
-	uc := usecase.NewVideoCase(db, redisCache, svc)
+	db := videomysql.NewVideoDB(gormDB, redisCache)
+	esClient := es.NewVideoElastic(elastic)
+	userDB := usermysql.NewUserDB(gormDB)
+	svc := service.NewVideoService(db, redisCache, kaf, esClient, userDB)
+	uc := usecase.NewVideoCase(db, redisCache, esClient, svc)
 
 	return rpc.NewVideoHandler(uc)
 }

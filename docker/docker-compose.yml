@@ -74,6 +74,48 @@ services:
     networks:
       - videohub
       
+  elasticsearch:
+    image: elasticsearch:8.4.2
+    container_name: videohub-elasticsearch
+    env_file:
+      - ./env/es.env
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://elasticsearch:9200/_cluster/health || exit 1" ] # ⼼跳检测，成功之后不再执⾏后⾯的退出
+      interval: 60s # ⼼跳检测间隔周期
+      timeout: 10s
+      retries: 3
+      start_period: 60s # ⾸次检测延迟时间
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ../config/elasticsearch/config:/usr/share/elasticsearch/config
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
+      - ../config/elasticsearch/plugins:/usr/share/elasticsearch/plugins
+    ports:
+      - "9200:9200"
+    restart: always
+    networks:
+      - videohub
+    mem_limit: 750m
+
+  kibana:
+    image: kibana:8.4.2
+    container_name: videohub-kibana
+    env_file:
+      - ./env/kibana.env
+    depends_on:
+      - elasticsearch
+    ports:
+      - "5601:5601"
+    volumes:
+      - ../config/kibana:/usr/share/kibana/config
+      - ./data/kibana:/usr/share/kibana/data
+    networks:
+      - videohub
+    mem_limit: 350m
+
 networks:
   videohub:
     driver: bridge
