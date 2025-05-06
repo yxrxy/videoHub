@@ -37,11 +37,6 @@ func (s *WsService) RegisterClient(userID int64, conn *websocket.Conn) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// 检查用户是否已经在线
-	if s.manager.IsUserOnline(userID) {
-		return fmt.Errorf("用户 %d 已经在线", userID)
-	}
-
 	// 创建新的客户端
 	client := &Client{
 		UserID: userID,
@@ -49,8 +44,6 @@ func (s *WsService) RegisterClient(userID int64, conn *websocket.Conn) error {
 		mu:     sync.Mutex{},
 		Conn:   conn,
 	}
-
-	// 直接注册到管理器
 	s.manager.RegisterClient(userID, client.Conn)
 
 	// 同时发送到注册通道，以便其他功能使用
@@ -104,15 +97,6 @@ func (s *WsService) LeaveChatRoom(userID, roomID int64) error {
 
 // SendChatMessage 发送聊天消息
 func (s *WsService) SendChatMessage(userID, roomID int64, content string, msgType int8) error {
-	/*client, exists := s.manager.GetClient(userID)
-	if !exists {
-		return fmt.Errorf("用户 %d 不在线", userID)
-	}
-
-	if !client.IsInRoom(roomID) {
-		return fmt.Errorf("用户 %d 不在聊天室 %d 中", userID, roomID)
-	}*/
-
 	msg := &Message{
 		Type:      MessageTypeGroup,
 		From:      userID,

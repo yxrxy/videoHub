@@ -2,6 +2,7 @@
 *.a
 *.so
 _obj
+config/config.yaml
 _test
 *.[568vq]
 [568vq].out
@@ -37,4 +38,3 @@ dumped_hertz_remote_config.json
 docker/data/
 docker/data/mysql/
 docker/data/mysql/*
-		  

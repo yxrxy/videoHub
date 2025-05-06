@@ -112,6 +112,23 @@ struct SearchResponse {
     3: required i64 total               // 总数
 }
 
+// 语义搜索视频请求
+struct SemanticSearchRequest {
+    1: required string query            // 搜索查询文本
+    2: required i32 page_size           // 每页数量
+    3: required i32 page_num            // 页码
+    4: optional double threshold        // 相似度阈值(0-1)
+}
+
+// 语义搜索视频响应
+struct SemanticSearchResponse {
+    1: required model.BaseResp Base     // 基本响应信息
+    2: required list<SemanticSearchResultItem> results // 语义搜索结果
+    3: required i64 total               // 总数
+    4: optional list<string> related_queries // 相关查询建议
+    5: optional string summary          // 搜索结果摘要
+}
+
 service VideoService {
     PublishResponse Publish(1: PublishRequest req)
     VideoListResponse List(1: VideoListRequest req)
@@ -121,4 +138,5 @@ service VideoService {
     IncrementVisitCountResponse IncrementVisitCount(1: IncrementVisitCountRequest req)
     IncrementLikeCountResponse IncrementLikeCount(1: IncrementLikeCountRequest req)
     SearchResponse Search(1: SearchRequest req)
+    SemanticSearchResponse SemanticSearch(1: SemanticSearchRequest req)
 }

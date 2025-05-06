@@ -43,3 +43,17 @@ type VideoElastic interface {
 	SearchItems(ctx context.Context, indexName string, query *model.VideoES) ([]int64, int64, error)
 	BuildQuery(req *model.VideoES) *elastic.BoolQuery
 }
+
+type VectorDB interface {
+	StoreVector(ctx context.Context, videoID int64, vector []float32, metadata *model.VideoMetadata) error
+	SearchSimilar(ctx context.Context, queryVector []float32, limit int32, filter *model.VectorSearchFilter) ([]int64, []float32, error)
+}
+
+type EmbeddingService interface {
+	GenerateEmbedding(ctx context.Context, text string) ([]float32, error)
+}
+
+type LLMService interface {
+	GenerateResponse(ctx context.Context, query string, documents []string) (string, error)
+	GenerateRelatedQueries(ctx context.Context, query string) ([]string, error)
+}
