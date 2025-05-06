@@ -279,3 +279,73 @@ func (s *VideoService) GetHotVideos(
 	}
 	return res, total, nextVisit, nextLike, nextID, nil
 }
+
+// 为视频生成向量表示
+func (s *VideoService) GenerateVideoEmbedding(ctx context.Context, videoID int64) error {
+	// 获取视频信息
+	video, err := s.db.GetVideoByID(ctx, videoID)
+	if err != nil {
+		return fmt.Errorf("获取视频失败: %w", err)
+	}
+
+	// 构建用于嵌入的文本
+	embedText := fmt.Sprintf("%s %s %s",
+		video.Title,
+		video.Description,
+		video.Tags)
+
+	// 生成嵌入
+	embedding, err := s.embedding.GenerateEmbedding(ctx, embedText)
+	if err != nil {
+		return fmt.Errorf("生成嵌入失败: %w", err)
+	}
+
+	// 准备元数据
+	tags := []string{}
+	if video.Tags != "" {
+		tags = strings.Split(video.Tags, ",")
+	}
+
+	metadata := &model.VideoMetadata{
+		Title:       video.Title,
+		Description: video.Description,
+		Tags:        tags,
+		Category:    video.Category,
+		UserID:      video.UserID,
+	}
+
+	// 存储向量
+	err = s.vectorDB.StoreVector(ctx, video.ID, embedding, metadata)
+	if err != nil {
+		return fmt.Errorf("存储向量失败: %w", err)
+	}
+
+	return nil
+}
+
+// 为所有视频批量生成向量
+func (s *VideoService) GenerateEmbeddingsForAllVideos(ctx context.Context) {
+	page := int64(1)
+	size := int32(100)
+	for {
+		videos, total, err := s.db.GetVideoList(ctx, 0, page, size, nil)
+		if err != nil {
+			logger.Errorf("获取视频列表失败: %v", err)
+			return
+		}
+
+		for _, video := range videos {
+			err := s.GenerateVideoEmbedding(ctx, video.ID)
+			if err != nil {
+				logger.Errorf("为视频 %d 生成向量失败: %v", video.ID, err)
+			} else {
+				logger.Infof("成功为视频 %d 生成向量", video.ID)
+			}
+		}
+
+		if int64(len(videos)) < int64(size) || page*int64(size) >= total {
+			break
+		}
+		page++
+	}
+}
