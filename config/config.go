@@ -113,6 +113,14 @@ type VideoInteractionsConfig struct {
 	RPCAddr string `mapstructure:"rpc_addr"`
 }
 
+type UpyunConfig struct {
+	Operator    string
+	Password    string
+	UssDomain   string
+	ImageDomain string
+	VideoDomain string
+}
+
 var (
 	Server            *ServerConfig
 	MySQL             *MySQLConfig
@@ -128,6 +136,7 @@ var (
 	VideoInteractions *VideoInteractionsConfig
 	Otel              *OtelConfig
 	Elasticsearch     *ElasticsearchConfig
+	Upyun             *UpyunConfig
 	runtimeViper      = viper.New()
 )
 
@@ -153,6 +162,7 @@ type Config struct {
 	VideoInteractions VideoInteractionsConfig
 	Otel              OtelConfig
 	Elasticsearch     ElasticsearchConfig
+	Upyun             UpyunConfig
 }
 
 // Init 初始化配置，支持从etcd远程获取配置
@@ -215,6 +225,7 @@ func configMapping() {
 	VideoInteractions = &conf.VideoInteractions
 	Otel = &conf.Otel
 	Elasticsearch = &conf.Elasticsearch
+	Upyun = &conf.Upyun
 }
 
 // GetDSN 获取MySQL连接字符串

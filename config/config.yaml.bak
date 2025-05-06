@@ -48,6 +48,13 @@ gateway:
 elasticsearch:
   addr: "127.0.0.1:9200"
 
+upyun:
+  operator: "yxrxy"
+  password: "bM681pG9QqghfylQQHLPmHc9HKulCym5"
+  ussDomain: "https://v0.api.upyun.com/yxrxy-video-upyun"
+  imageDomain: "http://yxrxy-image-upyun.test.upcdn.net"  
+  videoDomain: "http://yxrxy-video-upyun.test.upcdn.net" 
+
 upload:
   avatar:
     max_size: 5242880  # 5MB

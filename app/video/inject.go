@@ -5,9 +5,11 @@ import (
 	"github.com/yxrxy/videoHub/app/video/controllers/rpc"
 	"github.com/yxrxy/videoHub/app/video/domain/service"
 	videocache "github.com/yxrxy/videoHub/app/video/infrastructure/cache"
+	"github.com/yxrxy/videoHub/app/video/infrastructure/embedding"
 	"github.com/yxrxy/videoHub/app/video/infrastructure/es"
 	"github.com/yxrxy/videoHub/app/video/infrastructure/mq"
 	videomysql "github.com/yxrxy/videoHub/app/video/infrastructure/mysql"
+	"github.com/yxrxy/videoHub/app/video/infrastructure/vector"
 	"github.com/yxrxy/videoHub/app/video/usecase"
 	"github.com/yxrxy/videoHub/config"
 	"github.com/yxrxy/videoHub/kitex_gen/video"
@@ -35,7 +37,9 @@ func InjectVideoHandler() video.VideoService {
 	db := videomysql.NewVideoDB(gormDB, redisCache)
 	esClient := es.NewVideoElastic(elastic)
 	userDB := usermysql.NewUserDB(gormDB)
-	svc := service.NewVideoService(db, redisCache, kaf, esClient, userDB)
+	emb := embedding.NewOpenAIEmbedding("")
+	vec, _ := vector.NewChromemDB("videos")
+	svc := service.NewVideoService(db, redisCache, kaf, esClient, userDB, emb, vec)
 	uc := usecase.NewVideoCase(db, redisCache, esClient, svc)
 
 	return rpc.NewVideoHandler(uc)

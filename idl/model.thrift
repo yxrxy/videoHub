@@ -133,3 +133,20 @@ struct FriendRequest {
     7: required i64 updated_at           // 更新时间
     8: optional i64 deleted_at           // 删除时间
 } 
+
+// 语义搜索结果项
+struct SemanticSearchResultItem {
+    1: required i64 video_id            // 视频ID
+    2: required string title            // 标题
+    3: optional string description      // 描述
+    4: required double score            // 相似度分数
+    5: required string cover_url        // 封面URL
+    6: optional i32 duration_seconds    // 时长(秒)
+    7: required i64 publish_time        // 发布时间
+    8: optional string category         // 分类
+    9: optional list<string> tags       // 标签
+    10: required i64 user_id            // 用户ID
+    11: required string username        // 用户名
+    12: optional i64 visit_count        // 访问次数
+    13: optional i64 like_count         // 点赞数
+}

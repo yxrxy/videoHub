@@ -8,23 +8,27 @@ import (
 )
 
 type VideoService struct {
-	db     videorepo.VideoDB
-	cache  videorepo.VideoCache
-	mq     videorepo.VideoMQ
-	es     videorepo.VideoElastic
-	userDB repository.UserDB
+	db        videorepo.VideoDB
+	cache     videorepo.VideoCache
+	mq        videorepo.VideoMQ
+	es        videorepo.VideoElastic
+	userDB    repository.UserDB
+	embedding videorepo.EmbeddingService
+	vectorDB  videorepo.VectorDB
 }
 
-func NewVideoService(db videorepo.VideoDB, cache videorepo.VideoCache, mq videorepo.VideoMQ, es videorepo.VideoElastic, userDB repository.UserDB) *VideoService {
+func NewVideoService(db videorepo.VideoDB, cache videorepo.VideoCache, mq videorepo.VideoMQ, es videorepo.VideoElastic, userDB repository.UserDB, embedding videorepo.EmbeddingService, vectorDB videorepo.VectorDB) *VideoService {
 	if db == nil || cache == nil || mq == nil || es == nil || userDB == nil {
 		panic("videoService`s db or cache or mq or es or userDB should not be nil")
 	}
 	svc := &VideoService{
-		db:     db,
-		cache:  cache,
-		mq:     mq,
-		es:     es,
-		userDB: userDB,
+		db:        db,
+		cache:     cache,
+		mq:        mq,
+		es:        es,
+		userDB:    userDB,
+		embedding: embedding,
+		vectorDB:  vectorDB,
 	}
 	svc.init()
 	return svc

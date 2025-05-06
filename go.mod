@@ -1,6 +1,8 @@
 module github.com/yxrxy/videoHub
 
-go 1.21.5
+go 1.22.2
+
+toolchain go1.23.8
 
 require (
 	github.com/apache/thrift v0.16.0
@@ -18,8 +20,10 @@ require (
 	github.com/kitex-contrib/obs-opentelemetry v0.2.9
 	github.com/kitex-contrib/registry-etcd v0.2.6
 	github.com/olivere/elastic/v7 v7.0.32
+	github.com/philippgille/chromem-go v0.7.0
 	github.com/redis/go-redis/v9 v9.7.3
 	github.com/samber/lo v1.49.1
+	github.com/sashabaranov/go-openai v1.38.3
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/spf13/viper v1.20.1
 	github.com/spf13/viper/remote v1.20.1
@@ -83,7 +87,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.17.2 // indirect
+	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -102,6 +106,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/sagikazarmark/crypt v0.26.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
