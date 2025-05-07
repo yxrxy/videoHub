@@ -18,7 +18,7 @@ func InjectSocialHandler() social.SocialService {
 		panic(err)
 	}
 
-	re, err := client.NewRedisClient(config.Redis.DB)
+	re, err := client.NewRedisClient(config.Redis.DB.Social)
 	if err != nil {
 		panic(err)
 	}

@@ -23,7 +23,7 @@ func InjectVideoHandler() video.VideoService {
 	if err != nil {
 		panic(err)
 	}
-	re, err := client.NewRedisClient(config.Redis.DB)
+	re, err := client.NewRedisClient(config.Redis.DB.Video)
 	if err != nil {
 		panic(err)
 	}
