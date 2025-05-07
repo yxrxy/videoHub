@@ -7,6 +7,7 @@ toolchain go1.23.8
 require (
 	github.com/apache/thrift v0.16.0
 	github.com/bytedance/gopkg v0.1.2
+	github.com/bytedance/mockey v1.2.12
 	github.com/bytedance/sonic v1.13.2
 	github.com/cloudflare/cfssl v1.6.5
 	github.com/cloudwego/gopkg v0.1.4
@@ -25,6 +26,7 @@ require (
 	github.com/samber/lo v1.49.1
 	github.com/sashabaranov/go-openai v1.38.3
 	github.com/segmentio/kafka-go v0.4.47
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/viper v1.20.1
 	github.com/spf13/viper/remote v1.20.1
 	gorm.io/driver/mysql v1.5.7
@@ -71,6 +73,7 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.4 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
 	github.com/hashicorp/consul/api v1.29.4 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -87,6 +90,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -107,6 +111,7 @@ require (
 	github.com/sagikazarmark/crypt v0.26.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/smartystreets/assertions v1.1.1 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.12.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect

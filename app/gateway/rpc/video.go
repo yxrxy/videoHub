@@ -121,3 +121,15 @@ func SearchVideoRPC(ctx context.Context, req *video.SearchRequest) ([]*model.Vid
 	}
 	return resp.Videos, nil
 }
+
+func SemanticSearchRPC(ctx context.Context, req *video.SemanticSearchRequest) ([]*model.SemanticSearchResultItem, error) {
+	resp, err := videoClient.SemanticSearch(ctx, req)
+	if err != nil {
+		log.Printf("语义搜索视频RPC调用失败: %v", err)
+		return nil, errno.InternalServiceError.WithError(err)
+	}
+	if resp.Base.Code != errno.SuccessCode {
+		return nil, errno.InternalServiceError.WithMessage(resp.Base.Msg)
+	}
+	return resp.Results, nil
+}

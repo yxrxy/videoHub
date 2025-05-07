@@ -80,6 +80,11 @@ func (s *useCase) DeleteVideo(ctx context.Context, videoID, userID int64) error 
 	if err != nil {
 		return err
 	}
+	err = s.svc.DeleteVideoEmbedding(ctx, videoID)
+	if err != nil {
+		return err
+	}
+	s.svc.ClearRelatedCache(video.Category)
 	return s.db.DeleteVideo(ctx, videoID)
 }
 
@@ -89,4 +94,34 @@ func (s *useCase) IncrementVisitCount(ctx context.Context, videoID int64) error 
 
 func (s *useCase) IncrementLikeCount(ctx context.Context, videoID int64) error {
 	return s.db.IncrementLikeCount(ctx, videoID)
+}
+
+func (s *useCase) SemanticSearch(
+	ctx context.Context,
+	query string,
+	pageSize, pageNum int32,
+	threshold float64,
+) ([]*model.SemanticSearchResultItem, error) {
+
+	result, err := s.svc.Search(ctx, query, pageSize)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []*model.SemanticSearchResultItem
+	for _, video := range result.Videos {
+		video, err := s.GetVideoDetail(ctx, video.ID, 0)
+		if err != nil {
+			return nil, err
+		}
+		// 转换 Video 到 SemanticSearchResultItem
+		item := &model.SemanticSearchResultItem{
+			Videos:         []*model.Video{video},
+			Summary:        result.Summary,
+			RelatedQueries: result.RelatedQueries,
+			FromCache:      result.FromCache,
+		}
+		res = append(res, item)
+	}
+	return res, nil
 }

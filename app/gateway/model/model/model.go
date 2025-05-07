@@ -4,7 +4,6 @@ package model
 
 import (
 	"fmt"
-
 	"github.com/apache/thrift/lib/go/thrift"
 )
 
@@ -5924,5 +5923,365 @@ func (p *FriendRequest) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("FriendRequest(%+v)", *p)
+
+}
+
+// 语义搜索结果项
+type SemanticSearchResultItem struct {
+	// 视频列表
+	Videos []*Video `thrift:"videos,1,required" form:"videos,required" json:"videos,required" query:"videos,required"`
+	// 摘要
+	Summary *string `thrift:"summary,2,optional" form:"summary" json:"summary,omitempty" query:"summary"`
+	// 相关查询
+	RelatedQueries []string `thrift:"related_queries,3,optional" form:"related_queries" json:"related_queries,omitempty" query:"related_queries"`
+	// 是否来自缓存
+	FromCache *bool `thrift:"from_cache,4,optional" form:"from_cache" json:"from_cache,omitempty" query:"from_cache"`
+}
+
+func NewSemanticSearchResultItem() *SemanticSearchResultItem {
+	return &SemanticSearchResultItem{}
+}
+
+func (p *SemanticSearchResultItem) InitDefault() {
+}
+
+func (p *SemanticSearchResultItem) GetVideos() (v []*Video) {
+	return p.Videos
+}
+
+var SemanticSearchResultItem_Summary_DEFAULT string
+
+func (p *SemanticSearchResultItem) GetSummary() (v string) {
+	if !p.IsSetSummary() {
+		return SemanticSearchResultItem_Summary_DEFAULT
+	}
+	return *p.Summary
+}
+
+var SemanticSearchResultItem_RelatedQueries_DEFAULT []string
+
+func (p *SemanticSearchResultItem) GetRelatedQueries() (v []string) {
+	if !p.IsSetRelatedQueries() {
+		return SemanticSearchResultItem_RelatedQueries_DEFAULT
+	}
+	return p.RelatedQueries
+}
+
+var SemanticSearchResultItem_FromCache_DEFAULT bool
+
+func (p *SemanticSearchResultItem) GetFromCache() (v bool) {
+	if !p.IsSetFromCache() {
+		return SemanticSearchResultItem_FromCache_DEFAULT
+	}
+	return *p.FromCache
+}
+
+var fieldIDToName_SemanticSearchResultItem = map[int16]string{
+	1: "videos",
+	2: "summary",
+	3: "related_queries",
+	4: "from_cache",
+}
+
+func (p *SemanticSearchResultItem) IsSetSummary() bool {
+	return p.Summary != nil
+}
+
+func (p *SemanticSearchResultItem) IsSetRelatedQueries() bool {
+	return p.RelatedQueries != nil
+}
+
+func (p *SemanticSearchResultItem) IsSetFromCache() bool {
+	return p.FromCache != nil
+}
+
+func (p *SemanticSearchResultItem) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+	var issetVideos bool = false
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetVideos = true
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	if !issetVideos {
+		fieldId = 1
+		goto RequiredFieldNotSetError
+	}
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_SemanticSearchResultItem[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+RequiredFieldNotSetError:
+	return thrift.NewTProtocolExceptionWithType(thrift.INVALID_DATA, fmt.Errorf("required field %s is not set", fieldIDToName_SemanticSearchResultItem[fieldId]))
+}
+
+func (p *SemanticSearchResultItem) ReadField1(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	_field := make([]*Video, 0, size)
+	values := make([]Video, size)
+	for i := 0; i < size; i++ {
+		_elem := &values[i]
+		_elem.InitDefault()
+
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.Videos = _field
+	return nil
+}
+func (p *SemanticSearchResultItem) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Summary = _field
+	return nil
+}
+func (p *SemanticSearchResultItem) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	_field := make([]string, 0, size)
+	for i := 0; i < size; i++ {
+
+		var _elem string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_elem = v
+		}
+
+		_field = append(_field, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	p.RelatedQueries = _field
+	return nil
+}
+func (p *SemanticSearchResultItem) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.FromCache = _field
+	return nil
+}
+
+func (p *SemanticSearchResultItem) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SemanticSearchResultItem"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *SemanticSearchResultItem) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("videos", thrift.LIST, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Videos)); err != nil {
+		return err
+	}
+	for _, v := range p.Videos {
+		if err := v.Write(oprot); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+func (p *SemanticSearchResultItem) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSummary() {
+		if err = oprot.WriteFieldBegin("summary", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.Summary); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+func (p *SemanticSearchResultItem) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetRelatedQueries() {
+		if err = oprot.WriteFieldBegin("related_queries", thrift.LIST, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteListBegin(thrift.STRING, len(p.RelatedQueries)); err != nil {
+			return err
+		}
+		for _, v := range p.RelatedQueries {
+			if err := oprot.WriteString(v); err != nil {
+				return err
+			}
+		}
+		if err := oprot.WriteListEnd(); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+func (p *SemanticSearchResultItem) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFromCache() {
+		if err = oprot.WriteFieldBegin("from_cache", thrift.BOOL, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.FromCache); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *SemanticSearchResultItem) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("SemanticSearchResultItem(%+v)", *p)
 
 }

@@ -36,6 +36,12 @@ type VideoUseCase interface {
 		fromDate, toDate *int64,
 		username *string,
 	) ([]*model.Video, int64, error)
+	SemanticSearch(
+		ctx context.Context,
+		query string,
+		pageSize, pageNum int32,
+		threshold float64,
+	) ([]*model.SemanticSearchResultItem, error)
 }
 
 type useCase struct {
