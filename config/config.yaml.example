@@ -72,7 +72,7 @@ upload:
     base_url: "http://localhost:8080/videos"
 
 api_key:
-  key: "YOUR_KEY"
+  #key: "YOUR_KEY"
   base_url: "https://api.openai.com/v1" # 官网
   proxy: "http://127.0.0.1:7897" # clash的
 
