@@ -11,7 +11,7 @@ service VideoAPI {
     video.HotVideoResponse GetHotVideos(1: video.HotVideoRequest request) (api.get="/api/v1/video/hot")
     video.DeleteResponse DeleteVideo(1: video.DeleteRequest request) (api.delete="/api/v1/video/:video_id")
     video.SearchResponse SearchVideo(1: video.SearchRequest request) (api.post="/api/v1/video/search")
-    
+    video.SemanticSearchResponse SemanticSearch(1: video.SemanticSearchRequest request) (api.post="/api/v1/video/semantic")
 
     // 视频互动接口
     video.IncrementVisitCountResponse IncrementVisitCount(1: video.IncrementVisitCountRequest request) (api.post="/api/v1/video/:video_id/visit")

@@ -123,7 +123,7 @@ struct SemanticSearchRequest {
 // 语义搜索视频响应
 struct SemanticSearchResponse {
     1: required model.BaseResp Base     // 基本响应信息
-    2: required list<SemanticSearchResultItem> results // 语义搜索结果
+    2: required list<model.SemanticSearchResultItem> results // 语义搜索结果
     3: required i64 total               // 总数
     4: optional list<string> related_queries // 相关查询建议
     5: optional string summary          // 搜索结果摘要

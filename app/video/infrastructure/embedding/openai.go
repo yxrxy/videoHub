@@ -3,6 +3,8 @@ package embedding
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/sashabaranov/go-openai"
@@ -14,8 +16,28 @@ type OpenAIEmbedding struct {
 	model  string
 }
 
-func NewOpenAIEmbedding(apiKey string) repository.EmbeddingService {
-	client := openai.NewClient(apiKey)
+func NewOpenAIEmbedding(apiKey string, baseURL string, proxyURL string) repository.EmbeddingService {
+	config := openai.DefaultConfig(apiKey)
+
+	// 设置基础 URL（如果在配置中指定）
+	if baseURL != "" {
+		config.BaseURL = baseURL
+	}
+
+	// 设置代理（如果在配置中指定）
+	if proxyURL != "" {
+		proxyUrl, err := url.Parse(proxyURL)
+		if err == nil {
+			httpClient := &http.Client{
+				Transport: &http.Transport{
+					Proxy: http.ProxyURL(proxyUrl),
+				},
+			}
+			config.HTTPClient = httpClient
+		}
+	}
+
+	client := openai.NewClientWithConfig(config)
 	return &OpenAIEmbedding{
 		client: client,
 		model:  "text-embedding-ada-002",

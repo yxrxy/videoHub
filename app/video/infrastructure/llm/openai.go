@@ -3,6 +3,8 @@ package llm
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/sashabaranov/go-openai"
@@ -14,11 +16,31 @@ type OpenAILLM struct {
 	model  string
 }
 
-func NewOpenAILLM(apiKey string) repository.LLMService {
-	client := openai.NewClient(apiKey)
+func NewOpenAILLM(apiKey string, baseURL string, proxyURL string) repository.LLMService {
+	config := openai.DefaultConfig(apiKey)
+
+	// 设置基础 URL（如果在配置中指定）
+	if baseURL != "" {
+		config.BaseURL = baseURL
+	}
+
+	// 设置代理（如果在配置中指定）
+	if proxyURL != "" {
+		proxyUrl, err := url.Parse(proxyURL)
+		if err == nil {
+			httpClient := &http.Client{
+				Transport: &http.Transport{
+					Proxy: http.ProxyURL(proxyUrl),
+				},
+			}
+			config.HTTPClient = httpClient
+		}
+	}
+
+	client := openai.NewClientWithConfig(config)
 	return &OpenAILLM{
 		client: client,
-		model:  openai.GPT3Dot5Turbo,
+		model:  openai.GPT4oMini,
 	}
 }
 

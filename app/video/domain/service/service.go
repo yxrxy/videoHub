@@ -88,6 +88,7 @@ func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []
 		return "", err
 	}
 
+	s.IndexVideo(ctx, video, user.Username)
 	return videoPath, nil
 }
 

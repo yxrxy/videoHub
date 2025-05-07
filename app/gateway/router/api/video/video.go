@@ -27,6 +27,7 @@ func Register(r *server.Hertz) {
 				_video.GET("/list", append(_getvideolistMw(), video.GetVideoList)...)
 				_video.POST("/publish", append(_publishMw(), video.Publish)...)
 				_video.POST("/search", append(_searchvideoMw(), video.SearchVideo)...)
+				_video.POST("/semantic", append(_semanticsearchMw(), video.SemanticSearch)...)
 				_video.DELETE("/:video_id", append(_deletevideoMw(), video.DeleteVideo)...)
 				_video_id := _video.Group("/:video_id", _video_idMw()...)
 				_video_id.POST("/like", append(_incrementlikecountMw(), video.IncrementLikeCount)...)
