@@ -27,7 +27,7 @@ import (
 )
 
 func NewRedisClient(db int) (*redis.Client, error) {
-	client := config.GetRedisClient()
+	client := config.GetRedisClient(db)
 	_, err := client.Ping(context.TODO()).Result()
 	if err != nil {
 		log.Printf("redis ping failed: %v", err)

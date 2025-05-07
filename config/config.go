@@ -23,7 +23,11 @@ type RedisConfig struct {
 	Host     string
 	Port     int
 	Password string
-	DB       int
+	DB       struct {
+		User   int `mapstructure:"user"`
+		Video  int `mapstructure:"video"`
+		Social int `mapstructure:"social"`
+	} `mapstructure:"db"`
 }
 
 type KafkaConfig struct {
@@ -252,13 +256,13 @@ func GetDSN() string {
 }
 
 // GetRedisClient 获取Redis客户端实例
-func GetRedisClient() *redis.Client {
+func GetRedisClient(db int) *redis.Client {
 	if Redis == nil {
 		panic("Redis config is not initialized")
 	}
 	return redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", Redis.Host, Redis.Port),
 		Password: Redis.Password,
-		DB:       Redis.DB,
+		DB:       db,
 	})
 }
