@@ -83,7 +83,10 @@ func (h *SocialHandler) GetUserChatRooms(ctx context.Context, req *social.GetUse
 // SendChatMessage 发送聊天消息
 func (h *SocialHandler) SendChatMessage(ctx context.Context, req *social.SendChatMessageRequest) (r *social.SendChatMessageResponse, err error) {
 	r = new(social.SendChatMessageResponse)
-
+	if req.Type == nil {
+		req.Type = new(int8)
+		*req.Type = 0
+	}
 	if err = h.useCase.SendChatMessage(ctx, req.RoomId, req.SenderId, req.Content, *req.Type); err != nil {
 		return
 	}

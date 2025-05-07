@@ -5,7 +5,6 @@ package video
 import (
 	"context"
 	"fmt"
-
 	"github.com/apache/thrift/lib/go/thrift"
 	"github.com/yxrxy/videoHub/app/gateway/model/video"
 )
@@ -24,6 +23,8 @@ type VideoAPI interface {
 	DeleteVideo(ctx context.Context, request *video.DeleteRequest) (r *video.DeleteResponse, err error)
 
 	SearchVideo(ctx context.Context, request *video.SearchRequest) (r *video.SearchResponse, err error)
+
+	SemanticSearch(ctx context.Context, request *video.SemanticSearchRequest) (r *video.SemanticSearchResponse, err error)
 	// 视频互动接口
 	IncrementVisitCount(ctx context.Context, request *video.IncrementVisitCountRequest) (r *video.IncrementVisitCountResponse, err error)
 
@@ -110,6 +111,15 @@ func (p *VideoAPIClient) SearchVideo(ctx context.Context, request *video.SearchR
 	}
 	return _result.GetSuccess(), nil
 }
+func (p *VideoAPIClient) SemanticSearch(ctx context.Context, request *video.SemanticSearchRequest) (r *video.SemanticSearchResponse, err error) {
+	var _args VideoAPISemanticSearchArgs
+	_args.Request = request
+	var _result VideoAPISemanticSearchResult
+	if err = p.Client_().Call(ctx, "SemanticSearch", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 func (p *VideoAPIClient) IncrementVisitCount(ctx context.Context, request *video.IncrementVisitCountRequest) (r *video.IncrementVisitCountResponse, err error) {
 	var _args VideoAPIIncrementVisitCountArgs
 	_args.Request = request
@@ -155,6 +165,7 @@ func NewVideoAPIProcessor(handler VideoAPI) *VideoAPIProcessor {
 	self.AddToProcessorMap("GetHotVideos", &videoAPIProcessorGetHotVideos{handler: handler})
 	self.AddToProcessorMap("DeleteVideo", &videoAPIProcessorDeleteVideo{handler: handler})
 	self.AddToProcessorMap("SearchVideo", &videoAPIProcessorSearchVideo{handler: handler})
+	self.AddToProcessorMap("SemanticSearch", &videoAPIProcessorSemanticSearch{handler: handler})
 	self.AddToProcessorMap("IncrementVisitCount", &videoAPIProcessorIncrementVisitCount{handler: handler})
 	self.AddToProcessorMap("IncrementLikeCount", &videoAPIProcessorIncrementLikeCount{handler: handler})
 	return self
@@ -448,6 +459,54 @@ func (p *videoAPIProcessorSearchVideo) Process(ctx context.Context, seqId int32,
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("SearchVideo", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type videoAPIProcessorSemanticSearch struct {
+	handler VideoAPI
+}
+
+func (p *videoAPIProcessorSemanticSearch) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := VideoAPISemanticSearchArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("SemanticSearch", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := VideoAPISemanticSearchResult{}
+	var retval *video.SemanticSearchResponse
+	if retval, err2 = p.handler.SemanticSearch(ctx, args.Request); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing SemanticSearch: "+err2.Error())
+		oprot.WriteMessageBegin("SemanticSearch", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("SemanticSearch", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -2310,6 +2369,298 @@ func (p *VideoAPISearchVideoResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("VideoAPISearchVideoResult(%+v)", *p)
+
+}
+
+type VideoAPISemanticSearchArgs struct {
+	Request *video.SemanticSearchRequest `thrift:"request,1"`
+}
+
+func NewVideoAPISemanticSearchArgs() *VideoAPISemanticSearchArgs {
+	return &VideoAPISemanticSearchArgs{}
+}
+
+func (p *VideoAPISemanticSearchArgs) InitDefault() {
+}
+
+var VideoAPISemanticSearchArgs_Request_DEFAULT *video.SemanticSearchRequest
+
+func (p *VideoAPISemanticSearchArgs) GetRequest() (v *video.SemanticSearchRequest) {
+	if !p.IsSetRequest() {
+		return VideoAPISemanticSearchArgs_Request_DEFAULT
+	}
+	return p.Request
+}
+
+var fieldIDToName_VideoAPISemanticSearchArgs = map[int16]string{
+	1: "request",
+}
+
+func (p *VideoAPISemanticSearchArgs) IsSetRequest() bool {
+	return p.Request != nil
+}
+
+func (p *VideoAPISemanticSearchArgs) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VideoAPISemanticSearchArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VideoAPISemanticSearchArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := video.NewSemanticSearchRequest()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Request = _field
+	return nil
+}
+
+func (p *VideoAPISemanticSearchArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SemanticSearch_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VideoAPISemanticSearchArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("request", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Request.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *VideoAPISemanticSearchArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoAPISemanticSearchArgs(%+v)", *p)
+
+}
+
+type VideoAPISemanticSearchResult struct {
+	Success *video.SemanticSearchResponse `thrift:"success,0,optional"`
+}
+
+func NewVideoAPISemanticSearchResult() *VideoAPISemanticSearchResult {
+	return &VideoAPISemanticSearchResult{}
+}
+
+func (p *VideoAPISemanticSearchResult) InitDefault() {
+}
+
+var VideoAPISemanticSearchResult_Success_DEFAULT *video.SemanticSearchResponse
+
+func (p *VideoAPISemanticSearchResult) GetSuccess() (v *video.SemanticSearchResponse) {
+	if !p.IsSetSuccess() {
+		return VideoAPISemanticSearchResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_VideoAPISemanticSearchResult = map[int16]string{
+	0: "success",
+}
+
+func (p *VideoAPISemanticSearchResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *VideoAPISemanticSearchResult) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_VideoAPISemanticSearchResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *VideoAPISemanticSearchResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := video.NewSemanticSearchResponse()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *VideoAPISemanticSearchResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("SemanticSearch_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *VideoAPISemanticSearchResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *VideoAPISemanticSearchResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("VideoAPISemanticSearchResult(%+v)", *p)
 
 }
 

@@ -133,3 +133,11 @@ struct FriendRequest {
     7: required i64 updated_at           // 更新时间
     8: optional i64 deleted_at           // 删除时间
 } 
+
+// 语义搜索结果项
+struct SemanticSearchResultItem {
+    1: required list<Video> videos            // 视频列表
+    2: optional string summary          // 摘要
+    3: optional list<string> related_queries  // 相关查询
+    4: optional bool from_cache         // 是否来自缓存
+}

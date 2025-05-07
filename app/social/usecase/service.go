@@ -44,7 +44,7 @@ func (s *useCase) SendPrivateMessage(ctx context.Context, senderID, receiverID i
 	if err := s.svc.SavePrivateMessage(ctx, senderID, receiverID, content); err != nil {
 		return err
 	}
-	return s.svc.SendMessage(ctx, senderID, receiverID, content)
+	return nil
 }
 
 // GetPrivateMessages 获取私信列表
@@ -148,12 +148,6 @@ func (s *useCase) SendChatMessage(ctx context.Context, roomID, senderID int64, c
 		Type:     msgType,
 	}
 	if err := s.db.SendChatMessage(ctx, msg); err != nil {
-		return err
-	}
-
-	// 通过WebSocket推送消息
-	err := s.wsService.SendChatMessage(senderID, roomID, content, msgType)
-	if err != nil {
 		return err
 	}
 
