@@ -180,3 +180,15 @@ func (h *VideoHandler) Search(ctx context.Context, req *video.SearchRequest) (r 
 	r.Base = base.BuildBaseResp(err)
 	return
 }
+
+func (h *VideoHandler) SemanticSearch(ctx context.Context, req *video.SemanticSearchRequest) (r *video.SemanticSearchResponse, err error) {
+	r = new(video.SemanticSearchResponse)
+
+	var result []*model.SemanticSearchResultItem
+	if result, err = h.useCase.SemanticSearch(ctx, req.Query, req.PageSize, req.PageNum, *req.Threshold); err != nil {
+		return
+	}
+	r.Results = pack.SemanticSearchResultItems(result)
+	r.Base = base.BuildBaseResp(err)
+	return
+}

@@ -100,3 +100,10 @@ func (c *ChromemDB) SearchSimilar(ctx context.Context, queryVector []float32, li
 
 	return ids, scores, nil
 }
+
+func (c *ChromemDB) DeleteEmbedding(ctx context.Context, videoID int64) error {
+	//where: Conditional filtering on metadata. Optional.
+	//whereDocument: Conditional filtering on documents. Optional.
+	//ids: The ids of the documents to delete. If empty, all documents are deleted.
+	return c.collection.Delete(ctx, nil, nil, strconv.FormatInt(videoID, 10))
+}

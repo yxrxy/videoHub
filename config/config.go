@@ -121,6 +121,12 @@ type UpyunConfig struct {
 	VideoDomain string
 }
 
+type ApiKeyConfig struct {
+	Key     string `mapstructure:"key"`
+	BaseURL string `mapstructure:"base_url"`
+	Proxy   string `mapstructure:"proxy"`
+}
+
 var (
 	Server            *ServerConfig
 	MySQL             *MySQLConfig
@@ -137,6 +143,7 @@ var (
 	Otel              *OtelConfig
 	Elasticsearch     *ElasticsearchConfig
 	Upyun             *UpyunConfig
+	ApiKey            *ApiKeyConfig
 	runtimeViper      = viper.New()
 )
 
@@ -163,6 +170,7 @@ type Config struct {
 	Otel              OtelConfig
 	Elasticsearch     ElasticsearchConfig
 	Upyun             UpyunConfig
+	ApiKey            ApiKeyConfig `mapstructure:"api_key"`
 }
 
 // Init 初始化配置，支持从etcd远程获取配置
@@ -226,6 +234,7 @@ func configMapping() {
 	Otel = &conf.Otel
 	Elasticsearch = &conf.Elasticsearch
 	Upyun = &conf.Upyun
+	ApiKey = &conf.ApiKey
 }
 
 // GetDSN 获取MySQL连接字符串

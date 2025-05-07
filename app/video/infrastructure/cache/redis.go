@@ -92,3 +92,33 @@ func (v *VideoCache) GetHotVideos(ctx context.Context, category string, limit in
 
 	return videoIDs, nil
 }
+
+func (v *VideoCache) Load(key string) (interface{}, bool) {
+	value, err := v.client.Get(context.Background(), key).Result()
+	if err != nil {
+		return nil, false
+	}
+	return value, true
+}
+
+func (v *VideoCache) Delete(key string) error {
+	return v.client.Del(context.Background(), key).Err()
+}
+
+func (v *VideoCache) Store(key string, value interface{}) error {
+	return v.client.Set(context.Background(), key, value, 0).Err()
+}
+
+func (v *VideoCache) Range(f func(key, value interface{}) bool) {
+	iter := v.client.Scan(context.Background(), 0, "", 0).Iterator()
+	for iter.Next(context.Background()) {
+		key := iter.Val()
+		value, err := v.client.Get(context.Background(), key).Result()
+		if err != nil {
+			continue
+		}
+		if !f(key, value) {
+			break
+		}
+	}
+}

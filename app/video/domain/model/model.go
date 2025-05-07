@@ -20,6 +20,14 @@ type Video struct {
 	IsPrivate    bool
 }
 
+// 语义搜索结果项
+type SemanticSearchResultItem struct {
+	Videos         []*Video
+	Summary        string
+	RelatedQueries []string
+	FromCache      bool
+}
+
 type VideoES struct {
 	ID          int64     `json:"id,omitempty"`
 	Name        string    `json:"name,omitempty"`
