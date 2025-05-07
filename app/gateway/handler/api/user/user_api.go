@@ -32,7 +32,9 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-	pack.RespData(c, resp)
+	pack.RespData(c, map[string]any{
+		"user_id": resp,
+	})
 }
 
 // Login .
@@ -53,7 +55,6 @@ func Login(ctx context.Context, c *app.RequestContext) {
 		pack.RespError(c, err)
 		return
 	}
-
 	c.Header("Authorization", "Bearer "+resp.Token)
 	c.Header("RefreshToken", resp.RefreshToken)
 

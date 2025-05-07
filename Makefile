@@ -52,7 +52,7 @@ env-down:
 # 基于 idl 生成相关的 go 语言描述文件
 .PHONY: kitex-gen-%
 kitex-gen-%:
-	@ kitex -module "${MODULE}" \image.png
+	@ kitex -module "${MODULE}" \
 		-thrift no_default_serdes \
 		${IDL_PATH}/$*.thrift
 	@ go mod tidy

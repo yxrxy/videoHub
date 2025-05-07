@@ -23,7 +23,11 @@ type RedisConfig struct {
 	Host     string
 	Port     int
 	Password string
-	DB       int
+	DB       struct {
+		User   int `mapstructure:"user"`
+		Video  int `mapstructure:"video"`
+		Social int `mapstructure:"social"`
+	} `mapstructure:"db"`
 }
 
 type KafkaConfig struct {
@@ -113,6 +117,20 @@ type VideoInteractionsConfig struct {
 	RPCAddr string `mapstructure:"rpc_addr"`
 }
 
+type UpyunConfig struct {
+	Operator    string
+	Password    string
+	UssDomain   string
+	ImageDomain string
+	VideoDomain string
+}
+
+type ApiKeyConfig struct {
+	Key     string `mapstructure:"key"`
+	BaseURL string `mapstructure:"base_url"`
+	Proxy   string `mapstructure:"proxy"`
+}
+
 var (
 	Server            *ServerConfig
 	MySQL             *MySQLConfig
@@ -128,6 +146,8 @@ var (
 	VideoInteractions *VideoInteractionsConfig
 	Otel              *OtelConfig
 	Elasticsearch     *ElasticsearchConfig
+	Upyun             *UpyunConfig
+	ApiKey            *ApiKeyConfig
 	runtimeViper      = viper.New()
 )
 
@@ -153,6 +173,8 @@ type Config struct {
 	VideoInteractions VideoInteractionsConfig
 	Otel              OtelConfig
 	Elasticsearch     ElasticsearchConfig
+	Upyun             UpyunConfig
+	ApiKey            ApiKeyConfig `mapstructure:"api_key"`
 }
 
 // Init 初始化配置，支持从etcd远程获取配置
@@ -215,6 +237,8 @@ func configMapping() {
 	VideoInteractions = &conf.VideoInteractions
 	Otel = &conf.Otel
 	Elasticsearch = &conf.Elasticsearch
+	Upyun = &conf.Upyun
+	ApiKey = &conf.ApiKey
 }
 
 // GetDSN 获取MySQL连接字符串
@@ -232,13 +256,13 @@ func GetDSN() string {
 }
 
 // GetRedisClient 获取Redis客户端实例
-func GetRedisClient() *redis.Client {
+func GetRedisClient(db int) *redis.Client {
 	if Redis == nil {
 		panic("Redis config is not initialized")
 	}
 	return redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", Redis.Host, Redis.Port),
 		Password: Redis.Password,
-		DB:       Redis.DB,
+		DB:       db,
 	})
 }

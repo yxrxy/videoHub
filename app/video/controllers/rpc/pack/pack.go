@@ -34,3 +34,16 @@ func Video(v *model.Video) *rpcmodel.Video {
 		Description:   &v.Description,
 	}
 }
+
+func SemanticSearchResultItems(v []*model.SemanticSearchResultItem) []*rpcmodel.SemanticSearchResultItem {
+	rpcResultItems := make([]*rpcmodel.SemanticSearchResultItem, 0)
+	for _, resultItem := range v {
+		rpcResultItems = append(rpcResultItems, &rpcmodel.SemanticSearchResultItem{
+			Videos:         Videos(resultItem.Videos),
+			Summary:        &resultItem.Summary,
+			RelatedQueries: resultItem.RelatedQueries,
+			FromCache:      &resultItem.FromCache,
+		})
+	}
+	return rpcResultItems
+}
