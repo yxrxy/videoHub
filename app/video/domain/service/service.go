@@ -332,8 +332,8 @@ func (s *VideoService) GenerateVideoEmbedding(ctx context.Context, videoID int64
 
 // GenerateEmbeddingsForAllVideos 为所有视频批量生成向量
 func (s *VideoService) GenerateEmbeddingsForAllVideos(ctx context.Context) {
-	page := int64(1)
-	size := int32(100)
+	page := int64(constants.DefaultPage)
+	size := int32(constants.MaxPageSize)
 	for {
 		videos, total, err := s.db.GetVideoList(ctx, 0, page, size, nil)
 		if err != nil {

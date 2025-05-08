@@ -11,6 +11,7 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/olivere/elastic/v7"
 	"github.com/yxrxy/videoHub/app/video/domain/model"
+	"github.com/yxrxy/videoHub/pkg/constants"
 	"github.com/yxrxy/videoHub/pkg/errno"
 )
 
@@ -131,10 +132,10 @@ func (es *VideoElastic) BuildQuery(req *model.VideoES) *elastic.BoolQuery {
 	if req.FromDate != nil || req.ToDate != nil {
 		dateRange := elastic.NewRangeQuery("created_at")
 		if req.FromDate != nil {
-			dateRange.Gte(time.Unix(*req.FromDate/1000, 0))
+			dateRange.Gte(time.Unix(*req.FromDate/constants.MillisecondsPerSecond, 0))
 		}
 		if req.ToDate != nil {
-			dateRange.Lte(time.Unix(*req.ToDate/1000, 0))
+			dateRange.Lte(time.Unix(*req.ToDate/constants.MillisecondsPerSecond, 0))
 		}
 		query = query.Must(dateRange)
 		hasCondition = true
