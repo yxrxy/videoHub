@@ -29,8 +29,7 @@ _testmain.go
 *settings.pyc
 *.sublime-project
 *.sublime-workspace
-!.gitkeep
-.DS_Store
+!.gitkeep.DS_Store
 /.idea
 /.vscode
 /output
