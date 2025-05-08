@@ -24,7 +24,6 @@ import (
 	"github.com/elastic/go-elasticsearch"
 	"github.com/elastic/go-elasticsearch/esapi"
 	"github.com/olivere/elastic/v7"
-
 	"github.com/yxrxy/videoHub/config"
 	"github.com/yxrxy/videoHub/pkg/errno"
 )

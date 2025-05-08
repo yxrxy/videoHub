@@ -32,7 +32,6 @@ func (s *useCase) SearchVideo(
 	fromDate, toDate *int64,
 	username *string,
 ) ([]*model.Video, int64, error) {
-
 	videoES := &model.VideoES{
 		Keywords: keywords,
 		Username: username,
@@ -43,7 +42,7 @@ func (s *useCase) SearchVideo(
 	if err != nil {
 		return nil, 0, err
 	}
-	//TODO：分页
+	// TODO: 分页
 	var res []*model.Video
 	for _, videoID := range videoList {
 		detail, err := s.GetVideoDetail(ctx, videoID, 0)
@@ -102,7 +101,6 @@ func (s *useCase) SemanticSearch(
 	pageSize, pageNum int32,
 	threshold float64,
 ) ([]*model.SemanticSearchResultItem, error) {
-
 	result, err := s.svc.Search(ctx, query, pageSize)
 	if err != nil {
 		return nil, err

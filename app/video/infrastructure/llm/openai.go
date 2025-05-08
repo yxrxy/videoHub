@@ -9,6 +9,7 @@ import (
 
 	"github.com/sashabaranov/go-openai"
 	"github.com/yxrxy/videoHub/app/video/domain/repository"
+	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
 type OpenAILLM struct {
@@ -64,7 +65,7 @@ func (o *OpenAILLM) GenerateResponse(ctx context.Context, query string, document
 	req := openai.ChatCompletionRequest{
 		Model:     o.model,
 		Messages:  messages,
-		MaxTokens: 500,
+		MaxTokens: constants.DefaultMaxTokens,
 	}
 
 	// 调用API
@@ -98,7 +99,7 @@ func (o *OpenAILLM) GenerateRelatedQueries(ctx context.Context, query string) ([
 	req := openai.ChatCompletionRequest{
 		Model:     o.model,
 		Messages:  messages,
-		MaxTokens: 200,
+		MaxTokens: constants.DefaultMaxTokens,
 	}
 
 	resp, err := o.client.CreateChatCompletion(ctx, req)
