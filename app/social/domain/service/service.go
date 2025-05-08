@@ -53,7 +53,7 @@ func (s *SocialService) SendMessage(ctx context.Context, senderID, receiverID in
 	return nil
 }
 
-// 创建聊天室成员
+// CreateChatRoom 创建聊天室成员
 func (s *SocialService) CreateChatRoom(ctx context.Context, name string, creatorID int64, memberIDs []int64) ([]model.ChatRoomMember, error) {
 	members := make([]model.ChatRoomMember, 0, len(memberIDs)+1)
 	// 添加创建者

@@ -18,7 +18,7 @@ import (
 	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
-func (s *VideoService) CheckVideo(ctx context.Context, videoData []byte, contentType string) bool {
+func (s *VideoService) CheckVideo(_ context.Context, videoData []byte, contentType string) bool {
 	// 检查视频大小
 	if len(videoData) > config.Upload.Video.MaxSize {
 		return false
@@ -69,7 +69,10 @@ func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []
 
 	// 3. 存入数据库
 	if err := s.db.CreateVideo(ctx, video); err != nil {
-		os.Remove(videoPath)
+		err := os.Remove(videoPath)
+		if err != nil {
+			return "", err
+		}
 		return "", fmt.Errorf("保存视频记录失败: %w", err)
 	}
 
@@ -88,7 +91,10 @@ func (s *VideoService) SaveVideo(ctx context.Context, userID int64, videoData []
 		return "", err
 	}
 
-	s.IndexVideo(ctx, video, user.Username)
+	err = s.IndexVideo(ctx, video, user.Username)
+	if err != nil {
+		return "", err
+	}
 	return videoPath, nil
 }
 
@@ -232,7 +238,7 @@ func (s *VideoService) GetVideoDetail(ctx context.Context, videoID, userID int64
 	}
 	result := &model.Video{
 		ID:           v.ID,
-		UserID:       v.UserID,
+		UserID:       userID,
 		VideoURL:     v.VideoURL,
 		CoverURL:     v.CoverURL,
 		Title:        v.Title,
@@ -281,7 +287,7 @@ func (s *VideoService) GetHotVideos(
 	return res, total, nextVisit, nextLike, nextID, nil
 }
 
-// 为视频生成向量表示
+// GenerateVideoEmbedding 为视频生成向量表示
 func (s *VideoService) GenerateVideoEmbedding(ctx context.Context, videoID int64) error {
 	// 获取视频信息
 	video, err := s.db.GetVideoByID(ctx, videoID)
@@ -302,7 +308,7 @@ func (s *VideoService) GenerateVideoEmbedding(ctx context.Context, videoID int64
 	}
 
 	// 准备元数据
-	tags := []string{}
+	var tags []string
 	if video.Tags != "" {
 		tags = strings.Split(video.Tags, ",")
 	}
@@ -324,7 +330,7 @@ func (s *VideoService) GenerateVideoEmbedding(ctx context.Context, videoID int64
 	return nil
 }
 
-// 为所有视频批量生成向量
+// GenerateEmbeddingsForAllVideos 为所有视频批量生成向量
 func (s *VideoService) GenerateEmbeddingsForAllVideos(ctx context.Context) {
 	page := int64(1)
 	size := int32(100)
