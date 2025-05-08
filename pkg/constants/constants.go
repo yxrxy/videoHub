@@ -20,6 +20,7 @@ const (
 	DefaultPageSize = 10
 	MaxPageSize     = 100
 	DefaultPage     = 1
+
 	// Kafka 相关
 	DefaultKafkaPartitions = 50
 
