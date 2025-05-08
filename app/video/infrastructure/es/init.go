@@ -2,7 +2,6 @@ package es
 
 import (
 	"github.com/olivere/elastic/v7"
-
 	"github.com/yxrxy/videoHub/app/video/domain/repository"
 )
 
