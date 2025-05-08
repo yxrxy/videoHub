@@ -43,7 +43,7 @@ func (s *useCase) SearchVideo(
 	if err != nil {
 		return nil, 0, err
 	}
-	//TODO：分页
+	// TODO: 分页
 	var res []*model.Video
 	for _, videoID := range videoList {
 		detail, err := s.GetVideoDetail(ctx, videoID, 0)

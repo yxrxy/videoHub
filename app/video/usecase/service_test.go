@@ -77,9 +77,9 @@ func TestPublish(t *testing.T) {
 			// 创建 useCase 实例
 			uc := &useCase{
 				svc:   new(service.VideoService),
-				db:    *new(repository.VideoDB),
-				es:    *new(repository.VideoElastic),
-				cache: *new(repository.VideoCache),
+				db:    repository.VideoDB(nil),
+				es:    repository.VideoElastic(nil),
+				cache: repository.VideoCache(nil),
 			}
 
 			ctx := context.Background()
@@ -187,9 +187,9 @@ func TestSemanticSearch(t *testing.T) {
 			// 创建 useCase 实例
 			uc := &useCase{
 				svc:   new(service.VideoService),
-				db:    *new(repository.VideoDB),
-				es:    *new(repository.VideoElastic),
-				cache: *new(repository.VideoCache),
+				db:    repository.VideoDB(nil),
+				es:    repository.VideoElastic(nil),
+				cache: repository.VideoCache(nil),
 			}
 
 			ctx := context.Background()
@@ -314,9 +314,9 @@ func TestGetHotVideos(t *testing.T) {
 			// 创建 useCase 实例
 			uc := &useCase{
 				svc:   new(service.VideoService),
-				db:    *new(repository.VideoDB),
-				es:    *new(repository.VideoElastic),
-				cache: *new(repository.VideoCache),
+				db:    repository.VideoDB(nil),
+				es:    repository.VideoElastic(nil),
+				cache: repository.VideoCache(nil),
 			}
 
 			ctx := context.Background()
