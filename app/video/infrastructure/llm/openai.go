@@ -61,10 +61,11 @@ func (o *OpenAILLM) GenerateResponse(ctx context.Context, query string, document
 		},
 	}
 
+	maxtoken := 200
 	req := openai.ChatCompletionRequest{
 		Model:     o.model,
 		Messages:  messages,
-		MaxTokens: 500,
+		MaxTokens: maxtoken,
 	}
 
 	// 调用API

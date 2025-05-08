@@ -29,7 +29,9 @@ func (s *VideoService) Search(
 				ce.result.FromCache = true
 				return ce.result, nil
 			}
-			s.cache.Delete(cacheKey)
+			if s.cache.Delete(cacheKey) != nil {
+				return nil, fmt.Errorf("删除缓存失败")
+			}
 		}
 	}
 
@@ -178,16 +180,19 @@ func (s *VideoService) Search(
 	}
 
 	// 缓存结果
-	s.cache.Store(cacheKey, cacheEntry{
+	err := s.cache.Store(cacheKey, cacheEntry{
 		result:    result,
 		timestamp: time.Now(),
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	return result, nil
 }
 
-// 添加视频时同时更新向量索引和(ES索引TODO)
-func (s *VideoService) IndexVideo(ctx context.Context, video *model.Video, username string) error {
+// IndexVideo 添加视频时同时更新向量索引和(ES索引TODO)
+func (s *VideoService) IndexVideo(ctx context.Context, video *model.Video, _ string) error {
 	// 生成视频内容的向量表示
 	err := s.GenerateVideoEmbedding(ctx, video.ID)
 	if err != nil {
@@ -208,7 +213,10 @@ func (s *VideoService) ClearRelatedCache(category string) {
 	// 遍历并清除相关缓存
 	s.cache.Range(func(key, value interface{}) bool {
 		if k, ok := key.(string); ok && strings.Contains(k, category) {
-			s.cache.Delete(k)
+			err := s.cache.Delete(k)
+			if err != nil {
+				return false
+			}
 		}
 		return true
 	})
