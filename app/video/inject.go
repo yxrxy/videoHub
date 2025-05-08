@@ -40,8 +40,8 @@ func InjectVideoHandler() video.VideoService {
 	userDB := usermysql.NewUserDB(gormDB)
 	emb := embedding.NewOpenAIEmbedding(config.ApiKey.Key, config.ApiKey.BaseURL, config.ApiKey.Proxy)
 	vec, _ := vector.NewChromemDB("videos")
-	llm := llm.NewOpenAILLM(config.ApiKey.Key, config.ApiKey.BaseURL, config.ApiKey.Proxy)
-	svc := service.NewVideoService(db, redisCache, kaf, esClient, userDB, emb, vec, llm)
+	llm0 := llm.NewOpenAILLM(config.ApiKey.Key, config.ApiKey.BaseURL, config.ApiKey.Proxy)
+	svc := service.NewVideoService(db, redisCache, kaf, esClient, userDB, emb, vec, llm0)
 	uc := usecase.NewVideoCase(db, redisCache, esClient, svc)
 	return rpc.NewVideoHandler(uc)
 }

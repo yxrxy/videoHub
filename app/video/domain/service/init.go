@@ -18,7 +18,15 @@ type VideoService struct {
 	llm       videorepo.LLMService       // 大语言模型服务接口
 }
 
-func NewVideoService(db videorepo.VideoDB, cache videorepo.VideoCache, mq videorepo.VideoMQ, es videorepo.VideoElastic, userDB repository.UserDB, embedding videorepo.EmbeddingService, vectorDB videorepo.VectorDB, llm videorepo.LLMService) *VideoService {
+func NewVideoService(
+	db videorepo.VideoDB,
+	cache videorepo.VideoCache,
+	mq videorepo.VideoMQ,
+	es videorepo.VideoElastic,
+	userDB repository.UserDB,
+	embedding videorepo.EmbeddingService,
+	vectorDB videorepo.VectorDB,
+	llm videorepo.LLMService) *VideoService {
 	if db == nil || cache == nil || mq == nil || es == nil || userDB == nil {
 		panic("videoService`s db or cache or mq or es or userDB should not be nil")
 	}
