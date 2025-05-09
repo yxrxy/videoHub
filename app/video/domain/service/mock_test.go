@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/yxrxy/videoHub/app/video/domain/model"
@@ -79,7 +80,11 @@ type MockDB struct {
 func (m *MockDB) GetVideoByID(ctx context.Context, id int64) (*model.Video, error) {
 	args := m.Called(ctx, id)
 	if v := args.Get(0); v != nil {
-		return v.(*model.Video), args.Error(1)
+		video, ok := v.(*model.Video)
+		if !ok {
+			return nil, fmt.Errorf("invalid type assertion")
+		}
+		return video, args.Error(1)
 	}
 	return nil, args.Error(1)
 }
@@ -96,7 +101,9 @@ func (m *MockDB) UpdateVideo(ctx context.Context, video *model.Video) error {
 
 func (m *MockDB) GetVideoList(ctx context.Context, userID, page int64, size int32, category *string) ([]*model.Video, int64, error) {
 	args := m.Called(ctx, userID, page, size, category)
-	return args.Get(0).([]*model.Video), args.Get(1).(int64), args.Error(2)
+	videos, _ := args.Get(0).([]*model.Video)
+	count, _ := args.Get(1).(int64)
+	return videos, count, args.Error(2)
 }
 
 func (m *MockDB) GetHotVideos(
@@ -140,5 +147,6 @@ func (m *MockLLM) GenerateResponse(ctx context.Context, query string, texts []st
 
 func (m *MockLLM) GenerateRelatedQueries(ctx context.Context, query string) ([]string, error) {
 	args := m.Called(ctx, query)
-	return args.Get(0).([]string), args.Error(1)
+	queries, _ := args.Get(0).([]string)
+	return queries, args.Error(1)
 }
