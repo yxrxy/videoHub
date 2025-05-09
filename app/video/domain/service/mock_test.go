@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/stretchr/testify/mock"
-
 	"github.com/yxrxy/videoHub/app/video/domain/model"
 )
 
@@ -33,7 +32,8 @@ func (m *MockCache) Range(f func(key, value interface{}) bool) {
 
 func (m *MockCache) GetHotVideos(ctx context.Context, category string, limit int, lastVisitCount, lastLikeCount, lastID int64) ([]string, error) {
 	args := m.Called(ctx, category, limit, lastVisitCount, lastLikeCount, lastID)
-	return args.Get(0).([]string), args.Error(1)
+	result, _ := args.Get(0).([]string)
+	return result, args.Error(1)
 }
 
 func (m *MockCache) UpdateVideoScore(ctx context.Context, videoID int64, visitDelta, likeDelta int64, category string) error {
@@ -47,7 +47,9 @@ type MockVectorDB struct {
 
 func (m *MockVectorDB) SearchSimilar(ctx context.Context, embedding []float32, limit int32, filter *model.VectorSearchFilter) ([]int64, []float32, error) {
 	args := m.Called(ctx, embedding, limit, filter)
-	return args.Get(0).([]int64), args.Get(1).([]float32), args.Error(2)
+	ids, _ := args.Get(0).([]int64)
+	scores, _ := args.Get(1).([]float32)
+	return ids, scores, args.Error(2)
 }
 
 func (m *MockVectorDB) DeleteEmbedding(ctx context.Context, id int64) error {
@@ -66,7 +68,8 @@ type MockEmbedding struct {
 
 func (m *MockEmbedding) GenerateEmbedding(ctx context.Context, text string) ([]float32, error) {
 	args := m.Called(ctx, text)
-	return args.Get(0).([]float32), args.Error(1)
+	embedding, _ := args.Get(0).([]float32)
+	return embedding, args.Error(1)
 }
 
 type MockDB struct {
@@ -96,9 +99,19 @@ func (m *MockDB) GetVideoList(ctx context.Context, userID, page int64, size int3
 	return args.Get(0).([]*model.Video), args.Get(1).(int64), args.Error(2)
 }
 
-func (m *MockDB) GetHotVideos(ctx context.Context, limit int32, category string, lastVisitCount, lastLikeCount, lastID int64) ([]*model.Video, int64, int64, int64, int64, error) {
+func (m *MockDB) GetHotVideos(
+	ctx context.Context,
+	limit int32,
+	category string,
+	lastVisitCount, lastLikeCount, lastID int64,
+) ([]*model.Video, int64, int64, int64, int64, error) {
 	args := m.Called(ctx, limit, category, lastVisitCount, lastLikeCount, lastID)
-	return args.Get(0).([]*model.Video), args.Get(1).(int64), args.Get(2).(int64), args.Get(3).(int64), args.Get(4).(int64), args.Error(5)
+	videos, _ := args.Get(0).([]*model.Video)
+	visitCount, _ := args.Get(1).(int64)
+	likeCount, _ := args.Get(2).(int64)
+	nextVisitCount, _ := args.Get(3).(int64)
+	nextLikeCount, _ := args.Get(4).(int64)
+	return videos, visitCount, likeCount, nextVisitCount, nextLikeCount, args.Error(5)
 }
 
 func (m *MockDB) IncrementVisitCount(ctx context.Context, videoID int64) error {
