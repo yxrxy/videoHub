@@ -41,15 +41,3 @@ type SocialCache interface {
 	SetUserOffline(ctx context.Context, userID int64) error
 	IsUserOnline(ctx context.Context, userID int64) (bool, error)
 }
-
-type SocialWebSocket interface {
-	Start(ctx context.Context)
-	RegisterClient(userID int64) error
-	JoinChatRoom(userID int64, roomID int64) error
-	LeaveChatRoom(userID int64, roomID int64) error
-	SendChatMessage(userID int64, roomID int64, content string, msgType int8) error
-	SendPrivateMessage(fromID int64, toID int64, content string) error
-	Broadcast(content string)
-	GetOnlineUsers() []int64
-	IsUserOnline(userID int64) bool
-}

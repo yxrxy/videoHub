@@ -5,14 +5,13 @@ import (
 )
 
 type SocialService struct {
-	db        repository.SocialDB
-	cache     repository.SocialCache
-	wsService repository.SocialWebSocket
+	db    repository.SocialDB
+	cache repository.SocialCache
 }
 
-func NewSocialService(db repository.SocialDB, cache repository.SocialCache, wsService repository.SocialWebSocket) *SocialService {
-	if db == nil || cache == nil || wsService == nil {
-		panic("socialService`s db or cache or wsService should not be nil")
+func NewSocialService(db repository.SocialDB, cache repository.SocialCache) *SocialService {
+	if db == nil || cache == nil {
+		panic("socialService`s db or cache should not be nil")
 	}
 	svc := &SocialService{
 		db:    db,

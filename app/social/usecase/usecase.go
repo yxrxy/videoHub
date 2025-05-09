@@ -9,14 +9,6 @@ import (
 )
 
 type SocialUseCase interface {
-	// WebSocket相关
-	RegisterWebSocketClient(userID int64) error
-	JoinChatRoom(userID int64, roomID int64) error
-	LeaveChatRoom(userID int64, roomID int64) error
-	GetOnlineUsers() []int64
-	IsUserOnline(userID int64) bool
-	BroadcastSystemMessage(content string)
-
 	// 私信相关
 	SendPrivateMessage(ctx context.Context, senderID, receiverID int64, content string) error
 	GetPrivateMessages(ctx context.Context, senderID, receiverID int64, page, size int32) ([]*model.PrivateMessage, error)
@@ -46,17 +38,15 @@ type SocialUseCase interface {
 }
 
 type useCase struct {
-	db        repository.SocialDB
-	cache     repository.SocialCache
-	svc       *service.SocialService
-	wsService repository.SocialWebSocket
+	db    repository.SocialDB
+	cache repository.SocialCache
+	svc   *service.SocialService
 }
 
-func NewSocialCase(db repository.SocialDB, cache repository.SocialCache, svc *service.SocialService, wsService repository.SocialWebSocket) *useCase {
+func NewSocialCase(db repository.SocialDB, cache repository.SocialCache, svc *service.SocialService) *useCase {
 	return &useCase{
-		db:        db,
-		cache:     cache,
-		svc:       svc,
-		wsService: wsService,
+		db:    db,
+		cache: cache,
+		svc:   svc,
 	}
 }
