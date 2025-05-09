@@ -118,27 +118,6 @@ var serviceMethods = map[string]kitex.MethodInfo{
 		false,
 		kitex.WithStreamingMode(kitex.StreamingNone),
 	),
-	"JoinChatRoom": kitex.NewMethodInfo(
-		joinChatRoomHandler,
-		newSocialServiceJoinChatRoomArgs,
-		newSocialServiceJoinChatRoomResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
-	"LeaveChatRoom": kitex.NewMethodInfo(
-		leaveChatRoomHandler,
-		newSocialServiceLeaveChatRoomArgs,
-		newSocialServiceLeaveChatRoomResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
-	"RegisterWebSocketClient": kitex.NewMethodInfo(
-		registerWebSocketClientHandler,
-		newSocialServiceRegisterWebSocketClientArgs,
-		newSocialServiceRegisterWebSocketClientResult,
-		false,
-		kitex.WithStreamingMode(kitex.StreamingNone),
-	),
 }
 
 var (
@@ -475,60 +454,6 @@ func newSocialServiceGetUnreadMessageCountResult() interface{} {
 	return social.NewSocialServiceGetUnreadMessageCountResult()
 }
 
-func joinChatRoomHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*social.SocialServiceJoinChatRoomArgs)
-	realResult := result.(*social.SocialServiceJoinChatRoomResult)
-	success, err := handler.(social.SocialService).JoinChatRoom(ctx, realArg.Request)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newSocialServiceJoinChatRoomArgs() interface{} {
-	return social.NewSocialServiceJoinChatRoomArgs()
-}
-
-func newSocialServiceJoinChatRoomResult() interface{} {
-	return social.NewSocialServiceJoinChatRoomResult()
-}
-
-func leaveChatRoomHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*social.SocialServiceLeaveChatRoomArgs)
-	realResult := result.(*social.SocialServiceLeaveChatRoomResult)
-	success, err := handler.(social.SocialService).LeaveChatRoom(ctx, realArg.Request)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newSocialServiceLeaveChatRoomArgs() interface{} {
-	return social.NewSocialServiceLeaveChatRoomArgs()
-}
-
-func newSocialServiceLeaveChatRoomResult() interface{} {
-	return social.NewSocialServiceLeaveChatRoomResult()
-}
-
-func registerWebSocketClientHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*social.SocialServiceRegisterWebSocketClientArgs)
-	realResult := result.(*social.SocialServiceRegisterWebSocketClientResult)
-	success, err := handler.(social.SocialService).RegisterWebSocketClient(ctx, realArg.Request)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newSocialServiceRegisterWebSocketClientArgs() interface{} {
-	return social.NewSocialServiceRegisterWebSocketClientArgs()
-}
-
-func newSocialServiceRegisterWebSocketClientResult() interface{} {
-	return social.NewSocialServiceRegisterWebSocketClientResult()
-}
-
 type kClient struct {
 	c client.Client
 }
@@ -684,36 +609,6 @@ func (p *kClient) GetUnreadMessageCount(ctx context.Context, req *social.GetUnre
 	_args.Req = req
 	var _result social.SocialServiceGetUnreadMessageCountResult
 	if err = p.c.Call(ctx, "GetUnreadMessageCount", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) JoinChatRoom(ctx context.Context, request *social.JoinChatRoomRequest) (r *social.JoinChatRoomResponse, err error) {
-	var _args social.SocialServiceJoinChatRoomArgs
-	_args.Request = request
-	var _result social.SocialServiceJoinChatRoomResult
-	if err = p.c.Call(ctx, "JoinChatRoom", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) LeaveChatRoom(ctx context.Context, request *social.LeaveChatRoomRequest) (r *social.LeaveChatRoomResponse, err error) {
-	var _args social.SocialServiceLeaveChatRoomArgs
-	_args.Request = request
-	var _result social.SocialServiceLeaveChatRoomResult
-	if err = p.c.Call(ctx, "LeaveChatRoom", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
-func (p *kClient) RegisterWebSocketClient(ctx context.Context, request *social.RegisterWebSocketClientRequest) (r *social.RegisterWebSocketClientResponse, err error) {
-	var _args social.SocialServiceRegisterWebSocketClientArgs
-	_args.Request = request
-	var _result social.SocialServiceRegisterWebSocketClientResult
-	if err = p.c.Call(ctx, "RegisterWebSocketClient", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

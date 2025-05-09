@@ -19,7 +19,7 @@ type ChromemDB struct {
 func NewChromemDB(collectionName string) (repository.VectorDB, error) {
 	db := chromem.NewDB()
 
-	// 创建集合，使用默认的OpenAI嵌入(或者您可以指定其他嵌入函数)
+	// 创建集合，使用默认的OpenAI嵌入
 	// 注意：这会需要设置OPENAI_API_KEY环境变量
 	collection, err := db.CreateCollection(collectionName, nil, nil)
 	if err != nil {

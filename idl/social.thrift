@@ -227,38 +227,6 @@ struct GetUnreadMessageCountResponse {
     2: required i64 Count                // 未读消息数
 }
 
-// 加入聊天室请求
-struct JoinChatRoomRequest {
-    1: required i64 user_id              // 用户ID
-    2: required i64 room_id              // 聊天室ID
-}
-
-// 加入聊天室响应
-struct JoinChatRoomResponse {
-    1: required model.BaseResp Base      // 基本响应信息
-}
-
-// 离开聊天室请求
-struct LeaveChatRoomRequest {
-    1: required i64 user_id              // 用户ID
-    2: required i64 room_id              // 聊天室ID
-}
-
-// 离开聊天室响应
-struct LeaveChatRoomResponse {
-    1: required model.BaseResp Base      // 基本响应信息
-}
-
-// 注册WebSocket客户端请求
-struct RegisterWebSocketClientRequest {
-    1: required i64 user_id              // 用户ID
-}
-
-// 注册WebSocket客户端响应
-struct RegisterWebSocketClientResponse {
-    1: required model.BaseResp Base      // 基本响应信息
-}
-
 // 社交服务
 service SocialService {
     // 私信相关
@@ -285,9 +253,4 @@ service SocialService {
     // 消息状态相关
     MarkMessageReadResponse MarkMessageRead(1: MarkMessageReadRequest req)
     GetUnreadMessageCountResponse GetUnreadMessageCount(1: GetUnreadMessageCountRequest req)
-
-    // 聊天室WebSocket相关
-    JoinChatRoomResponse JoinChatRoom(1: JoinChatRoomRequest request)
-    LeaveChatRoomResponse LeaveChatRoom(1: LeaveChatRoomRequest request)
-    RegisterWebSocketClientResponse RegisterWebSocketClient(1: RegisterWebSocketClientRequest request)
 }

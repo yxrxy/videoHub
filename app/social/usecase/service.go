@@ -2,42 +2,10 @@ package usecase
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"github.com/yxrxy/videoHub/app/social/domain/model"
-	"github.com/yxrxy/videoHub/app/social/infrastructure/ws"
 )
-
-// RegisterWebSocketClient 注册WebSocket客户端
-func (s *useCase) RegisterWebSocketClient(userID int64) error {
-	return s.wsService.RegisterClient(userID)
-}
-
-// JoinChatRoom 加入聊天室
-func (s *useCase) JoinChatRoom(userID int64, roomID int64) error {
-	return s.wsService.JoinChatRoom(userID, roomID)
-}
-
-// LeaveChatRoom 离开聊天室
-func (s *useCase) LeaveChatRoom(userID int64, roomID int64) error {
-	return s.wsService.LeaveChatRoom(userID, roomID)
-}
-
-// GetOnlineUsers 获取在线用户列表
-func (s *useCase) GetOnlineUsers() []int64 {
-	return s.wsService.GetOnlineUsers()
-}
-
-// IsUserOnline 检查用户是否在线
-func (s *useCase) IsUserOnline(userID int64) bool {
-	return s.wsService.IsUserOnline(userID)
-}
-
-// BroadcastSystemMessage 广播系统消息
-func (s *useCase) BroadcastSystemMessage(content string) {
-	s.wsService.Broadcast(content)
-}
 
 // SendPrivateMessage 私信相关
 func (s *useCase) SendPrivateMessage(ctx context.Context, senderID, receiverID int64, content string) error {
@@ -229,7 +197,7 @@ func (s *useCase) GetUserFriends(ctx context.Context, userID int64) ([]*model.Fr
 	return domainFriendships, nil
 }
 
-// 好友申请相关
+// 好友申请相关 gateway
 func (s *useCase) CreateFriendRequest(ctx context.Context, senderID, receiverID int64, message string) error {
 	request := &model.FriendRequest{
 		SenderID:   senderID,
@@ -241,23 +209,6 @@ func (s *useCase) CreateFriendRequest(ctx context.Context, senderID, receiverID 
 		return err
 	}
 
-	// 序列化消息
-	wsMsg := &ws.Message{
-		Type:    ws.MessageTypeFriendRequest,
-		From:    senderID,
-		To:      receiverID,
-		Content: message,
-	}
-	data, err := json.Marshal(wsMsg)
-	if err != nil {
-		return err
-	}
-
-	// 发送序列化后的消息
-	err = s.wsService.SendPrivateMessage(senderID, receiverID, string(data))
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

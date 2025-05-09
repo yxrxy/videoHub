@@ -26,9 +26,6 @@ type Client interface {
 	HandleFriendRequest(ctx context.Context, req *social.HandleFriendRequestRequest, callOptions ...callopt.Option) (r *social.HandleFriendRequestResponse, err error)
 	MarkMessageRead(ctx context.Context, req *social.MarkMessageReadRequest, callOptions ...callopt.Option) (r *social.MarkMessageReadResponse, err error)
 	GetUnreadMessageCount(ctx context.Context, req *social.GetUnreadMessageCountRequest, callOptions ...callopt.Option) (r *social.GetUnreadMessageCountResponse, err error)
-	JoinChatRoom(ctx context.Context, request *social.JoinChatRoomRequest, callOptions ...callopt.Option) (r *social.JoinChatRoomResponse, err error)
-	LeaveChatRoom(ctx context.Context, request *social.LeaveChatRoomRequest, callOptions ...callopt.Option) (r *social.LeaveChatRoomResponse, err error)
-	RegisterWebSocketClient(ctx context.Context, request *social.RegisterWebSocketClientRequest, callOptions ...callopt.Option) (r *social.RegisterWebSocketClientResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -133,19 +130,4 @@ func (p *kSocialServiceClient) MarkMessageRead(ctx context.Context, req *social.
 func (p *kSocialServiceClient) GetUnreadMessageCount(ctx context.Context, req *social.GetUnreadMessageCountRequest, callOptions ...callopt.Option) (r *social.GetUnreadMessageCountResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetUnreadMessageCount(ctx, req)
-}
-
-func (p *kSocialServiceClient) JoinChatRoom(ctx context.Context, request *social.JoinChatRoomRequest, callOptions ...callopt.Option) (r *social.JoinChatRoomResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.JoinChatRoom(ctx, request)
-}
-
-func (p *kSocialServiceClient) LeaveChatRoom(ctx context.Context, request *social.LeaveChatRoomRequest, callOptions ...callopt.Option) (r *social.LeaveChatRoomResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.LeaveChatRoom(ctx, request)
-}
-
-func (p *kSocialServiceClient) RegisterWebSocketClient(ctx context.Context, request *social.RegisterWebSocketClientRequest, callOptions ...callopt.Option) (r *social.RegisterWebSocketClientResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.RegisterWebSocketClient(ctx, request)
 }

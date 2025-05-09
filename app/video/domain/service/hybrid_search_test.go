@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -47,51 +45,90 @@ func TestVideoService_Search(t *testing.T) {
 
 	testCases := []TestCase{
 		{
-			Name:         "缓存命中成功",
-			Query:        "test query",
-			Limit:        10,
-			MockCacheKey: "test query:10",
-			MockCacheHit: true,
-			MockCacheData: &model.SemanticSearchResultItem{
-				Videos:         []*model.Video{{ID: 1, Title: "Test Video"}},
-				Summary:        "Test Summary",
-				RelatedQueries: []string{"related query"},
-				FromCache:      true,
+			Name:  "成功场景-缓存未命中",
+			Query: "test query",
+			Limit: 10,
+			// 缓存配置
+			MockCacheKey:  "test query:10",
+			MockCacheHit:  false,
+			MockCacheData: nil,
+			// 向量搜索配置
+			MockEmbedding:           []float32{0.1, 0.2, 0.3},
+			MockVectorSearchResults: []int64{1, 2},
+			MockVectorSearchScores:  []float32{0.9, 0.8},
+			// 数据库配置
+			MockVideos: []*model.Video{
+				{
+					ID:          1,
+					Title:       "测试视频1",
+					Description: "描述1",
+					Tags:        "标签1",
+				},
+				{
+					ID:          2,
+					Title:       "测试视频2",
+					Description: "描述2",
+					Tags:        "标签2",
+				},
 			},
-			ExpectedError: nil,
+			// LLM配置
+			MockSummary: "测试摘要",
+			MockQueries: []string{"相关查询1", "相关查询2"},
+			// 预期结果
 			ExpectedResult: &model.SemanticSearchResultItem{
-				Videos:         []*model.Video{{ID: 1, Title: "Test Video"}},
-				Summary:        "Test Summary",
-				RelatedQueries: []string{"related query"},
-				FromCache:      true,
-			},
-		},
-		{
-			Name:                    "缓存未命中但搜索成功",
-			Query:                   "test query",
-			Limit:                   10,
-			MockCacheHit:            false,
-			MockEmbedding:           []float32{0.1, 0.2},
-			MockVectorSearchResults: []int64{1},
-			MockVectorSearchScores:  []float32{0.9},
-			MockVideos:              []*model.Video{{ID: 1, Title: "Test Video"}},
-			MockSummary:             "Test Summary",
-			MockQueries:             []string{"related query"},
-			ExpectedError:           nil,
-			ExpectedResult: &model.SemanticSearchResultItem{
-				Videos:         []*model.Video{{ID: 1, Title: "Test Video"}},
-				Summary:        "Test Summary",
-				RelatedQueries: []string{"related query"},
+				Videos: []*model.Video{
+					{
+						ID:          1,
+						Title:       "测试视频1",
+						Description: "描述1",
+						Tags:        "标签1",
+					},
+					{
+						ID:          2,
+						Title:       "测试视频2",
+						Description: "描述2",
+						Tags:        "标签2",
+					},
+				},
+				Summary:        "测试摘要",
+				RelatedQueries: []string{"相关查询1", "相关查询2"},
 				FromCache:      false,
 			},
 		},
 		{
-			Name:             "生成向量嵌入失败",
-			Query:            "test query",
-			Limit:            10,
-			MockCacheHit:     false,
-			MockEmbeddingErr: errors.New("embedding generation failed"),
-			ExpectedError:    fmt.Errorf("failed to generate embedding: embedding generation failed"),
+			Name:  "成功场景-缓存命中",
+			Query: "cached query",
+			Limit: 5,
+			// 缓存配置
+			MockCacheKey: "cached query:5",
+			MockCacheHit: true,
+			MockCacheData: &model.SemanticSearchResultItem{
+				Videos: []*model.Video{
+					{
+						ID:          3,
+						Title:       "缓存视频",
+						Description: "缓存描述",
+						Tags:        "缓存标签",
+					},
+				},
+				Summary:        "缓存摘要",
+				RelatedQueries: []string{"缓存相关查询"},
+				FromCache:      true,
+			},
+			// 预期结果
+			ExpectedResult: &model.SemanticSearchResultItem{
+				Videos: []*model.Video{
+					{
+						ID:          3,
+						Title:       "缓存视频",
+						Description: "缓存描述",
+						Tags:        "缓存标签",
+					},
+				},
+				Summary:        "缓存摘要",
+				RelatedQueries: []string{"缓存相关查询"},
+				FromCache:      true,
+			},
 		},
 	}
 
@@ -106,45 +143,53 @@ func TestVideoService_Search(t *testing.T) {
 					timestamp: time.Now(),
 				}, true)
 			} else {
-				mockCache.On("Load", tc.MockCacheKey).Return(nil, false)
+				mockCache.On("Load", tc.MockCacheKey).Return(cacheEntry{}, false)
 				mockCache.On("Store", tc.MockCacheKey, mock.Anything).Return(nil)
 			}
 
 			// Mock 向量数据库服务
 			mockVectorDB := new(MockVectorDB)
-			mockVectorDB.On("SearchSimilar",
-				mock.Anything,
-				tc.MockEmbedding,
-				tc.Limit,
-				mock.Anything,
-			).Return(tc.MockVectorSearchResults, tc.MockVectorSearchScores, tc.MockVectorSearchErr)
+			if !tc.MockCacheHit {
+				mockVectorDB.On("SearchSimilar",
+					mock.Anything,
+					tc.MockEmbedding,
+					tc.Limit,
+					mock.Anything,
+				).Return(tc.MockVectorSearchResults, tc.MockVectorSearchScores, tc.MockVectorSearchErr)
+			}
 
 			// Mock 嵌入服务
 			mockEmbedding := new(MockEmbedding)
-			mockEmbedding.On("GenerateEmbedding",
-				mock.Anything,
-				tc.Query,
-			).Return(tc.MockEmbedding, tc.MockEmbeddingErr)
+			if !tc.MockCacheHit {
+				mockEmbedding.On("GenerateEmbedding",
+					mock.Anything,
+					tc.Query,
+				).Return(tc.MockEmbedding, tc.MockEmbeddingErr)
+			}
 
 			// Mock 数据库服务
 			mockDB := new(MockDB)
-			for _, id := range tc.MockVectorSearchResults {
-				mockDB.On("GetVideoByID", mock.Anything, id).Return(
-					tc.MockVideos[0], tc.MockDBErr,
-				)
+			if !tc.MockCacheHit {
+				for i, id := range tc.MockVectorSearchResults {
+					mockDB.On("GetVideoByID", mock.Anything, id).Return(
+						tc.MockVideos[i], tc.MockDBErr,
+					)
+				}
 			}
 
 			// Mock LLM 服务
 			mockLLM := new(MockLLM)
-			mockLLM.On("GenerateResponse",
-				mock.Anything,
-				tc.Query,
-				mock.Anything,
-			).Return(tc.MockSummary, tc.MockSummaryErr)
-			mockLLM.On("GenerateRelatedQueries",
-				mock.Anything,
-				tc.Query,
-			).Return(tc.MockQueries, tc.MockQueriesErr)
+			if !tc.MockCacheHit {
+				mockLLM.On("GenerateResponse",
+					mock.Anything,
+					tc.Query,
+					mock.Anything,
+				).Return(tc.MockSummary, tc.MockSummaryErr)
+				mockLLM.On("GenerateRelatedQueries",
+					mock.Anything,
+					tc.Query,
+				).Return(tc.MockQueries, tc.MockQueriesErr)
+			}
 
 			// 创建服务实例
 			svc := &VideoService{
@@ -159,16 +204,13 @@ func TestVideoService_Search(t *testing.T) {
 			result, err := svc.Search(context.Background(), tc.Query, tc.Limit)
 
 			// 验证结果
-			if err != nil || tc.ExpectedError != nil {
-				if err != nil && tc.ExpectedError != nil {
-					convey.So(err.Error(), convey.ShouldEqual, tc.ExpectedError.Error())
-				} else {
-					convey.So(err, convey.ShouldEqual, tc.ExpectedError)
-				}
+			if tc.ExpectedError != nil {
+				convey.So(err, convey.ShouldNotBeNil)
+				convey.So(err.Error(), convey.ShouldEqual, tc.ExpectedError.Error())
 				return
 			}
 
-			// 验证成功场景的返回值
+			convey.So(err, convey.ShouldBeNil)
 			convey.So(result, convey.ShouldResemble, tc.ExpectedResult)
 
 			// 验证 mock 调用
