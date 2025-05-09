@@ -5,7 +5,6 @@ import (
 	"github.com/yxrxy/videoHub/app/social/domain/service"
 	"github.com/yxrxy/videoHub/app/social/infrastructure/cache"
 	"github.com/yxrxy/videoHub/app/social/infrastructure/mysql"
-	"github.com/yxrxy/videoHub/app/social/infrastructure/ws"
 	"github.com/yxrxy/videoHub/app/social/usecase"
 	"github.com/yxrxy/videoHub/config"
 	"github.com/yxrxy/videoHub/kitex_gen/social"
@@ -25,11 +24,8 @@ func InjectSocialHandler() social.SocialService {
 	db := mysql.NewSocialDB(gormDB)
 	cache0 := cache.NewSocialCache(re)
 
-	manager := ws.NewManager()
-	wsService := ws.NewWsService(manager)
-
-	svc := service.NewSocialService(db, cache0, wsService)
-	uc := usecase.NewSocialCase(db, cache0, svc, wsService)
+	svc := service.NewSocialService(db, cache0)
+	uc := usecase.NewSocialCase(db, cache0, svc)
 
 	return rpc.NewSocialHandler(uc)
 }

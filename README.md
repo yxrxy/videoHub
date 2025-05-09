@@ -105,9 +105,9 @@ cd videoHub
 
 2. 配置环境变量
 ```bash
-cp docker/env/example.env docker/env/.env
+cp config/config.yaml.example config/config.yaml
 # 修改配置，包括：
-# - openai keys, upyun keys (将config.ymal.example重命名为cinfig.yaml后修改)
+# - openai keys, upyun keys
 ```
 
 3. 启动基础服务
@@ -128,70 +128,146 @@ make gateway     # 启动网关服务
 ### 目录结构
 ```
 .
-├── app                     # 应用服务目录
-│   ├── gateway            # API 网关服务
-│   │   ├── handler       # 请求处理器
-│   │   ├── model         # 数据模型
-│   │   ├── mw            # 中间件
-│   │   ├── pack         # 数据打包工具
-│   │   ├── router       # 路由配置
-│   │   ├── rpc          # RPC 客户端
-│   │   └── ws           # WebSocket 处理
-│   ├── interaction       # 互动服务
-│   │   ├── controllers  # 控制器
-│   │   ├── domain       # 领域模型
-│   │   ├── infrastructure # 基础设施
-│   │   └── usecase      # 用例实现
-│   ├── social           # 社交服务
-│   │   ├── controllers  # 控制器
-│   │   ├── domain       # 领域模型
-│   │   ├── infrastructure # 基础设施
-│   │   └── usecase      # 用例实现
-│   ├── user             # 用户服务
-│   │   ├── controllers  # 控制器
-│   │   ├── domain       # 领域模型
-│   │   ├── infrastructure # 基础设施
-│   │   └── usecase      # 用例实现
-│   └── video            # 视频服务
-│       ├── controllers  # 控制器
-│       ├── domain       # 领域模型
-│       ├── infrastructure # 基础设施
-│       └── usecase      # 用例实现
-├── cmd                    # 主程序入口
-│   ├── gateway           # 网关服务入口
-│   ├── interaction       # 互动服务入口
-│   ├── social            # 社交服务入口
-│   ├── user              # 用户服务入口
-│   └── video             # 视频服务入口
-├── config                # 配置文件目录
-│   ├── elasticsearch    # ES 配置
-│   ├── kibana          # Kibana 配置
-│   ├── otel-collector  # OpenTelemetry 配置
-│   └── sql             # SQL 初始化脚本
-├── docker               # Docker 相关配置
-│   ├── data            # 数据持久化目录
-│   ├── env             # 环境变量配置
-│   └── script          # 部署和维护脚本
-├── idl                  # 接口定义文件
-│   ├── api             # API 接口定义
-│   └── model.thrift    # 公共模型定义
-├── kitex_gen           # Kitex 生成的代码
-├── pkg                 # 公共包
-│   ├── base           # 基础组件
-│   ├── constants      # 常量定义
-│   ├── errno          # 错误码
-│   ├── jwt            # JWT 工具
-│   ├── kafka          # Kafka 工具
-│   ├── middleware     # 中间件
-│   ├── storage        # 存储工具
-│   ├── upyun          # 又拍云工具
-│   └── utils          # 工具函数
-└── src                # 资源文件
-    └── storage        # 存储目录
-        ├── avatars    # 头像存储
-        ├── chat       # 聊天文件
-        ├── covers     # 视频封面
-        └── videos     # 视频文件
+├── app
+│   ├── gateway
+│   │   ├── handler
+│   │   ├── model
+│   │   ├── mw
+│   │   ├── pack
+│   │   ├── router
+│   │   ├── rpc
+│   │   └── ws
+│   ├── interaction
+│   │   ├── controllers
+│   │   ├── domain
+│   │   ├── infrastructure
+│   │   ├── inject.go
+│   │   └── usecase
+│   ├── social
+│   │   ├── controllers
+│   │   ├── domain
+│   │   ├── infrastructure
+│   │   ├── inject.go
+│   │   └── usecase
+│   ├── user
+│   │   ├── controllers
+│   │   ├── domain
+│   │   ├── infrastructure
+│   │   ├── inject.go
+│   │   └── usecase
+│   └── video
+│       ├── controllers
+│       ├── domain
+│       ├── infrastructure
+│       ├── inject.go
+│       └── usecase
+├── cmd
+│   ├── gateway
+│   │   └── main.go
+│   ├── interaction
+│   │   └── main.go
+│   ├── social
+│   │   └── main.go
+│   ├── user
+│   │   └── main.go
+│   └── video
+│       └── main.go
+├── config
+│   ├── config.go
+│   ├── config.yaml.example
+│   ├── elasticsearch
+│   │   ├── config
+│   │   └── plugins
+│   ├── kibana
+│   │   ├── kibana.yml
+│   │   └── node.options
+│   ├── otel-collector
+│   │   └── otel-collector-config.yaml
+│   └── sql
+│       ├── interaction.sql
+│       ├── social.sql
+│       ├── user.sql
+│       └── video.sql
+├── docker
+│   ├── docker-compose.yml
+│   ├── Dockerfile
+│   ├── env
+│   │   ├── es.env
+│   │   ├── etcd.env
+│   │   ├── kafka.env
+│   │   ├── kibana.env
+│   │   ├── mysql.env
+│   │   └── redis.env
+│   └── script
+│       ├── build.sh
+│       ├── entrypoint.sh
+│       └── etcd-monitor.sh
+├── go.mod
+├── go.sum
+├── idl
+│   ├── api
+│   │   ├── interaction.thrift
+│   │   ├── social.thrift
+│   │   ├── user.thrift
+│   │   └── video.thrift
+│   ├── interaction.thrift
+│   ├── model.thrift
+│   ├── social.thrift
+│   ├── user.thrift
+│   └── video.thrift
+├── kitex_gen
+│   ├── interaction
+│   │   ├── interaction.go
+│   │   ├── interactionservice
+│   │   ├── k-consts.go
+│   │   └── k-interaction.go
+│   ├── model
+│   │   ├── k-consts.go
+│   │   ├── k-model.go
+│   │   └── model.go
+│   ├── social
+│   │   ├── k-consts.go
+│   │   ├── k-social.go
+│   │   ├── social.go
+│   │   └── socialservice
+│   ├── user
+│   │   ├── k-consts.go
+│   │   ├── k-user.go
+│   │   ├── user.go
+│   │   └── userservice
+│   └── video
+│       ├── k-consts.go
+│       ├── k-video.go
+│       ├── video.go
+│       └── videoservice
+├── Makefile
+├── pkg
+│   ├── base
+│   │   ├── client
+│   │   ├── context
+│   │   ├── pack.go
+│   │   └── telemetry.go
+│   ├── constants
+│   │   └── constants.go
+│   ├── errno
+│   │   ├── code.go
+│   │   ├── code_service.go
+│   │   ├── default.go
+│   │   └── errno.go
+│   ├── jwt
+│   │   └── jwt.go
+│   ├── kafka
+│   │   └── kafka.go
+│   ├── middleware
+│   │   ├── log.go
+│   │   └── respond.go
+│   ├── storage
+│   │   └── storage.go
+│   ├── upyun
+│   │   └── upyun.go
+│   └── utils
+│       └── time.go
+└── README.md
 ```
 
 测试用例请参考Apifox链接。
