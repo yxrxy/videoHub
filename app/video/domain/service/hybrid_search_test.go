@@ -8,7 +8,6 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/smartystreets/goconvey/convey"
 	"github.com/stretchr/testify/mock"
-
 	"github.com/yxrxy/videoHub/app/video/domain/model"
 )
 
