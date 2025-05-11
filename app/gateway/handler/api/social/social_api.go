@@ -17,7 +17,7 @@ import (
 	api "github.com/yxrxy/videoHub/app/gateway/model/social"
 	"github.com/yxrxy/videoHub/app/gateway/pack"
 	"github.com/yxrxy/videoHub/app/gateway/rpc"
-	"github.com/yxrxy/videoHub/app/gateway/ws"
+	"github.com/yxrxy/videoHub/app/gateway/service/ws"
 	"github.com/yxrxy/videoHub/kitex_gen/social"
 	"github.com/yxrxy/videoHub/pkg/errno"
 	"github.com/yxrxy/videoHub/pkg/jwt"

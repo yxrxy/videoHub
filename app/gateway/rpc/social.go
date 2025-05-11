@@ -213,39 +213,3 @@ func GetUnreadMessageCountRPC(ctx context.Context, req *social.GetUnreadMessageC
 	}
 	return resp.Count, nil
 }
-
-// LeaveChatRoomRPC 离开聊天室
-func LeaveChatRoomRPC(ctx context.Context, req *social.LeaveChatRoomRequest) error {
-	resp, err := socialClient.LeaveChatRoom(ctx, req)
-	if err != nil {
-		return errno.InternalServiceError.WithError(err)
-	}
-	if resp.Base.Code != errno.SuccessCode {
-		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
-	}
-	return nil
-}
-
-// RegisterWebSocketClientRPC 注册WebSocket客户端
-func RegisterWebSocketClientRPC(ctx context.Context, req *social.RegisterWebSocketClientRequest) error {
-	resp, err := socialClient.RegisterWebSocketClient(ctx, req)
-	if err != nil {
-		return errno.InternalServiceError.WithError(err)
-	}
-	if resp.Base.Code != errno.SuccessCode {
-		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
-	}
-	return nil
-}
-
-// JoinChatRoomRPC 加入聊天室
-func JoinChatRoomRPC(ctx context.Context, req *social.JoinChatRoomRequest) error {
-	resp, err := socialClient.JoinChatRoom(ctx, req)
-	if err != nil {
-		return errno.InternalServiceError.WithError(err)
-	}
-	if resp.Base.Code != errno.SuccessCode {
-		return errno.NewErrNo(resp.Base.Code, resp.Base.Msg)
-	}
-	return nil
-}
