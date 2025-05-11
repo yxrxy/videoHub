@@ -10,9 +10,10 @@ import (
 	"github.com/yxrxy/videoHub/app/video/domain/model"
 )
 
-type cacheEntry struct {
-	result    *model.SemanticSearchResultItem
-	timestamp time.Time
+// CacheEntry represents a cached search result with timestamp
+type CacheEntry struct {
+	Result    *model.SemanticSearchResultItem `json:"result"`
+	Timestamp time.Time                       `json:"timestamp"`
 }
 
 func (s *VideoService) Search(
@@ -23,11 +24,11 @@ func (s *VideoService) Search(
 	// 检查缓存
 	cacheKey := fmt.Sprintf("%s:%d", query, limit)
 	if entry, ok := s.cache.Load(cacheKey); ok {
-		if ce, ok := entry.(cacheEntry); ok {
+		if ce, ok := entry.(CacheEntry); ok {
 			// 10分钟内的有效
-			if time.Since(ce.timestamp) < 10*time.Minute {
-				ce.result.FromCache = true
-				return ce.result, nil
+			if time.Since(ce.Timestamp) < 10*time.Minute {
+				ce.Result.FromCache = true
+				return ce.Result, nil
 			}
 			if s.cache.Delete(cacheKey) != nil {
 				return nil, fmt.Errorf("删除缓存失败")
@@ -180,9 +181,9 @@ func (s *VideoService) Search(
 	}
 
 	// 缓存结果
-	err := s.cache.Store(cacheKey, cacheEntry{
-		result:    result,
-		timestamp: time.Now(),
+	err := s.cache.Store(cacheKey, CacheEntry{
+		Result:    result,
+		Timestamp: time.Now(),
 	})
 	if err != nil {
 		return nil, err
