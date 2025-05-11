@@ -1,8 +1,6 @@
-# 忽略MySQL数据目录
 docker/data/mysql/
 docker/data/mysql/*
 
-# 其他常规忽略项
 .git
 .gitignore
 .env
