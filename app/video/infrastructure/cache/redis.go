@@ -2,12 +2,14 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/yxrxy/videoHub/app/video/domain/repository"
+	"github.com/yxrxy/videoHub/app/video/domain/service"
 	"github.com/yxrxy/videoHub/pkg/constants"
 )
 
@@ -98,7 +100,11 @@ func (v *VideoCache) Load(key string) (interface{}, bool) {
 	if err != nil {
 		return nil, false
 	}
-	return value, true
+	var entry service.CacheEntry
+	if err := json.Unmarshal([]byte(value), &entry); err != nil {
+		return nil, false
+	}
+	return entry, true
 }
 
 func (v *VideoCache) Delete(key string) error {
@@ -106,7 +112,11 @@ func (v *VideoCache) Delete(key string) error {
 }
 
 func (v *VideoCache) Store(key string, value interface{}) error {
-	return v.client.Set(context.Background(), key, value, 0).Err()
+	data, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	return v.client.Set(context.Background(), key, data, 0).Err()
 }
 
 func (v *VideoCache) Range(f func(key, value interface{}) bool) {

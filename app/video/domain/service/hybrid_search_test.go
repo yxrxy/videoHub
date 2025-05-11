@@ -137,12 +137,12 @@ func TestVideoService_Search(t *testing.T) {
 			// Mock 缓存服务
 			mockCache := new(MockCache)
 			if tc.MockCacheHit {
-				mockCache.On("Load", tc.MockCacheKey).Return(cacheEntry{
-					result:    tc.MockCacheData,
-					timestamp: time.Now(),
+				mockCache.On("Load", tc.MockCacheKey).Return(CacheEntry{
+					Result:    tc.MockCacheData,
+					Timestamp: time.Now(),
 				}, true)
 			} else {
-				mockCache.On("Load", tc.MockCacheKey).Return(cacheEntry{}, false)
+				mockCache.On("Load", tc.MockCacheKey).Return(CacheEntry{}, false)
 				mockCache.On("Store", tc.MockCacheKey, mock.Anything).Return(nil)
 			}
 

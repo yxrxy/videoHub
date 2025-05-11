@@ -5,27 +5,27 @@ import (
 )
 
 type Video struct {
-	ID           int64
-	UserID       int64
-	VideoURL     string
-	CoverURL     string
-	Title        string
-	Description  string
-	Duration     int64
-	Category     string
-	Tags         string
-	VisitCount   int64
-	LikeCount    int64
-	CommentCount int64
-	IsPrivate    bool
+	ID           int64  `json:"id"`
+	UserID       int64  `json:"user_id"`
+	VideoURL     string `json:"video_url"`
+	CoverURL     string `json:"cover_url"`
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	Duration     int64  `json:"duration"`
+	Category     string `json:"category"`
+	Tags         string `json:"tags"`
+	VisitCount   int64  `json:"visit_count"`
+	LikeCount    int64  `json:"like_count"`
+	CommentCount int64  `json:"comment_count"`
+	IsPrivate    bool   `json:"is_private"`
 }
 
 // 语义搜索结果项
 type SemanticSearchResultItem struct {
-	Videos         []*Video
-	Summary        string
-	RelatedQueries []string
-	FromCache      bool
+	Videos         []*Video `json:"videos"`
+	Summary        string   `json:"summary"`
+	RelatedQueries []string `json:"related_queries"`
+	FromCache      bool     `json:"from_cache"`
 }
 
 type VideoES struct {
