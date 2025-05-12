@@ -271,3 +271,102 @@ make gateway     # 启动网关服务
 ```
 
 测试用例请参考Apifox链接。
+
+## 云部署指南
+
+### 云服务器要求
+- Ubuntu 20.04/22.04 LTS
+- 80/443端口开放（用于HTTP/HTTPS服务）
+
+### 云服务商选择
+推荐使用以下云服务商：
+- 阿里云 ECS
+- 腾讯云 CVM
+- 华为云 ECS
+- AWS EC2
+
+### 部署步骤
+
+1. 服务器初始化
+```bash
+# 更新系统
+sudo apt update && sudo apt upgrade -y
+
+# 安装必要工具
+sudo apt install -y git make docker.io
+
+# 安装 Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# 启动 Docker 服务
+sudo systemctl start docker
+sudo systemctl enable docker
+```
+
+2. 配置HTTPS证书
+```bash
+# 安装 Certbot
+sudo apt install -y certbot
+
+# 获取证书（替换为你的域名）
+sudo certbot certonly --standalone -d 「your-domain.com」
+```
+
+3. 修改配置文件
+```bash
+# 修改 config/config.yaml 中的配置
+vim config/config.yaml
+
+# 主要修改以下配置：
+# - 数据库连接信息
+# - Redis连接信息
+# - OpenAI API Key
+# - 又拍云配置
+```
+
+4. 使用 Docker Compose 部署
+```bash
+# 启动基础设施服务（MySQL、Redis、Elasticsearch、Kafka、etcd）
+make env-up
+
+# 分别启动各个微服务
+make user        # 启动用户服务
+make video       # 启动视频服务
+make interaction # 启动评论，点赞(视频交互)服务
+make social      # 启动社交服务
+make gateway     # 启动网关服务
+
+# 查看服务状态
+docker-compose ps
+```
+
+### 常见问题
+
+1. 服务无法访问
+- 检查安全组端口是否开放
+- 检查 Docker 容器状态
+- 查看服务日志：`docker-compose logs [service_name]`
+
+### 运维命令
+
+```bash
+# 查看所有服务状态
+docker-compose ps
+
+# 重启特定服务
+docker-compose restart [service_name]
+
+# 查看服务日志
+docker-compose logs -f [service_name]
+
+# 进入容器
+docker-compose exec [service_name] bash
+
+# 更新服务
+git pull
+然后重新启动
+
+# 清理日志和临时文件
+docker system prune
+```
