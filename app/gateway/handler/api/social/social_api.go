@@ -293,6 +293,7 @@ func GetFriendRequests(ctx context.Context, c *app.RequestContext) {
 
 	resp, _, err := rpc.GetFriendRequestsRPC(ctx, &social.GetFriendRequestsRequest{
 		UserId: req.UserID,
+		Type:   req.Type,
 		Page:   req.Page,
 		Size:   req.Size,
 	})

@@ -97,6 +97,8 @@ API文档: https://2pr5l6um26.apifox.cn
 
 ### 快速开始
 
+注意事项：嵌入式向量数据库没有持久化功能，使用词意搜索前请至少上传五个视频（服务启动后）
+
 1. 克隆项目
 ```bash
 git clone https://github.com/yxrxy/videoHub.git
@@ -106,6 +108,7 @@ cd videoHub
 2. 配置环境变量
 ```bash
 cp config/config.yaml.example config/config.yaml
+mkdir -p docker/data/elasticsearch && sudo chown -R 1000:1000 docker/data/elasticsearch
 # 修改配置，包括：
 # - openai keys, upyun keys
 ```
@@ -123,6 +126,16 @@ make video       # 启动视频服务
 make interaction #启动评论，点赞(视频交互)服务
 make social      # 启动社交服务
 make gateway     # 启动网关服务
+
+make frontend-build #docker构建前端
+make frontend #启动前端服务
+（或直接在web目录下运行npm run dev，访问http://localhost:3000）
+```
+
+5. 访问前端页面
+
+```
+http://localhost:80
 ```
 
 ### 目录结构
@@ -336,6 +349,9 @@ make video       # 启动视频服务
 make interaction # 启动评论，点赞(视频交互)服务
 make social      # 启动社交服务
 make gateway     # 启动网关服务
+
+make frontend-build #docker构建前端
+make frontend #启动前端服务
 
 # 查看服务状态
 docker-compose ps
