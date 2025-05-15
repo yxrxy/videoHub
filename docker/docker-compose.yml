@@ -77,14 +77,15 @@ services:
   elasticsearch:
     image: elasticsearch:8.4.2
     container_name: videohub-elasticsearch
+    user: "1000:1000"  # 使用当前用户的UID和GID
     env_file:
       - ./env/es.env
     healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://elasticsearch:9200/_cluster/health || exit 1" ] # ⼼跳检测，成功之后不再执⾏后⾯的退出
-      interval: 60s # ⼼跳检测间隔周期
+      test: [ "CMD-SHELL", "curl -sf http://elasticsearch:9200/_cluster/health || exit 1" ]
+      interval: 60s
       timeout: 10s
       retries: 3
-      start_period: 60s # ⾸次检测延迟时间
+      start_period: 60s
     ulimits:
       memlock:
         soft: -1
@@ -115,6 +116,21 @@ services:
     networks:
       - videohub
     mem_limit: 350m
+    
+  frontend:
+    container_name: videohub-frontend
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "80:80"
+    restart: always
+    networks:
+      - videohub
+    volumes:
+      - ../config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    env_file:
+      - "./env/frontend.env"
 
 networks:
   videohub:

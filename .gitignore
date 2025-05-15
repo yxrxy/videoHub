@@ -3,12 +3,13 @@
 *.so
 _obj
 config/config.yaml
+config/config.yaml.bak
 _test
 *.[568vq]
 [568vq].out
 *.cgo1.go
 *.cgo2.c
-src/
+src/storage/
 _cgo_defun.c
 _cgo_gotypes.go
 _cgo_export.*
@@ -38,3 +39,12 @@ dumped_hertz_remote_config.json
 docker/data/
 docker/data/mysql/
 docker/data/mysql/*
+node_modules/
+dist/
+.DS_Store
+.env.local
+.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
