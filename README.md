@@ -37,12 +37,23 @@ API文档: https://2pr5l6um26.apifox.cn
 
 ## 技术栈
 
+### 后端
 - **语言与框架**: Go 1.21, Kitex(RPC), Hertz(HTTP), Thrift(IDL)
 - **数据存储**: MySQL(GORM), Redis, Elasticsearch
 - **中间件**: Kafka, etcd, JWT
 - **AI与搜索**: OpenAI API, 向量检索
 - **监控**: OpenTelemetry
 - **部署**: Docker, Docker Compose
+
+### 前端
+- **框架**: Vue 3
+- **构建工具**: Vite
+- **UI组件库**: Element Plus
+- **状态管理**: Pinia
+- **路由**: Vue Router
+- **HTTP客户端**: Axios
+- **样式**: SCSS
+- **包管理器**: npm
 
 ## 系统架构
 
