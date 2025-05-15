@@ -105,8 +105,7 @@ func (s *SocialDB) GetChatRoom(ctx context.Context, roomID int64) (*model.ChatRo
 func (s *SocialDB) GetUserChatRooms(ctx context.Context, userID int64) ([]model.ChatRoom, error) {
 	var dbRooms []ChatRoom
 	if err := s.db.WithContext(ctx).
-		Joins("JOIN chat_room_members ON chat_rooms.id = chat_room_members.room_id").
-		Where("chat_room_members.user_id = ?", userID).
+		Where("NOT (chat_rooms.id = -1 AND chat_rooms.creator_id != ?)", userID).
 		Preload("Members").
 		Find(&dbRooms).Error; err != nil {
 		return nil, err
@@ -212,8 +211,8 @@ func (s *SocialDB) GetFriendship(ctx context.Context, userID, friendID int64) (*
 func (s *SocialDB) GetUserFriends(ctx context.Context, userID int64) ([]model.Friendship, error) {
 	var dbFriendships []Friendship
 	if err := s.db.WithContext(ctx).
-		Where("(user_id = ? OR friend_id = ?) AND status = ?",
-			userID, userID, model.FriendStatusAccepted).
+		Where("(user_id = ? OR friend_id = ?)",
+			userID, userID).
 		Find(&dbFriendships).Error; err != nil {
 		return nil, err
 	}

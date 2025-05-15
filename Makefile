@@ -143,3 +143,24 @@ vulncheck:
 .PHONY: tidy
 tidy:
 	go mod tidy
+
+# 前端服务相关命令
+.PHONY: frontend frontend-stop frontend-build
+
+# 启动前端服务
+frontend:
+	@echo "$(PREFIX) Building and starting frontend service..."
+	@cd docker && docker compose up -d frontend
+	@echo "$(PREFIX) Frontend service is running at http://localhost:80"
+
+# 停止前端服务
+frontend-stop:
+	@echo "$(PREFIX) Stopping frontend service..."
+	@cd docker && docker compose stop frontend && docker compose rm -f frontend
+	@echo "$(PREFIX) Frontend service has been stopped"
+
+# 构建前端服务
+frontend-build:
+	@echo "$(PREFIX) Building frontend service..."
+	@cd docker && docker compose build --no-cache frontend
+	@echo "$(PREFIX) Frontend service build completed"
