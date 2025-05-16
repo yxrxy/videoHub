@@ -24,7 +24,11 @@
     </div>
     <div class="user-info" v-if="userStore.isLoggedIn">
       <div class="avatar" @click="showUserMenu = !showUserMenu">
-        <img :src="userStore.getAvatar" :alt="userStore.getUsername">
+        <img 
+          :src="userStore.getAvatar || defaultAvatar" 
+          :alt="userStore.getUsername"
+          @error="handleAvatarError"
+        >
         <div class="user-menu" v-if="showUserMenu">
           <div class="menu-item" @click="$router.push('/profile')">个人资料</div>
           <div class="menu-item" @click="$router.push('/video/list?type=my')">我的视频</div>
@@ -56,6 +60,7 @@ export default {
     const userStore = useUserStore()
     const showUserMenu = ref(false)
     const searchKeyword = ref('')
+    const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMCAyMXYtMmE0IDQgMCAwIDAtNC00SDhhNCA0IDAgMCAwLTQgNHYyIj48L3BhdGg+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ij48L2NpcmNsZT48L3N2Zz4='
 
     const handleLogout = () => {
       userStore.logout()
@@ -69,6 +74,10 @@ export default {
           query: { q: searchKeyword.value.trim() }
         })
       }
+    }
+
+    const handleAvatarError = (e) => {
+      e.target.src = defaultAvatar
     }
 
     onMounted(() => {
@@ -116,7 +125,9 @@ export default {
       showUserMenu,
       searchKeyword,
       handleLogout,
-      handleSearch
+      handleSearch,
+      defaultAvatar,
+      handleAvatarError
     }
   }
 }

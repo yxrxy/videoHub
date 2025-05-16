@@ -115,6 +115,7 @@ import { ElMessage } from 'element-plus'
 import { formatDate, formatNumber } from '@/utils/format'
 import { Loading, CaretTop, Share, Star } from '@element-plus/icons-vue'
 import { videoApi } from '@/api/video'
+import { userApi } from '@/api/user'
 import { useUserStore } from '@/store/user'
 import defaultAvatar from '@/assets/images/default.jpg'
 import defaultCover from '@/assets/images/default.jpg'
@@ -131,6 +132,30 @@ const commentLoading = ref(false)
 const likeLoading = ref(false)
 const followLoading = ref(false)
 
+// 获取用户信息
+const fetchAuthorInfo = async (userId) => {
+  try {
+    const response = await userApi.getUserInfo({ user_id: userId })
+    if (response?.code === '10000' && response?.data) {
+      const authorData = response.data
+      return {
+        id: authorData.id,
+        username: authorData.username,
+        avatar: authorData.avatar || defaultAvatar,
+        is_following: authorData.isFollow || false,
+        followCount: authorData.followCount || 0,
+        followerCount: authorData.followerCount || 0,
+        videoCount: authorData.videoCount || 0,
+        likeCount: authorData.likeCount || 0
+      }
+    }
+    return null
+  } catch (error) {
+    console.error('获取作者信息失败:', error)
+    return null
+  }
+}
+
 // 获取视频详情
 const fetchVideoDetail = async () => {
   loading.value = true
@@ -140,46 +165,33 @@ const fetchVideoDetail = async () => {
       const data = response.data
       
       // 调试输出原始数据
-      console.log('原始视频详情数据:', data);
+      console.log('原始视频详情数据:', data)
       
-      // 处理封面URL - 后端返回的是coverUrl
+      // 处理封面URL
       let coverUrl = data.coverUrl || defaultCover
-      
-      // 如果包含视频路径，则替换为封面路径
       if (coverUrl && coverUrl.includes('/videos/')) {
         coverUrl = coverUrl.replace('/videos/', '/covers/')
       }
       
-      // 确保URL格式正确
-      if (coverUrl && !coverUrl.startsWith('http') && !coverUrl.startsWith('/')) {
-        coverUrl = `/covers/${coverUrl}`
-      }
-      
-      // 处理视频URL - 后端返回的是playUrl
-      // 确保使用完整的URL路径
+      // 处理视频URL
       let playUrl = data.playUrl || ''
+
+      // 获取作者ID
+      const authorId = data.authorId || (data.author && data.author.id)
       
-      // 确保URL格式正确
-      if (playUrl && !playUrl.startsWith('http') && !playUrl.startsWith('/')) {
-        playUrl = `/videos/${playUrl}`
+      // 获取作者详细信息
+      let authorInfo = null
+      if (authorId) {
+        authorInfo = await fetchAuthorInfo(authorId)
       }
 
-      console.log('处理后的视频URL:', {
-        coverUrl,
-        playUrl,
-        originalCover: data.coverUrl,
-        originalPlay: data.playUrl,
-      })
-
-      // 确保有用户ID
-      let authorId = data.authorId;
-      
-      // 如果不存在authorId，尝试从author对象获取
-      if ((!authorId || authorId === 0) && data.author && data.author.id) {
-        authorId = data.author.id;
+      // 如果获取不到作者信息，使用视频中的基本信息
+      const author = authorInfo || {
+        id: authorId,
+        username: data.author?.username || '未知用户',
+        avatar: data.author?.avatarUrl || defaultAvatar,
+        is_following: data.author?.isFollow || false
       }
-      
-      console.log('视频作者ID:', authorId);
 
       videoData.value = {
         id: data.id,
@@ -188,18 +200,15 @@ const fetchVideoDetail = async () => {
         cover_url: coverUrl,
         play_url: playUrl,
         visit_count: parseInt(data.visitCount || 0),
-        like_count: parseInt(data.favoriteCount || 0), // 注意：后端是favoriteCount
+        like_count: parseInt(data.favoriteCount || 0),
         comment_count: parseInt(data.commentCount || 0),
         created_at: data.createdAt || Date.now(),
-        is_liked: data.isFavorite || false, // 注意：后端是isFavorite
-        authorId: authorId, // 直接存储authorId
-        author: {
-          id: authorId, // 确保author对象中也有正确的id
-          username: data.author?.username || '未知用户',
-          avatar: data.author?.avatar || defaultAvatar,
-          is_following: data.author?.isFollow || false // 注意：后端是isFollow
-        }
+        is_liked: data.isFavorite || false,
+        authorId: authorId,
+        author: author
       }
+
+      console.log('处理后的视频数据:', videoData.value)
 
       // 增加访问计数
       await videoApi.incrementVisitCount(data.id)

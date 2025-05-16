@@ -3,7 +3,11 @@
     <el-card class="profile-card">
       <div class="profile-header">
         <div class="profile-avatar">
-          <el-avatar :size="100" :src="userStore.getAvatar"></el-avatar>
+          <el-avatar 
+            :size="100" 
+            :src="userStore.getAvatar || defaultAvatar"
+            @error="handleAvatarError"
+          ></el-avatar>
           <el-upload
             class="avatar-uploader"
             :action="`${baseURL}/api/v1/user/avatar`"
@@ -45,7 +49,11 @@
         <div class="video-grid" v-if="videos && videos.length > 0">
           <div v-for="video in videos" :key="video.id" class="video-item" @click="$router.push(`/video/${video.id}`)">
             <el-card :body-style="{ padding: '0px' }">
-              <img :src="video.cover_url" class="video-cover">
+              <img 
+                :src="video.cover_url" 
+                class="video-cover"
+                @error="handleVideoCoverError"
+              >
               <div class="video-info">
                 <h3>{{ video.title }}</h3>
                 <p>{{ formatNumber(video.visit_count || 0) }}次观看 · {{ formatDate(video.created_at) }}</p>
@@ -87,6 +95,7 @@ export default {
     const userStore = useUserStore()
     const activeTab = ref('videos')
     const videos = ref([])
+    const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQwOWVmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTIwIDIxdi0yYTQgNCAwIDAgMC00LTRIOGE0IDQgMCAwIDAtNCA0djIiPjwvcGF0aD48Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiPjwvY2lyY2xlPjwvc3ZnPg=='
     const userForm = ref({
       username: userStore.getUsername,
       bio: userStore.userInfo?.bio || ''
@@ -103,7 +112,14 @@ export default {
           page: 1,
           size: 10
         })
-        videos.value = res.VideoList || []
+        console.log('获取到的视频列表:', res)
+        const videoList = res?.data || []
+        videos.value = videoList.map(video => ({
+          ...video,
+          cover_url: video.coverUrl ? video.coverUrl.replace('/videos/', '/covers/') : '',
+          play_url: video.playUrl ? `${baseURL}${video.playUrl}` : ''
+        }))
+        console.log('处理后的视频列表:', videos.value[0].cover_url)
       } catch (error) {
         console.error('获取用户视频失败:', error)
         ElMessage.error('获取视频列表失败')
@@ -112,9 +128,10 @@ export default {
 
     const handleAvatarSuccess = (res) => {
       if (res && res.data) {
+        const avatarUrl = res.data.startsWith('http') ? res.data : `${baseURL}${res.data}`
         userStore.setUserInfo({
           ...userStore.userInfo,
-          avatar: res.data
+          avatar: avatarUrl
         })
         ElMessage.success('头像更新成功')
       } else {
@@ -123,12 +140,23 @@ export default {
       }
     }
 
+    const handleAvatarError = (e) => {
+      console.log('头像加载失败，使用默认头像')
+      e.target.src = defaultAvatar
+    }
+
+    const handleVideoCoverError = (e) => {
+      console.log('视频封面加载失败，使用默认封面')
+      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQwOWVmZiIgc3Ryb2tlLXdpZHRoPSIxLjUiPjxyZWN0IHg9IjIiIHk9IjIiIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgcng9IjIuMTgiIHJ5PSIyLjE4Ii8+PGxpbmUgeDE9IjciIHkxPSIyIiB4Mj0iNyIgeTI9IjIyIi8+PHBhdGggZD0iTTIgN2gyMCIvPjwvc3ZnPg=='
+    }
+
     onMounted(async () => {
       console.log('Profile 组件挂载')
       console.log('当前登录状态:', { 
         isLoggedIn: userStore.isLoggedIn,
         userId: userStore.userId,
-        userInfo: userStore.userInfo
+        userInfo: userStore.userInfo,
+        baseURL
       })
       
       if (!userStore.isLoggedIn) {
@@ -141,7 +169,11 @@ export default {
         const res = await userApi.getUserInfo({ user_id: parseInt(userStore.userId) })
         console.log('获取到用户信息:', res)
         if (res && res.data) {
-          userStore.setUserInfo(res.data)
+          const userData = {
+            ...res.data,
+            avatar: res.data.avatar ? (res.data.avatar.startsWith('http') ? res.data.avatar : `${baseURL}${res.data.avatar}`) : ''
+          }
+          userStore.setUserInfo(userData)
         }
       } catch (error) {
         console.error('获取用户信息失败:', error)
@@ -160,7 +192,10 @@ export default {
       uploadHeaders,
       formatDate,
       formatNumber,
-      handleAvatarSuccess
+      handleAvatarSuccess,
+      defaultAvatar,
+      handleAvatarError,
+      handleVideoCoverError
     }
   }
 }

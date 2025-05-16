@@ -29,8 +29,8 @@ redis:
   password: "videohub"
   db:
     user: 0      # 用户服务
-    video: 1     # 视频服务
-    social: 2    # 社交服务
+    video: 0     # 视频服务
+    social: 0    # 社交服务
 
 etcd:
   addr: "127.0.0.1:2379"

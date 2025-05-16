@@ -238,7 +238,7 @@ func (s *VideoService) GetVideoDetail(ctx context.Context, videoID, userID int64
 	}
 	result := &model.Video{
 		ID:           v.ID,
-		UserID:       userID,
+		UserID:       v.UserID,
 		VideoURL:     v.VideoURL,
 		CoverURL:     v.CoverURL,
 		Title:        v.Title,
